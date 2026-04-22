@@ -1,5 +1,7 @@
-use crate::tensor_core::execution::ExecutionOutput;
+use crate::tensor_core::{ExecuteOps, InnerTensor, Tensor, TensorCore, execute::ExecuteOutput};
 
-pub fn add(a: i32, b: i32) -> ExecutionOutput {
-    ExecutionOutput(Ok(a + b))
+impl TensorCore {
+    pub fn add_execute(&self, a: &Tensor, b: &Tensor) {
+        ExecuteOps::Add(a.inner.clone(), b.inner.clone());
+    }
 }

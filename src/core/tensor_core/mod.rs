@@ -4,8 +4,8 @@ pub use core::TensorCore;
 mod pipeline;
 pub use pipeline::*;
 
-mod execution;
-pub use execution::*;
+mod execute;
+pub use execute::*;
 
 mod operations;
 pub use operations::*;

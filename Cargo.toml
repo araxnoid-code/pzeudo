@@ -4,6 +4,7 @@ version = "0.0.1"
 edition = "2024"
 
 [lib]
-path = "./src/pzeudo/mod.rs"
+path = "./src/core/mod.rs"
 
 [dependencies]
+cahotic = "0.3.0"

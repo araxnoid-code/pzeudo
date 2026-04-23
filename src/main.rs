@@ -1,7 +1,7 @@
 use pzeudo::PzeudoCore;
 
 fn main() {
-    let mut pzeudo = PzeudoCore::<4, 4096>::default();
+    let mut pzeudo = PzeudoCore::<4, 4096>::new();
 
     let tensor_a = pzeudo.create_tensor_from_value(10.);
     let tensor_b = pzeudo.create_tensor_from_value(20.);
@@ -12,6 +12,7 @@ fn main() {
 
     let tensor_e = pzeudo.add(&tensor_c, &tensor_d);
 
-    pzeudo.execution();
+    pzeudo.run();
+
     pzeudo.join();
 }

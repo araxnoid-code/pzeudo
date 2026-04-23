@@ -4,4 +4,8 @@ pub use core::*;
 mod executor;
 pub use executor::*;
 
-mod getter;
+mod other;
+pub use other::*;
+
+mod init;
+pub use init::*;

@@ -1,9 +1,6 @@
 mod core;
 pub use core::TensorCore;
 
-mod pipeline;
-pub use pipeline::*;
-
 mod execute;
 pub use execute::*;
 
@@ -12,3 +9,6 @@ pub use operations::*;
 
 mod tensor;
 pub use tensor::*;
+
+mod init;
+pub use init::*;

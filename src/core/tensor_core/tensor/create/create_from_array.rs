@@ -2,7 +2,7 @@ use std::{cell::RefCell, sync::Arc};
 
 use crate::{
     TensorCore,
-    tensor_core::{InnerTensor, Tensor},
+    tensor_core::{InnerTensorType, Tensor},
 };
 
 impl TensorCore {

@@ -1,8 +1,8 @@
 use std::cell::RefMut;
 
 use crate::{
-    ThreadPoolCore,
-    tensor_core::{ExecuteOps, InnerTensor, Tensor},
+    TensorValue, ThreadPoolCore,
+    tensor_core::{ExecuteOps, InnerTensorType, Tensor},
 };
 
 impl<const N: usize, const MAX_RING_BUFFER: usize> ThreadPoolCore<N, MAX_RING_BUFFER> {
@@ -10,10 +10,10 @@ impl<const N: usize, const MAX_RING_BUFFER: usize> ThreadPoolCore<N, MAX_RING_BU
     pub(crate) fn executor(
         &mut self,
         execute_ops: ExecuteOps,
-        mut inner_tensor_a: RefMut<'_, InnerTensor>,
-        mut inner_tensor_b: RefMut<'_, InnerTensor>,
+        mut inner_tensor_a: RefMut<'_, InnerTensorType>,
+        mut inner_tensor_b: RefMut<'_, InnerTensorType>,
     ) -> Tensor {
-        if let (InnerTensor::Initial(_), InnerTensor::Initial(_)) =
+        if let (InnerTensorType::Initial(_), InnerTensorType::Initial(_)) =
             (&*inner_tensor_a, &*inner_tensor_b)
         {
             let schedule = self.executor.scheduling_create_initial(execute_ops);
@@ -23,15 +23,15 @@ impl<const N: usize, const MAX_RING_BUFFER: usize> ThreadPoolCore<N, MAX_RING_BU
         } else {
             let mut schedule = self.executor.scheduling_create_schedule(execute_ops);
 
-            if let InnerTensor::Schedule(dep) = &mut *inner_tensor_a {
+            if let InnerTensorType::Schedule(dep) = &mut *inner_tensor_a {
                 self.executor
-                    .schedule_after(&mut schedule, dep.as_mut().unwrap())
+                    .schedule_after(&mut schedule, dep.schedule.as_mut().unwrap())
                     .unwrap();
             }
 
-            if let InnerTensor::Schedule(dep) = &mut *inner_tensor_b {
+            if let InnerTensorType::Schedule(dep) = &mut *inner_tensor_b {
                 self.executor
-                    .schedule_after(&mut schedule, dep.as_mut().unwrap())
+                    .schedule_after(&mut schedule, dep.schedule.as_mut().unwrap())
                     .unwrap();
             }
 
@@ -43,10 +43,11 @@ impl<const N: usize, const MAX_RING_BUFFER: usize> ThreadPoolCore<N, MAX_RING_BU
 
     /// execute_schedule, all schedule orders that have been created via the ThreadPoolCore::executor method
     pub(crate) fn execute_schedule(&mut self) {
-        for sch in self.schedule_order.iter().rev() {
-            if let InnerTensor::Schedule(sch) = &mut *sch.borrow_mut() {
-                let schedule = sch.take().unwrap();
-                self.executor.schedule_exec(schedule);
+        for inner_tensor_type in self.schedule_order.iter().rev() {
+            if let InnerTensorType::Schedule(inner_tensor) = &mut *inner_tensor_type.borrow_mut() {
+                let schedule = inner_tensor.schedule.take().unwrap();
+                let poll = self.executor.schedule_exec(schedule);
+                inner_tensor.data = TensorValue::Poll(poll);
             }
         }
 

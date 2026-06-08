@@ -4,8 +4,8 @@ use ndarray::{ArrayBase, Dim, IxDynImpl, OwnedRepr};
 
 use crate::PzeudoDataType;
 
-pub struct F64View {
-    array: ArrayBase<OwnedRepr<i64>, Dim<IxDynImpl>, i64>,
+pub struct F64View<A> {
+    array: ArrayBase<OwnedRepr<A>, Dim<IxDynImpl>, A>,
 }
 
 // impl PzeudoDataType for F64View {}

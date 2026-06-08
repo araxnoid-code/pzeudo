@@ -6,15 +6,15 @@ pub struct NDarrayBackend<P>
 where
     P: PzeudoDataType,
 {
-    data: P,
+    array: P,
 }
 
 impl<P> NDarrayBackend<P>
 where
     P: PzeudoDataType,
 {
-    pub fn new(data: P) -> NDarrayBackend<P> {
-        Self { data }
+    pub fn new(array: P) -> NDarrayBackend<P> {
+        Self { array }
     }
 }
 
@@ -28,25 +28,25 @@ where
 
     fn add(&self, rhs: &Self) -> Self {
         Self {
-            data: self.data.add(&rhs.data),
+            array: self.array.add(&rhs.array),
         }
     }
 
     fn sub(&self, rhs: &Self) -> Self {
         Self {
-            data: self.data.sub(&rhs.data),
+            array: self.array.sub(&rhs.array),
         }
     }
 
     fn div(&self, rhs: &Self) -> Self {
         Self {
-            data: self.data.div(&rhs.data),
+            array: self.array.div(&rhs.array),
         }
     }
 
     fn mul(&self, rhs: &Self) -> Self {
         Self {
-            data: self.data.mul(&rhs.data),
+            array: self.array.mul(&rhs.array),
         }
     }
 }

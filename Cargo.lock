@@ -3,14 +3,5 @@
 version = 4
 
 [[package]]
-name = "cahotic"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a33892660f8de935a5f080a122621650662c77e6995612d91af3d6fdb2205a2c"
-
-[[package]]
 name = "pzeudo"
 version = "0.0.1"
-dependencies = [
- "cahotic",
-]

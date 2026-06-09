@@ -1,9 +1,0 @@
-use ndarray::{ArrayRef, IxDyn};
-
-pub trait PzeudoDataType {
-    type DataType;
-    fn add(&self, rhs: &Self) -> Self;
-    fn sub(&self, rhs: &Self) -> Self;
-    fn mul(&self, rhs: &Self) -> Self;
-    fn div(&self, rhs: &Self) -> Self;
-}

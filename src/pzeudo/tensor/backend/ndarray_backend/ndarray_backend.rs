@@ -7,16 +7,16 @@ where
     T: NDArrayDataType,
 {
     pub(crate) arr: NDArrayArr<T>,
-    // pub(crate) grad: NDArrayGradient<T>,
+    pub(crate) grad: Option<NDArrayArr<T>>,
 }
 
 impl<T> NDArrayBackend<T>
 where
     T: NDArrayDataType,
 {
-    // pub fn new(arr: T) -> NDArrayBackend<T> {
-    //     Self { arr }
-    // }
+    pub fn new(arr: NDArrayArr<T>, grad: Option<NDArrayArr<T>>) -> NDArrayBackend<T> {
+        Self { arr, grad }
+    }
 }
 
 impl<A, T> PzeudoBackend<A> for NDArrayBackend<T>
@@ -34,7 +34,7 @@ where
         &self.arr
     }
 
-    fn arr_into(arr: Self::ArrType) -> Self {
-        Self { arr }
+    fn arr_into_no_grad(arr: Self::ArrType) -> Self {
+        Self::new(arr, None)
     }
 }

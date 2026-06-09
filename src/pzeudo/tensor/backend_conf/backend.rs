@@ -12,7 +12,7 @@ where
     fn backend() -> impl Debug;
     fn get_arr(&self) -> &Self::ArrType;
 
-    fn arr_into(arr: Self::ArrType) -> Self;
+    fn arr_into_no_grad(arr: Self::ArrType) -> Self;
 
     fn add(&self, rhs: &Self) -> Self
     where
@@ -22,6 +22,39 @@ where
         let rhs = rhs.get_arr();
         let output = lhs.add(&rhs);
 
-        Self::arr_into(output)
+        Self::arr_into_no_grad(output)
+    }
+
+    fn sub(&self, rhs: &Self) -> Self
+    where
+        Self: Sized,
+    {
+        let lhs = self.get_arr();
+        let rhs = rhs.get_arr();
+        let output = lhs.sub(&rhs);
+
+        Self::arr_into_no_grad(output)
+    }
+
+    fn mul(&self, rhs: &Self) -> Self
+    where
+        Self: Sized,
+    {
+        let lhs = self.get_arr();
+        let rhs = rhs.get_arr();
+        let output = lhs.mul(&rhs);
+
+        Self::arr_into_no_grad(output)
+    }
+
+    fn div(&self, rhs: &Self) -> Self
+    where
+        Self: Sized,
+    {
+        let lhs = self.get_arr();
+        let rhs = rhs.get_arr();
+        let output = lhs.div(&rhs);
+
+        Self::arr_into_no_grad(output)
     }
 }

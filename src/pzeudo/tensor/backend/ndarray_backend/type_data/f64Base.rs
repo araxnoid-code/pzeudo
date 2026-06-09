@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::ops::{Add, Div, Mul, Sub};
 
 use ndarray::{ArrayBase, ArrayD, Dim, IxDynImpl, OwnedRepr};
 
@@ -18,6 +18,24 @@ impl NDArrayDataType for F64Base {
     fn add(&self, rhs: &Self) -> Self {
         Self {
             array: (&self.array).add(&rhs.array),
+        }
+    }
+
+    fn sub(&self, rhs: &Self) -> Self {
+        Self {
+            array: (&self.array).sub(&rhs.array),
+        }
+    }
+
+    fn mul(&self, rhs: &Self) -> Self {
+        Self {
+            array: (&self.array).mul(&rhs.array),
+        }
+    }
+
+    fn div(&self, rhs: &Self) -> Self {
+        Self {
+            array: (&self.array).div(&rhs.array),
         }
     }
 }

@@ -15,6 +15,25 @@ impl F64Base {
 }
 
 impl NDArrayDataType for F64Base {
+    // desc
+    fn get_shape(&self) -> &[usize] {
+        self.array.shape()
+    }
+
+    // initial
+    fn ones(shape: &[usize]) -> Self {
+        Self {
+            array: ArrayD::<f64>::ones(shape),
+        }
+    }
+
+    fn zeros(shape: &[usize]) -> Self {
+        Self {
+            array: ArrayD::<f64>::zeros(shape),
+        }
+    }
+
+    // element wise
     fn add(&self, rhs: &Self) -> Self {
         Self {
             array: (&self.array).add(&rhs.array),

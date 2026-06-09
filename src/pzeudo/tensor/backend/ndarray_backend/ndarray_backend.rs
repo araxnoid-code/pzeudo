@@ -19,13 +19,13 @@ where
     }
 }
 
-impl<A, T> PzeudoBackend<A> for NDArrayBackend<T>
+impl<'s, A, T> PzeudoBackend<'s, A> for NDArrayBackend<T>
 where
-    A: Arr,
+    A: Arr<'s>,
     T: NDArrayDataType,
 {
     type ArrType = NDArrayArr<T>;
-    //
+
     fn backend() -> impl Debug {
         "ndarray"
     }
@@ -34,7 +34,8 @@ where
         &self.arr
     }
 
-    fn arr_into_no_grad(arr: Self::ArrType) -> Self {
+    fn arr_into(arr: Self::ArrType, grad: bool) -> Self {
+        // let grad = Self::ArrType::zeros(arr.arr)
         Self::new(arr, None)
     }
 }

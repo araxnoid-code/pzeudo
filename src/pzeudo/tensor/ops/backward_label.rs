@@ -2,14 +2,14 @@ use std::sync::{Arc, RwLock};
 
 use crate::{Arr, PzeudoBackend};
 
-pub enum BackwardLabel<A, B>
+pub enum BackwardLabel<'s, A, B>
 where
-    A: Arr,
-    B: PzeudoBackend<A>,
+    A: Arr<'s>,
+    B: PzeudoBackend<'s, A>,
 {
     Add(Arc<RwLock<B>>, Arc<RwLock<B>>),
     Sub(Arc<RwLock<B>>, Arc<RwLock<B>>),
     Mul(Arc<RwLock<B>>, Arc<RwLock<B>>),
     Div(Arc<RwLock<B>>, Arc<RwLock<B>>),
-    _Phantom(A),
+    _Phantom(&'s A),
 }

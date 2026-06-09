@@ -1,4 +1,15 @@
-use crate::{Arr, NDArrayDataType};
+use crate::{Arr, NDArrayDataType, ShapeTrait};
+
+pub struct Shape<'a> {
+    shape: &'a [usize],
+}
+
+impl<'a> ShapeTrait for Shape<'a> {
+    type ShapeType = &'a [usize];
+    fn new(shape: Self::ShapeType) -> Self {
+        Self { shape }
+    }
+}
 
 pub struct NDArrayArr<T>
 where
@@ -16,10 +27,24 @@ where
     }
 }
 
-impl<T> Arr for NDArrayArr<T>
+impl<'s, T> Arr<'s> for NDArrayArr<T>
 where
     T: NDArrayDataType,
 {
+    type ShapeType = Shape<'s>;
+    // desc
+    fn get_shape(&'s self) -> Self::ShapeType {
+        Shape {
+            shape: self.inner.get_shape(),
+        }
+    }
+    // fn get_shape<'a>(&'a self) -> Self::ShapeType<'a> {
+    // Shape {
+    //     shape: self.inner.get_shape(),
+    // }
+    // }
+
+    // element-wise ops
     fn add(&self, rhs: &Self) -> Self {
         let inner = self.inner.add(&rhs.inner);
         Self { inner }

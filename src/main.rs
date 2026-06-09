@@ -10,10 +10,17 @@ fn main() {
 
     let array_b: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64> = ArrayD::<f64>::zeros(vec![2, 2]);
 
-    let tensor: Tensor<NDArrayArr<F64Base>, _> = Tensor::new(
+    let tensor_a: Tensor<NDArrayArr<F64Base>, _> = Tensor::new(
         NDArrayBackend::new(NDArrayArr::new(F64Base::new(array_a)), None),
         None,
     );
+
+    let tensor_b: Tensor<NDArrayArr<F64Base>, _> = Tensor::new(
+        NDArrayBackend::new(NDArrayArr::new(F64Base::new(array_b)), None),
+        None,
+    );
+
+    let tensor_c = tensor_a.add(&tensor_b);
 
     // let tensor_a = Tensor::new(
     //     NDarrayBackend::new(F64Base::new(array_a, Some(ArrayD::zeros(vec![2, 2])))),

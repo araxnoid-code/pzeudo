@@ -3,17 +3,19 @@ use std::fmt::Debug;
 use crate::Arr;
 
 ///
-pub trait PzeudoBackend<A>
+pub trait PzeudoBackend<'s, A>
 where
-    A: Arr,
+    A: Arr<'s>,
 {
-    type ArrType: Arr;
-
+    //
+    type ArrType: Arr<'s>;
     fn backend() -> impl Debug;
+
+    //
     fn get_arr(&self) -> &Self::ArrType;
+    fn arr_into(arr: Self::ArrType, grad: bool) -> Self;
 
-    fn arr_into_no_grad(arr: Self::ArrType) -> Self;
-
+    //
     fn add(&self, rhs: &Self) -> Self
     where
         Self: Sized,
@@ -22,7 +24,7 @@ where
         let rhs = rhs.get_arr();
         let output = lhs.add(&rhs);
 
-        Self::arr_into_no_grad(output)
+        Self::arr_into(output, true)
     }
 
     fn sub(&self, rhs: &Self) -> Self
@@ -33,7 +35,7 @@ where
         let rhs = rhs.get_arr();
         let output = lhs.sub(&rhs);
 
-        Self::arr_into_no_grad(output)
+        Self::arr_into(output, true)
     }
 
     fn mul(&self, rhs: &Self) -> Self
@@ -44,7 +46,7 @@ where
         let rhs = rhs.get_arr();
         let output = lhs.mul(&rhs);
 
-        Self::arr_into_no_grad(output)
+        Self::arr_into(output, true)
     }
 
     fn div(&self, rhs: &Self) -> Self
@@ -55,6 +57,6 @@ where
         let rhs = rhs.get_arr();
         let output = lhs.div(&rhs);
 
-        Self::arr_into_no_grad(output)
+        Self::arr_into(output, true)
     }
 }

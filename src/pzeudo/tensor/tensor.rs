@@ -1,20 +1,25 @@
-use std::sync::{Arc, RwLock};
+use std::{
+    marker::PhantomData,
+    sync::{Arc, RwLock},
+};
 
-use crate::tensor::{backend::PzeudoBackend, ops::BackwardLabel};
+use crate::{Arr, tensor::backend_conf::PzeudoBackend};
 
-pub struct Tensor<B: PzeudoBackend> {
+pub struct Tensor<A: Arr, B: PzeudoBackend<A>> {
     pub(crate) inner: Arc<RwLock<B>>,
-    pub(crate) label: Option<BackwardLabel<B>>,
+    _phantom: PhantomData<A>,
+    // pub(crate) label: Option<BackwardLabel<B>>,
 }
 
-impl<B> Tensor<B>
+impl<A, B> Tensor<A, B>
 where
-    B: PzeudoBackend,
+    A: Arr,
+    B: PzeudoBackend<A>,
 {
-    pub fn new(inner: B, label: Option<BackwardLabel<B>>) -> Tensor<B> {
+    pub fn new(inner: B) -> Tensor<A, B> {
         Tensor {
             inner: Arc::new(RwLock::new(inner)),
-            label,
+            _phantom: Default::default(),
         }
     }
 }

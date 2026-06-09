@@ -3,12 +3,14 @@ use std::ops::Add;
 use ndarray::{
     Array2, ArrayBase, ArrayD, ArrayView, Dim, IxDynImpl, OwnedRepr, ViewRepr, linalg::Dot,
 };
-use pzeudo::{PzeudoBackend, Tensor};
+use pzeudo::{F64Base, NDArrayArr, NDArrayBackend, PzeudoBackend, Tensor};
 
 fn main() {
     let array_a: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64> = ArrayD::<f64>::zeros(vec![2, 2]);
 
     let array_b: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64> = ArrayD::<f64>::zeros(vec![2, 2]);
+
+    // let tensor = Tensor::new(NDArrayBackend::new(F64Base::new(array_a)));
 
     // let tensor_a = Tensor::new(
     //     NDarrayBackend::new(F64Base::new(array_a, Some(ArrayD::zeros(vec![2, 2])))),
@@ -20,3 +22,28 @@ fn main() {
     // );
     // let tensor_c = tensor_a.add(&tensor_b);
 }
+
+// struct Kucing {}
+// impl Hewan for Kucing {}
+
+// trait Hewan {}
+
+// struct Animal {
+//     animal: Kucing,
+// }
+
+// trait Jalan<H>
+// where
+//     H: Hewan,
+// {
+//     fn jalan(&self) -> &H;
+// }
+
+// impl<H> Jalan<H> for Animal
+// where
+//     H: Hewan,
+// {
+//     fn jalan(&self) -> &H {
+//         &self.animal
+//     }
+// }

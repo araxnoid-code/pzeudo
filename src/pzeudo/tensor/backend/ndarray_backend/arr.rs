@@ -1,7 +1,7 @@
 use crate::{Arr, NDArrayDataType, ShapeTrait};
 
 pub struct Shape<'a> {
-    shape: &'a [usize],
+    pub shape: &'a [usize],
 }
 
 impl<'a> ShapeTrait for Shape<'a> {
@@ -38,11 +38,19 @@ where
             shape: self.inner.get_shape(),
         }
     }
-    // fn get_shape<'a>(&'a self) -> Self::ShapeType<'a> {
-    // Shape {
-    //     shape: self.inner.get_shape(),
-    // }
-    // }
+
+    // intial
+    fn zeros(shape: Self::ShapeType) -> Self {
+        Self {
+            inner: T::zeros(shape.shape),
+        }
+    }
+
+    fn ones(shape: Self::ShapeType) -> Self {
+        Self {
+            inner: T::ones(shape.shape),
+        }
+    }
 
     // element-wise ops
     fn add(&self, rhs: &Self) -> Self {

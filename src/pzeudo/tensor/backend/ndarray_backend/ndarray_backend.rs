@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use crate::{Arr, NDArrayArr, NDArrayDataType, NDArrayGradient, PzeudoBackend};
+use crate::{Arr, NDArrayArr, NDArrayDataType, PzeudoBackend};
 
 pub struct NDArrayBackend<T>
 where
@@ -35,7 +35,12 @@ where
     }
 
     fn arr_into(arr: Self::ArrType, grad: bool) -> Self {
-        // let grad = Self::ArrType::zeros(arr.arr)
-        Self::new(arr, None)
+        let grad = if grad {
+            Some(Self::ArrType::zeros(arr.get_shape()))
+        } else {
+            None
+        };
+
+        Self::new(arr, grad)
     }
 }

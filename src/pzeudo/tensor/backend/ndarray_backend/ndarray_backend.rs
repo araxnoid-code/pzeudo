@@ -1,10 +1,10 @@
 use std::fmt::Debug;
 
-use crate::{Arr, NDArrayArr, NDArrayDataType, PzeudoBackend};
+use crate::{Arr, NDArrayArr, NDArrayDataType, PzeudoBackend, PzeudoDataType};
 
 pub struct NDArrayBackend<T>
 where
-    T: NDArrayDataType,
+    T: NDArrayDataType<ScalarType = PzeudoDataType>,
 {
     pub(crate) arr: NDArrayArr<T>,
     pub(crate) grad: Option<NDArrayArr<T>>,
@@ -12,7 +12,7 @@ where
 
 impl<T> NDArrayBackend<T>
 where
-    T: NDArrayDataType,
+    T: NDArrayDataType<ScalarType = PzeudoDataType>,
 {
     pub fn new(arr: NDArrayArr<T>, grad: Option<NDArrayArr<T>>) -> NDArrayBackend<T> {
         Self { arr, grad }
@@ -21,22 +21,26 @@ where
 
 impl<'s, A, T> PzeudoBackend<'s, A> for NDArrayBackend<T>
 where
-    A: Arr<'s>,
-    T: NDArrayDataType,
+    A: Arr<'s, ScalarType = PzeudoDataType> + 's,
+    T: NDArrayDataType<ScalarType = PzeudoDataType>,
 {
-    type ArrType = NDArrayArr<T>;
+    type BackendArrType = NDArrayArr<T>;
 
     fn backend() -> impl Debug {
         "ndarray"
     }
 
-    fn get_arr(&self) -> &Self::ArrType {
+    fn get_backend_arr(&self) -> &Self::BackendArrType {
         &self.arr
     }
 
-    fn arr_into(arr: Self::ArrType, grad: bool) -> Self {
+    fn get_backend_grad_as_mut(&mut self) -> &mut Option<Self::BackendArrType> {
+        &mut self.grad
+    }
+
+    fn arr_into(arr: Self::BackendArrType, grad: bool) -> Self {
         let grad = if grad {
-            Some(Self::ArrType::zeros(arr.get_shape()))
+            Some(Self::BackendArrType::zeros(arr.get_shape()))
         } else {
             None
         };

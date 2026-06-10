@@ -1,8 +1,8 @@
-use crate::{Arr, PzeudoBackend, Tensor, tensor::ops::BackwardLabel};
+use crate::{Arr, PzeudoBackend, PzeudoDataType, Tensor, tensor::ops::BackwardLabel};
 
 impl<'s, A, B> Tensor<'s, A, B>
 where
-    A: Arr<'s>,
+    A: Arr<'s, ScalarType = PzeudoDataType>,
     B: PzeudoBackend<'s, A>,
 {
     pub fn sub(&self, rhs: &Self) -> Tensor<'s, A, B> {

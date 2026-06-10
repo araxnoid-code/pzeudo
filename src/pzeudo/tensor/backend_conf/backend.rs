@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use crate::{
-    Arr, PzeudoDataType,
+    Arr, PzeudoDataType, ShapeTrait,
     tensor::backend_conf::{self, arr},
 };
 
@@ -10,19 +10,18 @@ pub trait PzeudoBackend<'s, A>
 where
     A: Arr<'s> + 's,
 {
-    //
-    type BackendArrType: Arr<'s>;
-    fn backend() -> impl Debug;
+    // type
 
     // desc
-    fn get_array(&'s self) -> &'s <<Self as backend_conf::backend::PzeudoBackend<'s, A>>::BackendArrType as backend_conf::arr::Arr<'s>>::ArrType{
-        self.get_backend_arr().get_array()
-    }
 
-    //
-    fn get_backend_arr(&self) -> &Self::BackendArrType;
-    fn get_backend_grad_as_mut(&mut self) -> &mut Option<Self::BackendArrType>;
-    fn arr_into(arr: Self::BackendArrType, grad: bool) -> Self;
+    // konstruktor
+    // fn zeros(shape: A::ShapeType) -> Self;
+    fn arr_into(arr: A, grad: bool) -> Self;
+
+    // inner getter
+    fn backend() -> impl Debug;
+    fn get_backend_arr(&self) -> &A;
+    fn get_backend_grad_as_mut(&mut self) -> &mut Option<A>;
 
     //
     fn add(&self, rhs: &Self) -> Self
@@ -95,7 +94,7 @@ where
             }
 
             if let Some(lhs_grad) = lhs.get_backend_grad_as_mut() {
-                let scalar = Self::BackendArrType::from_scalar(10.);
+                let scalar = A::from_scalar(10.);
                 lhs_grad.add_to(&cr_grad.mul(&scalar));
             }
         }

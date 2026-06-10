@@ -10,39 +10,26 @@ fn main() {
 
     let array_b: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64> = ArrayD::<f64>::zeros(vec![2, 2]);
 
-    let tensor_a: Tensor<NDArrayArr<F64Base>, NDArrayBackend<F64Base>> = Tensor::new(
-        NDArrayBackend::new(NDArrayArr::new(F64Base::new(array_a)), None),
-        None,
-    );
+    let f64_base: F64Base = F64Base::new(array_a);
 
-    let tensor_b: Tensor<NDArrayArr<F64Base>, _> = Tensor::new(
-        NDArrayBackend::new(NDArrayArr::new(F64Base::new(array_b)), None),
-        None,
-    );
+    let ndarray_arr: NDArrayArr<F64Base> = NDArrayArr::new(f64_base);
 
-    let tensor_c = tensor_a.add(&tensor_b);
+    let backend: NDArrayBackend<'_, NDArrayArr<F64Base>> = NDArrayBackend::new(ndarray_arr, None);
 
-    // tensor_c.add(rhs);
-
-    // let tensor_a = Tensor::new(
-    //     NDarrayBackend::new(F64Base::new(array_a, Some(ArrayD::zeros(vec![2, 2])))),
-    //     None,
-    // );
-    // let tensor_b = Tensor::new(
-    //     NDarrayBackend::new(F64Base::new(array_b, Some(ArrayD::zeros(vec![2, 2])))),
-    //     None,
-    // );
-    // let tensor_c = tensor_a.add(&tensor_b);
+    let tensor: Tensor<'_, NDArrayArr<F64Base>, NDArrayBackend<'_, NDArrayArr<F64Base>>> =
+        Tensor::new(backend, None);
 }
 
-// trait A {
-//     type TypeData;
-//     fn from_my_type(data: Self::TypeData);
-// }
+// trait Animal {}
 
-// trait B {
-//     type Child: A;
-//     fn execute(&self) {
-//         let data = Self::Child::from_my_type(10.);
-//     }
-// }
+// trait IndonesiaCountry {}
+
+// trait GajahSumatera {}
+
+// trait HarimauSumatera {}
+
+// trait AfricanCountry {}
+
+// trait Kangguru {}
+
+// trait HarimauSumatera {}

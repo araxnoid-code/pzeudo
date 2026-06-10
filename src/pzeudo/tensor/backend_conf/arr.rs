@@ -1,22 +1,17 @@
-use crate::PzeudoDataTypeTrait;
-
-pub trait ShapeTrait {
-    type ShapeType;
-    fn new(shape: Self::ShapeType) -> Self;
-}
+use crate::{PzeudoDataTypeTrait, ShapeTrait};
 
 pub trait Arr<'s> {
     type ArrType;
     type ScalarType;
-    type ShapeType: ShapeTrait;
+    // type ShapeType: ShapeTrait;
 
     // desc
     fn get_array(&'s self) -> &'s Self::ArrType;
-    fn get_shape(&'s self) -> Self::ShapeType;
+    // fn get_shape(&'s self) -> Self::ShapeType;
 
     // initial
-    fn zeros(shape: Self::ShapeType) -> Self;
-    fn ones(shape: Self::ShapeType) -> Self;
+    // fn zeros(shape: Self::ShapeType) -> Self;
+    // fn ones(shape: Self::ShapeType) -> Self;
     fn from_scalar(scalar: impl PzeudoDataTypeTrait) -> Self;
 
     // setter

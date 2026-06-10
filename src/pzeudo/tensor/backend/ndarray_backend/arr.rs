@@ -1,15 +1,15 @@
 use crate::{Arr, NDArrayDataType, PzeudoDataType, ShapeTrait};
 
-pub struct NDArrayShape<'a> {
-    pub shape: &'a [usize],
-}
+// pub struct NDArrayShape<'a> {
+//     pub shape: &'a [usize],
+// }
 
-impl<'a> ShapeTrait for NDArrayShape<'a> {
-    type ShapeType = &'a [usize];
-    fn new(shape: Self::ShapeType) -> Self {
-        Self { shape }
-    }
-}
+// impl<'a> ShapeTrait for NDArrayShape<'a> {
+//     type ShapeType = &'a [usize];
+//     fn new(shape: Self::ShapeType) -> Self {
+//         Self { shape }
+//     }
+// }
 
 pub struct NDArrayArr<T>
 where
@@ -33,17 +33,14 @@ where
 {
     type ArrType = T;
     type ScalarType = T::ScalarType;
-    type ShapeType = NDArrayShape<'s>;
     // desc
     fn get_array(&'s self) -> &'s Self::ArrType {
         self.inner.get_array()
     }
 
-    fn get_shape(&'s self) -> Self::ShapeType {
-        NDArrayShape {
-            shape: self.inner.get_shape(),
-        }
-    }
+    // fn get_shape(&'s self) -> Self::ShapeType {
+    //     panic!()
+    // }
 
     // intial
     fn from_scalar(scalar: impl crate::PzeudoDataTypeTrait) -> Self {
@@ -52,17 +49,17 @@ where
         }
     }
 
-    fn zeros(shape: Self::ShapeType) -> Self {
-        Self {
-            inner: T::zeros(shape.shape),
-        }
-    }
+    // fn zeros(shape: Self::ShapeType) -> Self {
+    //     Self {
+    //         inner: T::zeros(shape.shape),
+    //     }
+    // }
 
-    fn ones(shape: Self::ShapeType) -> Self {
-        Self {
-            inner: T::ones(shape.shape),
-        }
-    }
+    // fn ones(shape: Self::ShapeType) -> Self {
+    //     Self {
+    //         inner: T::ones(shape.shape),
+    //     }
+    // }
 
     // setter
     fn add_to(&mut self, rhs: &Self) {
@@ -91,9 +88,4 @@ where
     }
 
     // scalar element-wise ops
-    // fn scalar_mul(&self, rhs: Self::ScalarType) -> Self {
-    //     Self {
-    //         inner: self.inner.scalar_mul(rhs),
-    //     }
-    // }
 }

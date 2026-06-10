@@ -1,50 +1,62 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, marker::PhantomData};
 
-use crate::{Arr, NDArrayArr, NDArrayDataType, PzeudoBackend, PzeudoDataType};
+use crate::{Arr, NDArrayArr, NDArrayDataType, PzeudoBackend, PzeudoDataType, ShapeTrait};
 
-pub struct NDArrayBackend<T>
+pub struct NDArrayBackend<'a, A>
 where
-    T: NDArrayDataType<ScalarType = PzeudoDataType>,
+    A: Arr<'a>,
 {
-    pub(crate) arr: NDArrayArr<T>,
-    pub(crate) grad: Option<NDArrayArr<T>>,
+    pub(crate) arr: A,
+    pub(crate) grad: Option<A>,
+    _phantom: PhantomData<&'a A>,
 }
 
-impl<T> NDArrayBackend<T>
+impl<'a, A> NDArrayBackend<'a, A>
 where
-    T: NDArrayDataType<ScalarType = PzeudoDataType>,
+    A: Arr<'a>,
 {
-    pub fn new(arr: NDArrayArr<T>, grad: Option<NDArrayArr<T>>) -> NDArrayBackend<T> {
-        Self { arr, grad }
+    pub fn new(arr: A, grad: Option<A>) -> NDArrayBackend<'a, A> {
+        Self {
+            arr,
+            grad,
+            _phantom: Default::default(),
+        }
     }
 }
 
-impl<'s, A, T> PzeudoBackend<'s, A> for NDArrayBackend<T>
+impl<'a, A> PzeudoBackend<'a, A> for NDArrayBackend<'a, A>
 where
-    A: Arr<'s, ScalarType = PzeudoDataType> + 's,
-    T: NDArrayDataType<ScalarType = PzeudoDataType>,
+    A: Arr<'a, ScalarType = PzeudoDataType>,
 {
-    type BackendArrType = NDArrayArr<T>;
+    // initial
+    // fn zeros(shape: A::ShapeType) -> Self {
+    //     panic!()
+    //     // Self {
+    //     //     arr: Self::BackendArrType::zeros(shape),
+    //     // }
+    // }
 
-    fn backend() -> impl Debug {
-        "ndarray"
-    }
-
-    fn get_backend_arr(&self) -> &Self::BackendArrType {
-        &self.arr
-    }
-
-    fn get_backend_grad_as_mut(&mut self) -> &mut Option<Self::BackendArrType> {
-        &mut self.grad
-    }
-
-    fn arr_into(arr: Self::BackendArrType, grad: bool) -> Self {
+    fn arr_into(arr: A, grad: bool) -> Self {
         let grad = if grad {
-            Some(Self::BackendArrType::zeros(arr.get_shape()))
+            panic!()
+            // Some(A::zeros(arr.get_shape()))
         } else {
             None
         };
 
         Self::new(arr, grad)
+    }
+
+    // innner getter
+    fn backend() -> impl Debug {
+        "ndarray"
+    }
+
+    fn get_backend_arr(&self) -> &A {
+        &self.arr
+    }
+
+    fn get_backend_grad_as_mut(&mut self) -> &mut Option<A> {
+        &mut self.grad
     }
 }

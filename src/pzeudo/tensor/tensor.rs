@@ -1,4 +1,5 @@
 use std::{
+    fmt::Display,
     marker::PhantomData,
     sync::{Arc, RwLock},
 };
@@ -9,7 +10,7 @@ use crate::{
 };
 
 pub struct Tensor<'s, A: Arr<'s>, B: PzeudoBackend<'s, A>> {
-    pub(crate) inner: Arc<RwLock<B>>,
+    pub(crate) backend: B,
     pub(crate) label: Option<BackwardLabel<'s, A, B>>,
 }
 
@@ -18,11 +19,8 @@ where
     A: Arr<'s>,
     B: PzeudoBackend<'s, A>,
 {
-    pub fn new(inner: B, label: Option<BackwardLabel<'s, A, B>>) -> Tensor<'s, A, B> {
-        Tensor {
-            inner: Arc::new(RwLock::new(inner)),
-            label,
-        }
+    pub fn new(backend: B, label: Option<BackwardLabel<'s, A, B>>) -> Tensor<'s, A, B> {
+        Tensor { backend, label }
     }
 
     pub fn zeros() {}

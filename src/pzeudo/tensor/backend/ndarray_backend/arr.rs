@@ -26,20 +26,22 @@ impl<'a, T> Arr<'a> for NDArrayArr<'a, T>
 where
     T: NDArrayDataType<'a, ScalarType = PzeudoDataType>,
 {
+    type InnerArrType = T::ArrType;
     type ArrType = T;
     type ScalarType = T::ScalarType;
     type ShapeType = &'a [usize];
 
     // desc
-    fn get_array(&'a self) -> &'a Self::ArrType {
+    fn get_array(&'a self) -> &'a Self::InnerArrType {
+        self.inner.get_array()
+    }
+
+    fn get_grad(&'a self) -> &'a Self::InnerArrType {
         self.inner.get_array()
     }
 
     fn get_shape(&'a self) -> Self::ShapeType {
         self.inner.get_shape()
-        // NDArrayShape {
-        //     shape: self.inner.get_shape(),
-        // }
     }
 
     // intial

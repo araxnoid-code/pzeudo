@@ -13,16 +13,18 @@ use pzeudo::{F64Base, NDArrayArr, NDArrayBackend, PzeudoBackend, PzeudoDataType,
 fn main() {
     let array_a: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64> = ArrayD::<f64>::zeros(vec![2, 2]);
 
-    let array_b: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64> = ArrayD::<f64>::zeros(vec![2, 2]);
+    let array_b: ArrayBase<ViewRepr<&f64>, Dim<IxDynImpl>, f64> =
+        ArrayD::<f64>::zeros(vec![2, 2]).view();
 
-    let f64_base: F64Base = F64Base::new(array_a);
+    let f64_base = F64Base::new(array_a);
 
-    let ndarray_arr: NDArrayArr<F64Base> = NDArrayArr::new(f64_base);
+    let ndarray_arr = NDArrayArr::new(f64_base);
 
-    let backend: NDArrayBackend<'_, NDArrayArr<F64Base>> = NDArrayBackend::new(ndarray_arr, None);
+    let backend = NDArrayBackend::new(ndarray_arr, None);
 
-    let tensor: Tensor<'_, NDArrayArr<F64Base>, NDArrayBackend<'_, NDArrayArr<F64Base>>> =
-        Tensor::new(backend, None);
+    let tensor = Tensor::new(backend, None);
+
+    // println!("{}", tensor.get_array());
 }
 
 struct Penduduk<'PendudukLT> {

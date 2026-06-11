@@ -6,7 +6,7 @@ pub struct NDArrayBackend<'a, A>
 where
     A: Arr<'a>,
 {
-    pub(crate) arr: A,
+    pub(crate) inner: A,
     pub(crate) grad: Option<A>,
     _phantom: PhantomData<&'a A>,
 }
@@ -15,9 +15,9 @@ impl<'a, A> NDArrayBackend<'a, A>
 where
     A: Arr<'a>,
 {
-    pub fn new(arr: A, grad: Option<A>) -> NDArrayBackend<'a, A> {
+    pub fn new(inner: A, grad: Option<A>) -> NDArrayBackend<'a, A> {
         Self {
-            arr,
+            inner,
             grad,
             _phantom: Default::default(),
         }
@@ -29,14 +29,6 @@ where
     A: Arr<'a, ScalarType = PzeudoDataType>,
 {
     type ShapeType = A::ShapeType;
-
-    // initial
-    // fn zeros(shape: A::ShapeType) -> Self {
-    //     panic!()
-    //     // Self {
-    //     //     arr: Self::BackendArrType::zeros(shape),
-    //     // }
-    // }
 
     fn arr_into(arr: A, grad: bool) -> Self {
         let grad = if grad {
@@ -50,8 +42,20 @@ where
     }
 
     // desc
+    fn get_array(&'a self) -> &'a A::InnerArrType {
+        self.inner.get_array()
+    }
+
+    fn get_grad(&'a self) -> Option<&'a A::InnerArrType> {
+        if let Some(grad) = self.grad.as_ref() {
+            Some(grad.get_array())
+        } else {
+            None
+        }
+    }
+
     fn get_shape(&'a self) -> Self::ShapeType {
-        self.arr.get_shape()
+        self.inner.get_shape()
     }
 
     // innner getter
@@ -60,7 +64,7 @@ where
     }
 
     fn get_backend_arr(&self) -> &A {
-        &self.arr
+        &self.inner
     }
 
     fn get_backend_grad_as_mut(&mut self) -> &mut Option<A> {

@@ -1,12 +1,16 @@
+use std::fmt::Display;
+
 use crate::{PzeudoDataTypeTrait, ShapeTrait};
 
 pub trait Arr<'a> {
+    type InnerArrType: Display;
     type ArrType;
     type ScalarType;
     type ShapeType;
 
     // desc
-    fn get_array(&'a self) -> &'a Self::ArrType;
+    fn get_array(&'a self) -> &'a Self::InnerArrType;
+    fn get_grad(&'a self) -> &'a Self::InnerArrType;
     fn get_shape(&'a self) -> Self::ShapeType;
 
     // initial

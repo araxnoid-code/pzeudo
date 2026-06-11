@@ -14,6 +14,8 @@ where
     type ShapeType;
 
     // desc
+    fn get_array(&'a self) -> &'a A::InnerArrType;
+    fn get_grad(&'a self) -> Option<&'a A::InnerArrType>;
     fn get_shape(&'a self) -> Self::ShapeType;
 
     // konstruktor

@@ -1,12 +1,16 @@
+use std::fmt::Display;
+
 pub trait NDArrayDataType<'a> {
+    type ArrType: Display;
     type ScalarType;
+
     // desc
-    fn get_array(&self) -> &Self;
+    fn get_array(&self) -> &Self::ArrType;
     fn get_shape(&'a self) -> &'a [usize];
 
     // initial
-    fn zeros(shape: &[usize]) -> Self;
-    fn ones(shape: &[usize]) -> Self;
+    fn zeros(shape: &'a [usize]) -> Self;
+    fn ones(shape: &'a [usize]) -> Self;
     fn from_scalar(scalar: Self::ScalarType) -> Self;
 
     // setter

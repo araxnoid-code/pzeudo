@@ -1,6 +1,6 @@
 use std::{fmt::Debug, marker::PhantomData};
 
-use crate::{Arr, NDArrayArr, NDArrayDataType, PzeudoBackend, PzeudoDataType, ShapeTrait};
+use crate::{Arr, PzeudoBackend, PzeudoDataType};
 
 pub struct NDArrayBackend<'a, A>
 where

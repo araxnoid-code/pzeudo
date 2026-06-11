@@ -6,6 +6,3 @@ pub use arr::*;
 
 mod type_data;
 pub use type_data::*;
-
-mod shape;
-pub use shape::*;

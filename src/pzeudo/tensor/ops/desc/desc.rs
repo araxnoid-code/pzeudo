@@ -1,6 +1,6 @@
 use std::sync::RwLockReadGuard;
 
-use crate::{Arr, PzeudoBackend, ShapeTrait, Tensor};
+use crate::{Arr, PzeudoBackend, Tensor};
 
 impl<'a, A, B> Tensor<'a, A, B>
 where

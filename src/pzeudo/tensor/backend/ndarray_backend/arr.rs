@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use crate::{Arr, NDArrayDataType, NDArrayShape, PzeudoDataType, ShapeTrait};
+use crate::{Arr, NDArrayDataType, PzeudoDataType};
 
 pub struct NDArrayArr<'a, T>
 where

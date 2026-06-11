@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use crate::{
-    Arr, PzeudoDataType, ShapeTrait,
+    Arr, PzeudoDataType,
     tensor::backend_conf::{self, arr},
 };
 

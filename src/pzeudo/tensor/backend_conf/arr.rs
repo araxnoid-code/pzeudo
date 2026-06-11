@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::{PzeudoDataTypeTrait, ShapeTrait};
+use crate::PzeudoDataTypeTrait;
 
 pub trait Arr<'a> {
     type InnerArrType: Display;

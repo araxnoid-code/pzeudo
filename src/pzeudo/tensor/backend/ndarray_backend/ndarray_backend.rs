@@ -28,6 +28,8 @@ impl<'a, A> PzeudoBackend<'a, A> for NDArrayBackend<'a, A>
 where
     A: Arr<'a, ScalarType = PzeudoDataType>,
 {
+    type ShapeType = A::ShapeType;
+
     // initial
     // fn zeros(shape: A::ShapeType) -> Self {
     //     panic!()
@@ -45,6 +47,11 @@ where
         };
 
         Self::new(arr, grad)
+    }
+
+    // desc
+    fn get_shape(&'a self) -> Self::ShapeType {
+        self.arr.get_shape()
     }
 
     // innner getter

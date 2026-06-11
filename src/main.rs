@@ -1,4 +1,9 @@
-use std::{ops::Add, process::Child};
+use std::{
+    marker::PhantomData,
+    ops::Add,
+    process::Child,
+    sync::{Arc, Mutex, MutexGuard},
+};
 
 use ndarray::{
     Array2, ArrayBase, ArrayD, ArrayView, Dim, IxDynImpl, OwnedRepr, ViewRepr, linalg::Dot,
@@ -20,16 +25,36 @@ fn main() {
         Tensor::new(backend, None);
 }
 
-// trait Animal {}
+struct Penduduk<'PendudukLT> {
+    nama: String,
+    identity_card: i32,
+    _phantom: PhantomData<&'PendudukLT i32>,
+}
 
-// trait IndonesiaCountry {}
+//
+struct Data<'PendudukLT, P: PendudukTrait<'PendudukLT>> {
+    penduduk: Arc<Mutex<P>>,
+    _phantom: PhantomData<&'PendudukLT i32>,
+}
 
-// trait GajahSumatera {}
+impl<'PendudukLT, P: PendudukTrait<'PendudukLT, IdentityCrad = &'PendudukLT i32>>
+    Data<'PendudukLT, P>
+{
+    pub fn pinjam_identifier(&'PendudukLT self) -> &Arc<Mutex<P>> {
+        &self.penduduk
+    }
+}
 
-// trait HarimauSumatera {}
+//
 
-// trait AfricanCountry {}
+trait PendudukTrait<'PendudukLT> {
+    type IdentityCrad;
+    fn pinjamkan_identity_card(&'PendudukLT self) -> Self::IdentityCrad;
+}
 
-// trait Kangguru {}
-
-// trait HarimauSumatera {}
+impl<'PendudukLT> PendudukTrait<'PendudukLT> for Penduduk<'PendudukLT> {
+    type IdentityCrad = &'PendudukLT i32;
+    fn pinjamkan_identity_card(&'PendudukLT self) -> Self::IdentityCrad {
+        &self.identity_card
+    }
+}

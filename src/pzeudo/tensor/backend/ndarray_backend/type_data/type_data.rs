@@ -1,8 +1,8 @@
-pub trait NDArrayDataType {
+pub trait NDArrayDataType<'a> {
     type ScalarType;
     // desc
     fn get_array(&self) -> &Self;
-    fn get_shape(&self) -> &[usize];
+    fn get_shape(&'a self) -> &'a [usize];
 
     // initial
     fn zeros(shape: &[usize]) -> Self;

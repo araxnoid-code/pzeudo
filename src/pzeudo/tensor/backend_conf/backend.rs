@@ -6,13 +6,15 @@ use crate::{
 };
 
 ///
-pub trait PzeudoBackend<'s, A>
+pub trait PzeudoBackend<'a, A>
 where
-    A: Arr<'s> + 's,
+    A: Arr<'a>,
 {
     // type
+    type ShapeType;
 
     // desc
+    fn get_shape(&'a self) -> Self::ShapeType;
 
     // konstruktor
     // fn zeros(shape: A::ShapeType) -> Self;

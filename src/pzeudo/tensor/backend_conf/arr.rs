@@ -1,13 +1,13 @@
 use crate::{PzeudoDataTypeTrait, ShapeTrait};
 
-pub trait Arr<'s> {
+pub trait Arr<'a> {
     type ArrType;
     type ScalarType;
-    // type ShapeType: ShapeTrait;
+    type ShapeType;
 
     // desc
-    fn get_array(&'s self) -> &'s Self::ArrType;
-    // fn get_shape(&'s self) -> Self::ShapeType;
+    fn get_array(&'a self) -> &'a Self::ArrType;
+    fn get_shape(&'a self) -> Self::ShapeType;
 
     // initial
     // fn zeros(shape: Self::ShapeType) -> Self;

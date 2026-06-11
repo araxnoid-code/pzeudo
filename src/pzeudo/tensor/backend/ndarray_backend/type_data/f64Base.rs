@@ -1,20 +1,27 @@
-use std::ops::{Add, Div, Mul, Sub};
+use std::{
+    marker::PhantomData,
+    ops::{Add, Div, Mul, Sub},
+};
 
 use ndarray::{ArrayBase, ArrayD, Dim, IxDynImpl, OwnedRepr};
 
 use crate::{NDArrayDataType, PzeudoDataType};
 
-pub struct F64Base {
+pub struct F64Base<'a> {
     array: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64>,
+    _phantom: PhantomData<&'a i32>,
 }
 
-impl F64Base {
-    pub fn new(array: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64>) -> F64Base {
-        Self { array }
+impl<'a> F64Base<'a> {
+    pub fn new(array: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64>) -> F64Base<'a> {
+        Self {
+            array,
+            _phantom: PhantomData::default(),
+        }
     }
 }
 
-impl NDArrayDataType for F64Base {
+impl<'a> NDArrayDataType<'a> for F64Base<'a> {
     type ScalarType = PzeudoDataType;
 
     // desc
@@ -31,9 +38,11 @@ impl NDArrayDataType for F64Base {
         match scalar {
             PzeudoDataType::F64(scalar) => Self {
                 array: ArrayD::<f64>::from_elem(&[1_usize][..], scalar),
+                _phantom: PhantomData::default(),
             },
             PzeudoDataType::I32(scalar) => Self {
                 array: ArrayD::<f64>::from_elem(&[1_usize][..], scalar as f64),
+                _phantom: PhantomData::default(),
             },
         }
     }
@@ -41,12 +50,14 @@ impl NDArrayDataType for F64Base {
     fn ones(shape: &[usize]) -> Self {
         Self {
             array: ArrayD::<f64>::ones(shape),
+            _phantom: PhantomData::default(),
         }
     }
 
     fn zeros(shape: &[usize]) -> Self {
         Self {
             array: ArrayD::<f64>::zeros(shape),
+            _phantom: PhantomData::default(),
         }
     }
 
@@ -59,24 +70,28 @@ impl NDArrayDataType for F64Base {
     fn add(&self, rhs: &Self) -> Self {
         Self {
             array: (&self.array).add(&rhs.array),
+            _phantom: PhantomData::default(),
         }
     }
 
     fn sub(&self, rhs: &Self) -> Self {
         Self {
             array: (&self.array).sub(&rhs.array),
+            _phantom: PhantomData::default(),
         }
     }
 
     fn mul(&self, rhs: &Self) -> Self {
         Self {
             array: (&self.array).mul(&rhs.array),
+            _phantom: PhantomData::default(),
         }
     }
 
     fn div(&self, rhs: &Self) -> Self {
         Self {
             array: (&self.array).div(&rhs.array),
+            _phantom: PhantomData::default(),
         }
     }
 

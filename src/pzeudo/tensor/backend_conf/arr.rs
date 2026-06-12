@@ -11,7 +11,7 @@ pub trait Arr<'a> {
     // desc
     fn get_array(&'a self) -> &'a Self::InnerArrType;
     fn get_grad(&'a self) -> &'a Self::InnerArrType;
-    fn get_shape(&'a self) -> Self::ShapeType;
+    fn get_shape(&self) -> Self::ShapeType;
 
     // initial
     fn get_inner(&self) -> Self::InnerArrType;

@@ -6,10 +6,10 @@ pub trait NDArrayDataType<'a> {
 
     // desc
     fn get_array(&self) -> &Self::ArrType;
-    fn get_shape(&'a self) -> &'a [usize];
+    fn get_shape(&self) -> Vec<usize>;
 
     // initial
-    fn zeros(shape: &'a [usize]) -> Self;
+    fn zeros(shape: Vec<usize>) -> Self;
     fn ones(shape: &'a [usize]) -> Self;
     fn from_scalar(scalar: Self::ScalarType) -> Self;
 

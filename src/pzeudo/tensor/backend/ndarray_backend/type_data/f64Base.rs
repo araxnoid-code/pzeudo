@@ -41,8 +41,8 @@ impl<'a> NDArrayDataType<'a> for F64Base<'a> {
         &self
     }
 
-    fn get_shape(&self) -> &[usize] {
-        &self.shape
+    fn get_shape(&self) -> Vec<usize> {
+        self.shape.clone()
     }
 
     // initial
@@ -75,10 +75,10 @@ impl<'a> NDArrayDataType<'a> for F64Base<'a> {
         }
     }
 
-    fn zeros(shape: &'a [usize]) -> Self {
+    fn zeros(shape: Vec<usize>) -> Self {
         Self {
-            array: Arc::new(RwLock::new(ArrayD::<f64>::zeros(shape))),
             shape: shape.to_vec(),
+            array: Arc::new(RwLock::new(ArrayD::<f64>::zeros(shape))),
             _phantom: PhantomData::default(),
         }
     }

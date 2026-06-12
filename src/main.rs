@@ -12,15 +12,21 @@ use ndarray::{
 use pzeudo::{F64Base, NDArrayArr, NDArrayBackend, PzeudoBackend, PzeudoDataType, Tensor};
 
 fn main() {
-    let data = MyAnimal {
-        country: IndonesianAnimal {
-            animal: Komodo {
-                nama: "komodo dragon".to_string(),
-            },
-        },
-    };
+    let array_a = ArrayD::<f64>::from_elem(vec![2, 2], 1.);
+    let array_b = ArrayD::<f64>::from_elem(vec![2, 2], 3.);
 
-    data.country.execute_something();
+    let f64_base = F64Base::new(array_a);
+    let ndarray_arr = NDArrayArr::new(f64_base);
+    let backend = NDArrayBackend::new(ndarray_arr, None);
+    let tensor_a = Tensor::new(backend, None);
+
+    let f64_base = F64Base::new(array_b);
+    let ndarray_arr = NDArrayArr::new(f64_base);
+    let backend = NDArrayBackend::new(ndarray_arr, None);
+    let tensor_b = Tensor::new(backend, None);
+
+    let tensor_c = tensor_a.add(&tensor_b);
+    println!("{}", tensor_c.get_array());
 }
 
 struct MyAnimal<A>

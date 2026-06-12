@@ -29,7 +29,7 @@ where
     type InnerArrType = T::ArrType;
     type ArrType = T;
     type ScalarType = T::ScalarType;
-    type ShapeType = &'a [usize];
+    type ShapeType = Vec<usize>;
 
     // desc
     fn get_array(&'a self) -> &'a Self::InnerArrType {
@@ -40,8 +40,8 @@ where
         self.inner.get_array()
     }
 
-    fn get_shape(&'a self) -> Self::ShapeType {
-        self.inner.get_shape()
+    fn get_shape(&self) -> Self::ShapeType {
+        self.inner.get_shape().to_vec()
     }
 
     // intial

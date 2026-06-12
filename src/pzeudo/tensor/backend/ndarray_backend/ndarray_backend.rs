@@ -31,28 +31,14 @@ where
     type ShapeType = A::ShapeType;
 
     fn arr_into(arr: A, grad: bool) -> Self {
-        // let shape = arr.get_shape();
-        // let grad = if grad {
-        //     // Some(A::zeros())
-        // } else {
-        //     None
-        // };
+        let shape = arr.get_shape();
 
         Self {
             inner: arr,
-            grad: None,
+            grad: if grad { Some(A::zeros(shape)) } else { None },
             _phantom: Default::default(),
         }
     }
-    // fn arr_into(arr: A, grad: bool) -> Self {
-    //     let grad = if grad {
-    //         Some(A::zeros(arr.get_shape()))
-    //     } else {
-    //         None
-    //     };
-
-    //     Self::new(arr, grad)
-    // }
 
     // desc
     fn get_array(&'a self) -> &'a A::InnerArrType {

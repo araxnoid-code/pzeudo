@@ -34,12 +34,9 @@ where
     {
         let lhs = self.get_backend_arr();
         let rhs = rhs.get_backend_arr();
-
         let output = lhs.add(&rhs);
-        // let grad = output.get_shape();
 
-        panic!()
-        // Self::arr_into(output, true)
+        Self::arr_into(output, true)
     }
 
     fn sub(&self, rhs: &Self) -> Self

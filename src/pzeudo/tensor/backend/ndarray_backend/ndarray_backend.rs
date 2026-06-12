@@ -1,6 +1,6 @@
 use std::{fmt::Debug, marker::PhantomData};
 
-use crate::{Arr, PzeudoBackend, PzeudoDataType};
+use crate::{Arr, PzeudoBackend, PzeudoDataType, tensor::backend_conf};
 
 pub struct NDArrayBackend<'a, A>
 where
@@ -31,15 +31,28 @@ where
     type ShapeType = A::ShapeType;
 
     fn arr_into(arr: A, grad: bool) -> Self {
-        let grad = if grad {
-            panic!()
-            // Some(A::zeros(arr.get_shape()))
-        } else {
-            None
-        };
+        // let shape = arr.get_shape();
+        // let grad = if grad {
+        //     // Some(A::zeros())
+        // } else {
+        //     None
+        // };
 
-        Self::new(arr, grad)
+        Self {
+            inner: arr,
+            grad: None,
+            _phantom: Default::default(),
+        }
     }
+    // fn arr_into(arr: A, grad: bool) -> Self {
+    //     let grad = if grad {
+    //         Some(A::zeros(arr.get_shape()))
+    //     } else {
+    //         None
+    //     };
+
+    //     Self::new(arr, grad)
+    // }
 
     // desc
     fn get_array(&'a self) -> &'a A::InnerArrType {

@@ -6,9 +6,9 @@ where
     B: PzeudoBackend<'s, A>,
 {
     pub fn sub(&self, rhs: &Self) -> Tensor<'s, A, B> {
-        let lhs = self.backend.clone();
-        let rhs = rhs.backend.clone();
-        let output = lhs.read().unwrap().sub(rhs.read().as_ref().unwrap());
-        Tensor::new(output, Some(BackwardLabel::Sub(lhs, rhs)))
+        // let lhs = self.backend;
+        // let rhs = rhs.backend;
+        let output = self.backend.sub(&rhs.backend);
+        Tensor::new(output, None)
     }
 }

@@ -52,17 +52,23 @@ where
         }
     }
 
-    // fn zeros(shape: Self::ShapeType) -> Self {
-    //     Self {
-    //         inner: T::zeros(shape.shape),
-    //     }
-    // }
+    fn zeros(shape: Self::ShapeType) -> Self {
+        Self {
+            inner: T::zeros(shape),
+            _phantom: PhantomData::default(),
+        }
+    }
 
     // fn ones(shape: Self::ShapeType) -> Self {
     //     Self {
     //         inner: T::ones(shape.shape),
     //     }
     // }
+
+    // getter
+    fn get_inner(&self) -> Self::InnerArrType {
+        panic!()
+    }
 
     // setter
     fn add_to(&mut self, rhs: &Self) {

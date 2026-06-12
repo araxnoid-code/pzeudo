@@ -1,4 +1,5 @@
 use std::{
+    fmt::Debug,
     marker::PhantomData,
     ops::Add,
     process::Child,
@@ -11,52 +12,104 @@ use ndarray::{
 use pzeudo::{F64Base, NDArrayArr, NDArrayBackend, PzeudoBackend, PzeudoDataType, Tensor};
 
 fn main() {
-    let array_a: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64> = ArrayD::<f64>::zeros(vec![2, 2]);
+    let data = MyAnimal {
+        country: IndonesianAnimal {
+            animal: Komodo {
+                nama: "komodo dragon".to_string(),
+            },
+        },
+    };
 
-    let array_b: ArrayBase<ViewRepr<&f64>, Dim<IxDynImpl>, f64> =
-        ArrayD::<f64>::zeros(vec![2, 2]).view();
-
-    let f64_base = F64Base::new(array_a);
-
-    let ndarray_arr = NDArrayArr::new(f64_base);
-
-    let backend = NDArrayBackend::new(ndarray_arr, None);
-
-    let tensor = Tensor::new(backend, None);
-
-    // println!("{}", tensor.get_array());
+    data.country.execute_something();
 }
 
-struct Penduduk<'PendudukLT> {
-    nama: String,
-    identity_card: i32,
-    _phantom: PhantomData<&'PendudukLT i32>,
+struct MyAnimal<A>
+where
+    A: CountryTrait,
+{
+    country: A,
+}
+
+trait CountryTrait {
+    type Identifier<'i>: Debug
+    where
+        Self: 'i;
+
+    fn identifier(&self) -> Self::Identifier<'_>;
+    fn execute_something(&self) -> Self::Identifier<'_>;
 }
 
 //
-struct Data<'PendudukLT, P: PendudukTrait<'PendudukLT>> {
-    penduduk: Arc<Mutex<P>>,
-    _phantom: PhantomData<&'PendudukLT i32>,
-}
-
-impl<'PendudukLT, P: PendudukTrait<'PendudukLT, IdentityCrad = &'PendudukLT i32>>
-    Data<'PendudukLT, P>
+struct IndonesianAnimal<I>
+where
+    I: IndonesianAnimalTrait,
 {
-    pub fn pinjam_identifier(&'PendudukLT self) -> &Arc<Mutex<P>> {
-        &self.penduduk
+    animal: I,
+}
+impl<I> CountryTrait for IndonesianAnimal<I>
+where
+    I: IndonesianAnimalTrait,
+{
+    type Identifier<'i>
+        = I::Identifier<'i>
+    where
+        Self: 'i;
+
+    fn execute_something(&self) -> Self::Identifier<'_> {
+        panic!()
+        // I::execute_something()
+    }
+    // fn execute_something(&self) -> I {
+    // I::execute_something()
+    // }
+
+    fn identifier(&self) -> Self::Identifier<'_> {
+        self.animal.indentifier()
     }
 }
 
-//
+trait IndonesianAnimalTrait {
+    type Identifier<'i>: Debug
+    where
+        Self: 'i;
 
-trait PendudukTrait<'PendudukLT> {
-    type IdentityCrad;
-    fn pinjamkan_identity_card(&'PendudukLT self) -> Self::IdentityCrad;
+    fn indentifier(&self) -> Self::Identifier<'_>;
+
+    fn other_indentifier(&self) -> &String;
+
+    fn create_new_animal() -> Self;
+
+    fn execute_something() -> Self
+    where
+        Self: Sized,
+    {
+        let new_komodo = Self::create_new_animal();
+        new_komodo
+    }
 }
 
-impl<'PendudukLT> PendudukTrait<'PendudukLT> for Penduduk<'PendudukLT> {
-    type IdentityCrad = &'PendudukLT i32;
-    fn pinjamkan_identity_card(&'PendudukLT self) -> Self::IdentityCrad {
-        &self.identity_card
+struct Komodo {
+    nama: String,
+}
+
+impl IndonesianAnimalTrait for Komodo {
+    type Identifier<'i>
+        = &'i String
+    where
+        Self: 'i;
+
+    fn create_new_animal() -> Self {
+        Self {
+            nama: "new komodo".to_string(),
+            // _phantom: PhantomData::default(),
+        }
+    }
+
+    fn indentifier(&self) -> Self::Identifier<'_> {
+        &self.nama
+    }
+
+    fn other_indentifier(&self) -> &String {
+        &self.nama
     }
 }

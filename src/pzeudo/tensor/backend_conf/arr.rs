@@ -14,7 +14,8 @@ pub trait Arr<'a> {
     fn get_shape(&'a self) -> Self::ShapeType;
 
     // initial
-    // fn zeros(shape: Self::ShapeType) -> Self;
+    fn get_inner(&self) -> Self::InnerArrType;
+    fn zeros(shape: Self::ShapeType) -> Self;
     // fn ones(shape: Self::ShapeType) -> Self;
     fn from_scalar(scalar: impl PzeudoDataTypeTrait) -> Self;
 

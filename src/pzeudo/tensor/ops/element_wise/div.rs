@@ -6,9 +6,9 @@ where
     B: PzeudoBackend<'s, A>,
 {
     pub fn div(&self, rhs: &Self) -> Tensor<'s, A, B> {
-        let lhs = self.backend.clone();
-        let rhs = rhs.backend.clone();
-        let output = lhs.read().unwrap().div(rhs.read().as_ref().unwrap());
-        Tensor::new(output, Some(BackwardLabel::Div(lhs, rhs)))
+        // let lhs = self.backend.clone();
+        // let rhs = rhs.backend.clone();
+        let output = self.backend.div(&rhs.backend);
+        Tensor::new(output, None)
     }
 }

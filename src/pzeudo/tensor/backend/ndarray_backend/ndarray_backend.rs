@@ -2,31 +2,26 @@ use std::{fmt::Debug, marker::PhantomData};
 
 use crate::{Arr, PzeudoBackend, PzeudoDataType, tensor::backend_conf};
 
-pub struct NDArrayBackend<'a, A>
+pub struct NDArrayBackend<A>
 where
-    A: Arr<'a>,
+    A: Arr,
 {
     pub(crate) inner: A,
     pub(crate) grad: Option<A>,
-    _phantom: PhantomData<&'a A>,
 }
 
-impl<'a, A> NDArrayBackend<'a, A>
+impl<A> NDArrayBackend<A>
 where
-    A: Arr<'a>,
+    A: Arr,
 {
-    pub fn new(inner: A, grad: Option<A>) -> NDArrayBackend<'a, A> {
-        Self {
-            inner,
-            grad,
-            _phantom: Default::default(),
-        }
+    pub fn new(inner: A, grad: Option<A>) -> NDArrayBackend<A> {
+        Self { inner, grad }
     }
 }
 
-impl<'a, A> PzeudoBackend<'a, A> for NDArrayBackend<'a, A>
+impl<A> PzeudoBackend<A> for NDArrayBackend<A>
 where
-    A: Arr<'a, ScalarType = PzeudoDataType>,
+    A: Arr<ScalarType = PzeudoDataType>,
 {
     type ShapeType = A::ShapeType;
 
@@ -36,16 +31,15 @@ where
         Self {
             inner: arr,
             grad: if grad { Some(A::zeros(shape)) } else { None },
-            _phantom: Default::default(),
         }
     }
 
     // desc
-    fn get_array(&'a self) -> &'a A::InnerArrType {
+    fn get_array(&self) -> &A::InnerArrType {
         self.inner.get_array()
     }
 
-    fn get_grad(&'a self) -> Option<&'a A::InnerArrType> {
+    fn get_grad(&self) -> Option<&A::InnerArrType> {
         if let Some(grad) = self.grad.as_ref() {
             Some(grad.get_array())
         } else {
@@ -53,7 +47,7 @@ where
         }
     }
 
-    fn get_shape(&'a self) -> Self::ShapeType {
+    fn get_shape(&self) -> Self::ShapeType {
         self.inner.get_shape()
     }
 

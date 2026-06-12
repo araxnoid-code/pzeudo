@@ -9,31 +9,29 @@ use ndarray::{ArrayBase, ArrayD, Dim, IxDynImpl, OwnedRepr};
 
 use crate::{NDArrayDataType, PzeudoDataType};
 
-pub struct F64Base<'a> {
+pub struct F64Base {
     array: Arc<RwLock<ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64>>>,
     shape: Vec<usize>,
-    _phantom: PhantomData<&'a i32>,
 }
 
-impl<'a> F64Base<'a> {
-    pub fn new(array: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64>) -> F64Base<'a> {
+impl F64Base {
+    pub fn new(array: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64>) -> F64Base {
         Self {
             shape: array.shape().to_vec(),
             array: Arc::new(RwLock::new(array)),
-            _phantom: PhantomData::default(),
         }
     }
 }
 
-impl<'a> Display for F64Base<'a> {
+impl Display for F64Base {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let read = self.array.read().unwrap();
         f.write_str(&format!("{}", read))
     }
 }
 
-impl<'a> NDArrayDataType<'a> for F64Base<'a> {
-    type ArrType = F64Base<'a>;
+impl NDArrayDataType for F64Base {
+    type ArrType = F64Base;
     type ScalarType = PzeudoDataType;
 
     // desc
@@ -54,7 +52,6 @@ impl<'a> NDArrayDataType<'a> for F64Base<'a> {
                     scalar,
                 ))),
                 shape: vec![1],
-                _phantom: PhantomData::default(),
             },
             PzeudoDataType::I32(scalar) => Self {
                 array: Arc::new(RwLock::new(ArrayD::<f64>::from_elem(
@@ -62,16 +59,14 @@ impl<'a> NDArrayDataType<'a> for F64Base<'a> {
                     scalar as f64,
                 ))),
                 shape: vec![1],
-                _phantom: PhantomData::default(),
             },
         }
     }
 
-    fn ones(shape: &'a [usize]) -> Self {
+    fn ones(shape: Vec<usize>) -> Self {
         Self {
-            array: Arc::new(RwLock::new(ArrayD::<f64>::ones(shape))),
             shape: shape.to_vec(),
-            _phantom: PhantomData::default(),
+            array: Arc::new(RwLock::new(ArrayD::<f64>::ones(shape))),
         }
     }
 
@@ -79,7 +74,6 @@ impl<'a> NDArrayDataType<'a> for F64Base<'a> {
         Self {
             shape: shape.to_vec(),
             array: Arc::new(RwLock::new(ArrayD::<f64>::zeros(shape))),
-            _phantom: PhantomData::default(),
         }
     }
 
@@ -96,7 +90,6 @@ impl<'a> NDArrayDataType<'a> for F64Base<'a> {
                 (&*self.array.read().unwrap()).add(&*rhs.array.read().unwrap()),
             )),
             shape: self.shape.to_vec(),
-            _phantom: PhantomData::default(),
         }
     }
 
@@ -106,7 +99,6 @@ impl<'a> NDArrayDataType<'a> for F64Base<'a> {
                 (&*self.array.read().unwrap()).sub(&*rhs.array.read().unwrap()),
             )),
             shape: rhs.shape.to_vec(),
-            _phantom: PhantomData::default(),
         }
     }
 
@@ -116,7 +108,6 @@ impl<'a> NDArrayDataType<'a> for F64Base<'a> {
                 (&*self.array.read().unwrap()).mul(&*rhs.array.read().unwrap()),
             )),
             shape: rhs.shape.to_vec(),
-            _phantom: PhantomData::default(),
         }
     }
 
@@ -126,7 +117,6 @@ impl<'a> NDArrayDataType<'a> for F64Base<'a> {
                 (&*self.array.read().unwrap()).div(&*rhs.array.read().unwrap()),
             )),
             shape: rhs.shape.to_vec(),
-            _phantom: PhantomData::default(),
         }
     }
 

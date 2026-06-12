@@ -1,11 +1,11 @@
 use crate::{Arr, PzeudoBackend, PzeudoDataType, Tensor, tensor::ops::BackwardLabel};
 
-impl<'s, A, B> Tensor<'s, A, B>
+impl<A, B> Tensor<A, B>
 where
-    A: Arr<'s, ScalarType = PzeudoDataType>,
-    B: PzeudoBackend<'s, A>,
+    A: Arr<ScalarType = PzeudoDataType>,
+    B: PzeudoBackend<A>,
 {
-    pub fn div(&self, rhs: &Self) -> Tensor<'s, A, B> {
+    pub fn div(&self, rhs: &Self) -> Tensor<A, B> {
         // let lhs = self.backend.clone();
         // let rhs = rhs.backend.clone();
         let output = self.backend.div(&rhs.backend);

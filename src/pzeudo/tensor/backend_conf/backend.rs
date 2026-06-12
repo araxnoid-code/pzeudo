@@ -6,17 +6,17 @@ use crate::{
 };
 
 ///
-pub trait PzeudoBackend<'a, A>
+pub trait PzeudoBackend<A>
 where
-    A: Arr<'a> + 'a,
+    A: Arr,
 {
     // type
     type ShapeType;
 
     // desc
-    fn get_array(&'a self) -> &'a A::InnerArrType;
-    fn get_grad(&'a self) -> Option<&'a A::InnerArrType>;
-    fn get_shape(&'a self) -> Self::ShapeType;
+    fn get_array(&self) -> &A::InnerArrType;
+    fn get_grad(&self) -> Option<&A::InnerArrType>;
+    fn get_shape(&self) -> Self::ShapeType;
 
     // konstruktor
     // fn zeros(shape: A::ShapeType) -> Self;

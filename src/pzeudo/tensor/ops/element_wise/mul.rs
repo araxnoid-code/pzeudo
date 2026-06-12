@@ -1,11 +1,11 @@
 use crate::{Arr, PzeudoBackend, PzeudoDataType, Tensor, tensor::ops::BackwardLabel};
 
-impl<'s, A, B> Tensor<'s, A, B>
+impl<A, B> Tensor<A, B>
 where
-    A: Arr<'s, ScalarType = PzeudoDataType>,
-    B: PzeudoBackend<'s, A>,
+    A: Arr<ScalarType = PzeudoDataType>,
+    B: PzeudoBackend<A>,
 {
-    pub fn mul(&self, rhs: &Self) -> Tensor<'s, A, B> {
+    pub fn mul(&self, rhs: &Self) -> Tensor<A, B> {
         let output = self.backend.mul(&rhs.backend);
         Tensor::new(output, None)
     }

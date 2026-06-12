@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-pub trait NDArrayDataType<'a> {
+pub trait NDArrayDataType {
     type ArrType: Display;
     type ScalarType;
 
@@ -10,7 +10,7 @@ pub trait NDArrayDataType<'a> {
 
     // initial
     fn zeros(shape: Vec<usize>) -> Self;
-    fn ones(shape: &'a [usize]) -> Self;
+    fn ones(shape: Vec<usize>) -> Self;
     fn from_scalar(scalar: Self::ScalarType) -> Self;
 
     // setter

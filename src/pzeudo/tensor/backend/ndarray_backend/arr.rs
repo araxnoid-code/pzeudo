@@ -2,29 +2,25 @@ use std::marker::PhantomData;
 
 use crate::{Arr, NDArrayDataType, PzeudoDataType};
 
-pub struct NDArrayArr<'a, T>
+pub struct NDArrayArr<T>
 where
-    T: NDArrayDataType<'a>,
+    T: NDArrayDataType,
 {
     inner: T,
-    _phantom: PhantomData<&'a i32>,
 }
 
-impl<'a, T> NDArrayArr<'a, T>
+impl<T> NDArrayArr<T>
 where
-    T: NDArrayDataType<'a>,
+    T: NDArrayDataType,
 {
-    pub fn new(inner: T) -> NDArrayArr<'a, T> {
-        Self {
-            inner,
-            _phantom: PhantomData::default(),
-        }
+    pub fn new(inner: T) -> NDArrayArr<T> {
+        Self { inner }
     }
 }
 
-impl<'a, T> Arr<'a> for NDArrayArr<'a, T>
+impl<T> Arr for NDArrayArr<T>
 where
-    T: NDArrayDataType<'a, ScalarType = PzeudoDataType>,
+    T: NDArrayDataType<ScalarType = PzeudoDataType>,
 {
     type InnerArrType = T::ArrType;
     type ArrType = T;
@@ -32,11 +28,7 @@ where
     type ShapeType = Vec<usize>;
 
     // desc
-    fn get_array(&'a self) -> &'a Self::InnerArrType {
-        self.inner.get_array()
-    }
-
-    fn get_grad(&'a self) -> &'a Self::InnerArrType {
+    fn get_array(&self) -> &Self::InnerArrType {
         self.inner.get_array()
     }
 
@@ -48,14 +40,12 @@ where
     fn from_scalar(scalar: impl crate::PzeudoDataTypeTrait) -> Self {
         Self {
             inner: T::from_scalar(scalar.into_pzeudo_data_type()),
-            _phantom: PhantomData::default(),
         }
     }
 
     fn zeros(shape: Self::ShapeType) -> Self {
         Self {
             inner: T::zeros(shape),
-            _phantom: PhantomData::default(),
         }
     }
 
@@ -78,34 +68,22 @@ where
     // element-wise ops
     fn add(&self, rhs: &Self) -> Self {
         let inner = self.inner.add(&rhs.inner);
-        Self {
-            inner,
-            _phantom: PhantomData::default(),
-        }
+        Self { inner }
     }
 
     fn sub(&self, rhs: &Self) -> Self {
         let inner = self.inner.sub(&rhs.inner);
-        Self {
-            inner,
-            _phantom: PhantomData::default(),
-        }
+        Self { inner }
     }
 
     fn div(&self, rhs: &Self) -> Self {
         let inner = self.inner.div(&rhs.inner);
-        Self {
-            inner,
-            _phantom: PhantomData::default(),
-        }
+        Self { inner }
     }
 
     fn mul(&self, rhs: &Self) -> Self {
         let inner = self.inner.mul(&rhs.inner);
-        Self {
-            inner,
-            _phantom: PhantomData::default(),
-        }
+        Self { inner }
     }
 
     // scalar element-wise ops

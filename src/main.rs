@@ -10,14 +10,23 @@ use ndarray::{
     Array2, ArrayBase, ArrayD, ArrayView, Dim, IxDynImpl, OwnedRepr, Slice, SliceArg, SliceInfo,
     SliceInfoElem, ViewRepr, linalg::Dot, s,
 };
+use pzeudo::Tensor;
 
 // fn nd_matmul(lhs: &ArrayBase<>) {}
 
 fn main() {
-    let array_a = ArrayD::<f64>::from_elem(vec![2, 2, 2, 3], 1.);
-    let array_b = ArrayD::<f64>::from_elem(vec![2, 2, 3, 2], 3.);
+    let array_a: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64> =
+        ArrayD::<f64>::from_elem(vec![2, 3], 1.);
+    let array_b = ArrayD::<f64>::from_elem(vec![2, 3], 3.);
 
-    let a: SliceInfo<[SliceInfoElem; 2], Dim<[usize; 2]>, Dim<[usize; 2]>> = s![0..1, 2..0];
+    // let array_b_view = array_b;
+
+    // let out = array_a + array_b_view;
+
+    // let tensor_a = Tensor::new(pzeudo::PzeudoArray::OwnRepr(array_a), None);
+    // let tensor_b = Tensor::new(array_b, None);
+    // let tensor_c = tensor_a.add(&tensor_b);
+    // println!("{}", tensor_c);
 
     // unsafe {
     //     let slice: SliceInfo<&[SliceInfoElem; 4], Dim<IxDynImpl>, Dim<IxDynImpl>> =

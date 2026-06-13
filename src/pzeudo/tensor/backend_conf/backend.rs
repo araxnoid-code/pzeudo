@@ -98,7 +98,23 @@ where
             }
 
             if let Some(lhs_grad) = lhs.get_backend_grad_as_mut() {
-                let scalar = A::from_scalar(10.);
+                let scalar = A::from_scalar(-1.);
+                lhs_grad.add_to(&cr_grad.mul(&scalar));
+            }
+        }
+    }
+
+    fn mul_d(grad_arr: &mut Self, rhs: &mut Self, lhs: &mut Self)
+    where
+        Self: Sized,
+    {
+        if let Some(cr_grad) = grad_arr.get_backend_grad_as_mut() {
+            if let Some(rhs_grad) = rhs.get_backend_grad_as_mut() {
+                rhs_grad.add_to(cr_grad);
+            }
+
+            if let Some(lhs_grad) = lhs.get_backend_grad_as_mut() {
+                let scalar = A::from_scalar(-1.);
                 lhs_grad.add_to(&cr_grad.mul(&scalar));
             }
         }

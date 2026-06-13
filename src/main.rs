@@ -1,32 +1,69 @@
 use std::{
     fmt::Debug,
     marker::PhantomData,
-    ops::Add,
+    ops::{Add, Mul},
     process::Child,
     sync::{Arc, Mutex, MutexGuard},
 };
 
 use ndarray::{
-    Array2, ArrayBase, ArrayD, ArrayView, Dim, IxDynImpl, OwnedRepr, ViewRepr, linalg::Dot,
+    Array2, ArrayBase, ArrayD, ArrayView, Dim, IxDynImpl, OwnedRepr, Slice, SliceArg, SliceInfo,
+    SliceInfoElem, ViewRepr, linalg::Dot, s,
 };
 use pzeudo::{F64Base, NDArrayArr, NDArrayBackend, PzeudoBackend, PzeudoDataType, Tensor};
 
+// fn nd_matmul(lhs: &ArrayBase<>) {}
+
 fn main() {
-    let array_a = ArrayD::<f64>::from_elem(vec![2, 2], 1.);
-    let array_b = ArrayD::<f64>::from_elem(vec![2, 2], 3.);
+    let array_a = ArrayD::<f64>::from_elem(vec![2, 2, 2, 3], 1.);
+    let array_b = ArrayD::<f64>::from_elem(vec![2, 2, 3, 2], 3.);
 
-    let f64_base = F64Base::new(array_a);
-    let ndarray_arr = NDArrayArr::new(f64_base);
-    let backend = NDArrayBackend::new(ndarray_arr, None);
-    let tensor_a = Tensor::new(backend, None);
+    let a: SliceInfo<[SliceInfoElem; 2], Dim<[usize; 2]>, Dim<[usize; 2]>> = s![0..1, 2..0];
 
-    let f64_base = F64Base::new(array_b);
-    let ndarray_arr = NDArrayArr::new(f64_base);
-    let backend = NDArrayBackend::new(ndarray_arr, None);
-    let tensor_b = Tensor::new(backend, None);
+    // unsafe {
+    //     let slice: SliceInfo<&[SliceInfoElem; 4], Dim<IxDynImpl>, Dim<IxDynImpl>> =
+    //         SliceInfo::new(&[
+    //             SliceInfoElem::Slice {
+    //                 start: 0,
+    //                 end: None,
+    //                 step: 1,
+    //             },
+    //             SliceInfoElem::Slice {
+    //                 start: 0,
+    //                 end: None,
+    //                 step: 1,
+    //             },
+    //             SliceInfoElem::Slice {
+    //                 start: 0,
+    //                 end: None,
+    //                 step: 1,
+    //             },
+    //             SliceInfoElem::Slice {
+    //                 start: 1,
+    //                 end: None,
+    //                 step: 1,
+    //             },
+    //         ])
+    //         .unwrap();
 
-    let tensor_c = tensor_a.add(&tensor_b);
-    println!("{}", tensor_c.get_array());
+    //     let slice = array_a.slice(slice);
+    //     println!("{}", slice);
+    // }
+
+    // let slice
+
+    // let f64_base = F64Base::new(array_a);
+    // let ndarray_arr = NDArrayArr::new(f64_base);
+    // let backend = NDArrayBackend::new(ndarray_arr, None);
+    // let tensor_a = Tensor::new(backend, None);
+
+    // let f64_base = F64Base::new(array_b);
+    // let ndarray_arr = NDArrayArr::new(f64_base);
+    // let backend = NDArrayBackend::new(ndarray_arr, None);
+    // let tensor_b = Tensor::new(backend, None);
+
+    // let tensor_c = tensor_a.add(&tensor_b);
+    // println!("{}", tensor_c.get_array());
 }
 
 struct MyAnimal<A>

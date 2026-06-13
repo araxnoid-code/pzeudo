@@ -85,6 +85,4 @@ where
         let inner = self.inner.mul(&rhs.inner);
         Self { inner }
     }
-
-    // scalar element-wise ops
 }

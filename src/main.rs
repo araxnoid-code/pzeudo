@@ -10,7 +10,6 @@ use ndarray::{
     Array2, ArrayBase, ArrayD, ArrayView, Dim, IxDynImpl, OwnedRepr, Slice, SliceArg, SliceInfo,
     SliceInfoElem, ViewRepr, linalg::Dot, s,
 };
-use pzeudo::{F64Base, NDArrayArr, NDArrayBackend, PzeudoBackend, PzeudoDataType, Tensor};
 
 // fn nd_matmul(lhs: &ArrayBase<>) {}
 

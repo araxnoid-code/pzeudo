@@ -1,5 +1,5 @@
 use std::{
-    fmt::Debug,
+    fmt::{Debug, Display},
     marker::PhantomData,
     ops::{Add, Mul},
     process::Child,
@@ -15,152 +15,44 @@ use pzeudo::Tensor;
 // fn nd_matmul(lhs: &ArrayBase<>) {}
 
 fn main() {
-    let array_a: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64> =
-        ArrayD::<f64>::from_elem(vec![2, 3], 1.);
-    let array_b = ArrayD::<f64>::from_elem(vec![2, 3], 3.);
-
-    // let array_b_view = array_b;
-
-    // let out = array_a + array_b_view;
-
-    // let tensor_a = Tensor::new(pzeudo::PzeudoArray::OwnRepr(array_a), None);
-    // let tensor_b = Tensor::new(array_b, None);
-    // let tensor_c = tensor_a.add(&tensor_b);
-    // println!("{}", tensor_c);
-
-    // unsafe {
-    //     let slice: SliceInfo<&[SliceInfoElem; 4], Dim<IxDynImpl>, Dim<IxDynImpl>> =
-    //         SliceInfo::new(&[
-    //             SliceInfoElem::Slice {
-    //                 start: 0,
-    //                 end: None,
-    //                 step: 1,
-    //             },
-    //             SliceInfoElem::Slice {
-    //                 start: 0,
-    //                 end: None,
-    //                 step: 1,
-    //             },
-    //             SliceInfoElem::Slice {
-    //                 start: 0,
-    //                 end: None,
-    //                 step: 1,
-    //             },
-    //             SliceInfoElem::Slice {
-    //                 start: 1,
-    //                 end: None,
-    //                 step: 1,
-    //             },
-    //         ])
-    //         .unwrap();
-
-    //     let slice = array_a.slice(slice);
-    //     println!("{}", slice);
-    // }
-
-    // let slice
-
-    // let f64_base = F64Base::new(array_a);
-    // let ndarray_arr = NDArrayArr::new(f64_base);
-    // let backend = NDArrayBackend::new(ndarray_arr, None);
-    // let tensor_a = Tensor::new(backend, None);
-
-    // let f64_base = F64Base::new(array_b);
-    // let ndarray_arr = NDArrayArr::new(f64_base);
-    // let backend = NDArrayBackend::new(ndarray_arr, None);
-    // let tensor_b = Tensor::new(backend, None);
-
-    // let tensor_c = tensor_a.add(&tensor_b);
-    // println!("{}", tensor_c.get_array());
+    // let globale:Vec<> =  vec![];
 }
 
-struct MyAnimal<A>
-where
-    A: CountryTrait,
-{
-    country: A,
+trait Sample<'ref_data> {
+    type refr: Display;
+    fn get_ref(&'ref_data self) -> Self::refr;
 }
 
-trait CountryTrait {
-    type Identifier<'i>: Debug
-    where
-        Self: 'i;
-
-    fn identifier(&self) -> Self::Identifier<'_>;
-    fn execute_something(&self) -> Self::Identifier<'_>;
-}
-
-//
-struct IndonesianAnimal<I>
-where
-    I: IndonesianAnimalTrait,
-{
-    animal: I,
-}
-impl<I> CountryTrait for IndonesianAnimal<I>
-where
-    I: IndonesianAnimalTrait,
-{
-    type Identifier<'i>
-        = I::Identifier<'i>
-    where
-        Self: 'i;
-
-    fn execute_something(&self) -> Self::Identifier<'_> {
-        panic!()
-        // I::execute_something()
-    }
-    // fn execute_something(&self) -> I {
-    // I::execute_something()
-    // }
-
-    fn identifier(&self) -> Self::Identifier<'_> {
-        self.animal.indentifier()
+impl<'ref_data> Sample<'ref_data> for String {
+    type refr = &'ref_data Self;
+    fn get_ref(&'ref_data self) -> Self::refr {
+        self
     }
 }
 
-trait IndonesianAnimalTrait {
-    type Identifier<'i>: Debug
-    where
-        Self: 'i;
+struct Data<'own, 'prev_a, 'prev_b, S> {
+    data: &'own S,
+    prev: Option<(&'prev_a String, &'prev_b String)>,
+    next: Option<String>,
+}
 
-    fn indentifier(&self) -> Self::Identifier<'_>;
-
-    fn other_indentifier(&self) -> &String;
-
-    fn create_new_animal() -> Self;
-
-    fn execute_something() -> Self
-    where
-        Self: Sized,
+impl<'own, 'prev_a, 'prev_b, S> Data<'own, 'prev_a, 'prev_b, S>
+where
+    for<'sample> S: Sample<'sample, refr = &'sample String>,
+{
+    fn execute1<'others, 'others_prev_a, 'others_prev_b, OS>(
+        &'own mut self,
+        others: &'others Data<'others, 'others_prev_a, 'others_prev_b, OS>,
+    ) where
+        for<'sample> OS: Sample<'sample, refr = &'sample String>,
     {
-        let new_komodo = Self::create_new_animal();
-        new_komodo
-    }
-}
+        let value = format!("{} {}", self.data.get_ref(), others.data.get_ref());
+        self.next = Some(value);
 
-struct Komodo {
-    nama: String,
-}
-
-impl IndonesianAnimalTrait for Komodo {
-    type Identifier<'i>
-        = &'i String
-    where
-        Self: 'i;
-
-    fn create_new_animal() -> Self {
-        Self {
-            nama: "new komodo".to_string(),
-            // _phantom: PhantomData::default(),
-        }
-    }
-
-    fn indentifier(&self) -> Self::Identifier<'_> {
-        &self.nama
-    }
-
-    fn other_indentifier(&self) -> &String {
-        &self.nama
+        Data {
+            data: self.next.as_ref().unwrap(),
+            prev: Some((self.data.get_ref(), others.data.get_ref())),
+            next: None,
+        };
     }
 }

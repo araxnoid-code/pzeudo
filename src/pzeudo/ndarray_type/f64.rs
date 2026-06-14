@@ -17,11 +17,11 @@ impl<'a> NDArrayF64<'a> {
             Self::OwnRepr(arr) => {
                 let read: RwLockReadGuard<'b, ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64>> =
                     arr.read().unwrap();
-                NDArrayF64::ViewRepr(RwLock::new(read.slice(get())))
+                // NDArrayF64::ViewRepr(RwLock::new(read.slice(get())))
             }
             Self::ViewRepr(arr) => {
                 let read = arr.read().unwrap();
-                NDArrayF64::ViewRepr(RwLock::new(read.slice(get())))
+                // NDArrayF64::ViewRepr(RwLock::new(read.slice(get())))
             }
         };
     }

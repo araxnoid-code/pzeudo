@@ -1,69 +1,83 @@
-use std::sync::{Arc, RwLock};
+use std::{
+    marker::PhantomData,
+    sync::{Arc, Mutex, RwLock},
+};
 
 use ndarray::{ArrayBase, Dim, IxDynImpl, OwnedRepr};
 
-use crate::{BackLabel, NDArrayF64, TensorInner};
+use crate::{BackLabel, NDArrayF64, OwnTensorF64, TensorF64Inner};
 
-pub struct Tensor<'a> {
-    inner: Arc<TensorInner<'a>>,
+pub struct Tensor<I, Lhs, Rhs>
+where
+    Lhs: TensorF64Inner,
+    Rhs: TensorF64Inner,
+    I: TensorF64Inner<Lhs = Lhs, Rhs = Rhs>,
+{
+    inner: Arc<I>,
+    _lhs_phantom: PhantomData<Lhs>,
+    _rhs_phantom: PhantomData<Rhs>,
 }
 
-impl<'a> Tensor<'a> {
-    pub fn new(
-        array: ArrayBase<OwnedRepr<f64>, Dim<IxDynImpl>, f64>,
-        grad: Option<NDArrayF64<'a>>,
-        back_label: Option<BackLabel<'a>>,
-    ) -> Tensor<'a> {
-        let shape = array.shape().to_vec();
-        Self {
-            inner: Arc::new(TensorInner::new(
-                NDArrayF64::OwnRepr(RwLock::new(array)),
-                grad,
-                shape,
-                back_label,
-            )),
+impl<I, OwnLhs, OwnRhs> Tensor<I, OwnLhs, OwnRhs>
+where
+    OwnLhs: TensorF64Inner,
+    OwnRhs: TensorF64Inner,
+    I: TensorF64Inner<Lhs = OwnLhs, Rhs = OwnRhs>,
+{
+    pub fn add<'v, A, OtherLhs, OtherRhs>(
+        &self,
+        rhs: &Tensor<A, OtherLhs, OtherRhs>,
+    ) -> Tensor<I, I, A>
+    where
+        OtherLhs: TensorF64Inner,
+        OtherRhs: TensorF64Inner,
+        A: TensorF64Inner<ViewArr<'v> = I::ViewArr<'v>, Lhs = OtherLhs, Rhs = OtherRhs>,
+    {
+        let mut inner = I::own_type_into(self.inner.add(&rhs.inner.view()));
+        if let Some(back_label) = self.inner.get_back_label_mut() {
+            let lock = back_label.lock().unwrap();
+            // *back_label = BackLabel::Add(self.inner.clone(), rhs.inner.clone());
         }
-    }
 
-    pub fn add(&'a self, rhs: &Self) -> Self {
-        let mut inner = self.inner.add(&rhs.inner);
-        inner.back_label = Some(BackLabel::Add(
-            Arc::clone(&self.inner),
-            Arc::clone(&rhs.inner),
-        ));
         Tensor {
             inner: Arc::new(inner),
         }
     }
 
-    pub fn sub(&'a self, rhs: &Self) -> Self {
-        let mut inner = self.inner.sub(&rhs.inner);
-        inner.back_label = Some(BackLabel::Add(
-            Arc::clone(&self.inner),
-            Arc::clone(&rhs.inner),
-        ));
+    pub fn sub(&self, rhs: &Self) -> Tensor<I> {
+        let mut inner = self.inner.sub(&rhs.inner.view());
+        let back_label = inner.get_back_label_mut();
+        // *back_label = Some(Mutex::new(BackLabel::Add(
+        //     self.inner.clone(),
+        //     rhs.inner.clone(),
+        // )));
+
         Tensor {
             inner: Arc::new(inner),
         }
     }
 
-    pub fn mul(&'a self, rhs: &Self) -> Self {
-        let mut inner = self.inner.mul(&rhs.inner);
-        inner.back_label = Some(BackLabel::Add(
-            Arc::clone(&self.inner),
-            Arc::clone(&rhs.inner),
-        ));
+    pub fn mul(&self, rhs: &Self) -> Tensor<I> {
+        let mut inner = self.inner.mul(&rhs.inner.view());
+        let back_label = inner.get_back_label_mut();
+        // *back_label = Some(Mutex::new(BackLabel::Add(
+        //     self.inner.clone(),
+        //     rhs.inner.clone(),
+        // )));
+
         Tensor {
             inner: Arc::new(inner),
         }
     }
 
-    pub fn div(&'a self, rhs: &Self) -> Self {
-        let mut inner = self.inner.div(&rhs.inner);
-        inner.back_label = Some(BackLabel::Add(
-            Arc::clone(&self.inner),
-            Arc::clone(&rhs.inner),
-        ));
+    pub fn div(&self, rhs: &Self) -> Tensor<I> {
+        let mut inner = self.inner.div(&rhs.inner.view());
+        let back_label = inner.get_back_label_mut();
+        // *back_label = Some(Mutex::new(BackLabel::Add(
+        //     self.inner.clone(),
+        //     rhs.inner.clone(),
+        // )));
+
         Tensor {
             inner: Arc::new(inner),
         }

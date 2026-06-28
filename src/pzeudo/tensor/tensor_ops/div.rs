@@ -7,11 +7,19 @@ impl<'a> Tensor<'a> {
     where
         Rhs: TensorTrait<'a>,
     {
-        let div = div(self.array_view(), rhs.array_view());
+        let div = div(self.get_array_view(), rhs.get_array_view());
         let grad = ArrayD::<f32>::zeros(div.shape());
         let backward_label = BackwardLabel::Div(
-            (self.array_view(), self.share_gradient()),
-            (rhs.array_view(), rhs.share_gradient()),
+            (
+                self.get_array_view(),
+                self.get_share_gradient(),
+                self.get_share_backward_label(),
+            ),
+            (
+                rhs.get_array_view(),
+                rhs.get_share_gradient(),
+                rhs.get_share_backward_label(),
+            ),
         );
 
         let tensor = Tensor::new(div, Some(grad), Some(backward_label));

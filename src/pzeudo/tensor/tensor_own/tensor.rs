@@ -1,14 +1,39 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    cell::{Ref, RefCell},
+    rc::Rc,
+    sync::{Arc, Mutex},
+};
 
-use ndarray::ArrayD;
+use ndarray::{ArrayD, ArrayViewD};
 
-struct Tensor {
+use crate::{BackwardLabel, TensorTrait};
+
+pub struct Tensor<'a> {
     array: ArrayD<f32>,
-    gradient: Option<Arc<Mutex<ArrayD<f32>>>>,
+    gradient: Option<Rc<RefCell<ArrayD<f32>>>>,
+    backward_label: Option<BackwardLabel<'a>>,
 }
 
-impl Tensor {
-    pub fn new(array: ArrayD<f32>, gradient: Option<Arc<Mutex<ArrayD<f32>>>>) -> Tensor {
-        Self { array, gradient }
+impl<'a> Tensor<'a> {
+    pub fn new(
+        array: ArrayD<f32>,
+        gradient: Option<ArrayD<f32>>,
+        backward_label: Option<BackwardLabel<'a>>,
+    ) -> Tensor<'a> {
+        Self {
+            array,
+            gradient: gradient.map(|grad| Rc::new(RefCell::new(grad))),
+            backward_label,
+        }
+    }
+}
+
+impl<'a> TensorTrait<'a> for Tensor<'a> {
+    fn array_view(&'a self) -> ArrayViewD<'a, f32> {
+        self.array.view()
+    }
+
+    fn share_gradient(&self) -> Option<Rc<RefCell<ArrayD<f32>>>> {
+        self.gradient.clone()
     }
 }

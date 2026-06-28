@@ -1,8 +1,4 @@
-use std::{
-    cell::{Ref, RefCell},
-    rc::Rc,
-    sync::{Arc, Mutex},
-};
+use std::{cell::RefCell, rc::Rc};
 
 use ndarray::{ArrayD, ArrayViewD};
 

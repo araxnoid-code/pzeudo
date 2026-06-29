@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc, sync::Arc};
+use std::{cell::RefCell, fmt::Display, rc::Rc, sync::Arc};
 
 use ndarray::{ArrayD, ArrayViewD};
 
@@ -22,6 +22,14 @@ impl<'a> Tensor<'a> {
             backward_label: backward_label.map(|label| Arc::new(label)),
         }
     }
+
+    pub fn from_array(array: ArrayD<f32>) -> Tensor<'a> {
+        Self {
+            array,
+            gradient: None,
+            backward_label: None,
+        }
+    }
 }
 
 impl<'a> TensorTrait<'a> for Tensor<'a> {
@@ -35,5 +43,20 @@ impl<'a> TensorTrait<'a> for Tensor<'a> {
 
     fn get_share_backward_label(&'a self) -> Option<Arc<BackwardLabel<'a>>> {
         self.backward_label.clone()
+    }
+
+    fn set_gradient_ones(&mut self) -> Result<(), &str> {
+        if let Some(grad) = &mut self.gradient {
+            *grad.borrow_mut() = ArrayD::<f32>::zeros(self.array.shape());
+            return Ok(());
+        } else {
+            return Err("Gradient Disable");
+        }
+    }
+}
+
+impl<'a> Display for Tensor<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!("{}", self.array))
     }
 }

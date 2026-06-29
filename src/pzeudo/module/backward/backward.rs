@@ -1,7 +1,7 @@
 use crate::{BackwardLabel, TensorTrait, add_backward, div_backward, mul_backward, sub_backward};
 
-trait Backward<'a>: TensorTrait<'a> {
-    fn backward(&'a mut self) {
+pub trait Backward<'a>: TensorTrait<'a> {
+    fn backward(&'a self) {
         if let Err(_) = self.set_gradient_ones() {
             return;
         };

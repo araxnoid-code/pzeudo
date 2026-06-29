@@ -8,5 +8,5 @@ pub trait TensorTrait<'a> {
     fn get_array_view(&'a self) -> ArrayViewD<'a, f32>;
     fn get_share_gradient(&self) -> Option<Rc<RefCell<ArrayD<f32>>>>;
     fn get_share_backward_label(&'a self) -> Option<Arc<BackwardLabel<'a>>>;
-    fn set_gradient_ones(&mut self) -> Result<(), &str>;
+    fn set_gradient_ones(&self) -> Result<(), &str>;
 }

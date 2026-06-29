@@ -2,7 +2,7 @@ use std::{cell::RefCell, fmt::Display, rc::Rc, sync::Arc};
 
 use ndarray::{ArrayD, ArrayViewD};
 
-use crate::{BackwardLabel, TensorTrait};
+use crate::{Backward, BackwardLabel, TensorTrait};
 
 pub struct Tensor<'a> {
     array: ArrayD<f32>,
@@ -25,8 +25,8 @@ impl<'a> Tensor<'a> {
 
     pub fn from_array(array: ArrayD<f32>) -> Tensor<'a> {
         Self {
+            gradient: Some(Rc::new(RefCell::new(ArrayD::<f32>::zeros(array.shape())))),
             array,
-            gradient: None,
             backward_label: None,
         }
     }
@@ -45,9 +45,9 @@ impl<'a> TensorTrait<'a> for Tensor<'a> {
         self.backward_label.clone()
     }
 
-    fn set_gradient_ones(&mut self) -> Result<(), &str> {
-        if let Some(grad) = &mut self.gradient {
-            *grad.borrow_mut() = ArrayD::<f32>::zeros(self.array.shape());
+    fn set_gradient_ones(&self) -> Result<(), &str> {
+        if let Some(grad) = &self.gradient {
+            *grad.borrow_mut() = ArrayD::<f32>::ones(self.array.shape());
             return Ok(());
         } else {
             return Err("Gradient Disable");
@@ -60,3 +60,5 @@ impl<'a> Display for Tensor<'a> {
         f.write_str(&format!("{}", self.array))
     }
 }
+
+impl<'a> Backward<'a> for Tensor<'a> {}

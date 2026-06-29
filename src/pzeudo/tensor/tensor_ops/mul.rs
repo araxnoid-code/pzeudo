@@ -29,7 +29,7 @@ impl<'a> Tensor<'a> {
 
         let result = mul(self.get_array_view(), rhs.get_array_view());
         let grad = Rc::new(RefCell::new(ArrayD::<f32>::zeros(result.shape())));
-        let backward_label = Arc::new(BackwardLabel::Div(
+        let backward_label = Arc::new(BackwardLabel::Mul(
             (self.get_array_view(), self.get_share_gradient()),
             (rhs.get_array_view(), rhs.get_share_gradient()),
             Some(grad.clone()),

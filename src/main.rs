@@ -18,7 +18,7 @@ fn main() {
     let res_b = res_a.mul(&tensor_c, &mut record);
     res_b.backward(&record);
 
-    // let shared_grad = tensor_a.get_share_gradient().unwrap();
-    // let grad = shared_grad.borrow();
-    // println!("{}", grad);
+    let shared_grad = tensor_a.get_share_gradient().unwrap();
+    let grad = shared_grad.borrow();
+    println!("{}", grad);
 }

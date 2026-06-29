@@ -5,7 +5,7 @@ use ndarray::{ArrayD, ArrayViewD};
 use crate::BackwardLabel;
 
 pub trait TensorTrait<'a> {
-    fn set_label_ops(&mut self, label: bool);
+    fn set_label_ops(&self, label: bool);
     fn get_label_ops(&self) -> bool;
 
     fn get_array_view(&'a self) -> ArrayViewD<'a, f32>;

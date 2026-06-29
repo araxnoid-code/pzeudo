@@ -1,4 +1,12 @@
-use std::{cell::RefCell, fmt::Display, rc::Rc, sync::Arc};
+use std::{
+    cell::RefCell,
+    fmt::Display,
+    rc::Rc,
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
+};
 
 use ndarray::{ArrayD, ArrayViewD};
 
@@ -8,7 +16,7 @@ pub struct Tensor<'a> {
     pub(crate) array: ArrayD<f32>,
     pub(crate) gradient: Option<Rc<RefCell<ArrayD<f32>>>>,
     pub(crate) backward_label: Option<Arc<BackwardLabel<'a>>>,
-    pub(crate) label_ops: bool,
+    pub(crate) label_ops: AtomicBool,
 }
 
 impl<'a> Tensor<'a> {
@@ -21,7 +29,7 @@ impl<'a> Tensor<'a> {
             array,
             gradient: gradient.map(|grad| Rc::new(RefCell::new(grad))),
             backward_label: backward_label.map(|label| Arc::new(label)),
-            label_ops: false,
+            label_ops: AtomicBool::new(false),
         }
     }
 
@@ -30,18 +38,18 @@ impl<'a> Tensor<'a> {
             gradient: Some(Rc::new(RefCell::new(ArrayD::<f32>::zeros(array.shape())))),
             array,
             backward_label: None,
-            label_ops: false,
+            label_ops: AtomicBool::new(false),
         }
     }
 }
 
 impl<'a> TensorTrait<'a> for Tensor<'a> {
     fn get_label_ops(&self) -> bool {
-        self.label_ops
+        self.label_ops.load(Ordering::Relaxed)
     }
 
-    fn set_label_ops(&mut self, label: bool) {
-        self.label_ops = label;
+    fn set_label_ops(&self, label: bool) {
+        self.label_ops.store(label, Ordering::Relaxed);
     }
 
     fn get_array_view(&'a self) -> ArrayViewD<'a, f32> {

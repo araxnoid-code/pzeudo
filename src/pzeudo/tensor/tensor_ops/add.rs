@@ -8,14 +8,14 @@ use ndarray::{ArrayD, ArrayViewD};
 
 use crate::{BackwardLabel, Tensor, TensorTrait, add};
 
-impl<'a> Tensor<'a> {
+impl<'backward_label> Tensor<'backward_label> {
     pub fn add<Rhs>(
-        &'a self,
-        rhs: &'a Rhs,
-        record: &mut Vec<Option<Arc<BackwardLabel<'a>>>>,
-    ) -> Tensor<'a>
+        &'backward_label self,
+        rhs: &'backward_label Rhs,
+        record: &mut Vec<Option<Arc<BackwardLabel<'backward_label>>>>,
+    ) -> Tensor<'backward_label>
     where
-        Rhs: TensorTrait<'a>,
+        Rhs: TensorTrait<'backward_label>,
     {
         if !self.get_label_ops() {
             self.set_label_ops(true);
@@ -38,11 +38,11 @@ impl<'a> Tensor<'a> {
         let tensor = Tensor {
             array: result,
             gradient: Some(grad),
-            backward_label: Some(backward_label.clone()),
+            backward_label: Some(backward_label),
             label_ops: AtomicBool::new(true),
         };
 
-        record.push(Some(backward_label));
+        record.push(tensor.get_share_backward_label());
 
         tensor
     }

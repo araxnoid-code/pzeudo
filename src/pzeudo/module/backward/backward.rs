@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use crate::{BackwardLabel, TensorTrait, add_backward, div_backward, mul_backward, sub_backward};
 
-pub trait Backward<'a>: TensorTrait<'a> {
-    fn backward(&'a self, record: &Vec<Option<Arc<BackwardLabel<'a>>>>) {
+pub trait Backward<'bacward_label>: TensorTrait<'bacward_label> {
+    fn backward(&self, record: &Vec<Option<Arc<BackwardLabel<'bacward_label>>>>) {
         if let Err(_) = self.set_gradient_ones() {
             return;
         };

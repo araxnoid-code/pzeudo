@@ -52,7 +52,7 @@ impl<'backward_label> TensorTrait<'backward_label> for Tensor<'backward_label> {
         self.label_ops.store(label, Ordering::Relaxed);
     }
 
-    fn get_array_view(&'_ self) -> ArrayViewD<'_, f32> {
+    fn get_array_view(&self) -> ArrayViewD<'_, f32> {
         self.array.view()
     }
 

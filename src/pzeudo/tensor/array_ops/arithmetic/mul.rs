@@ -2,11 +2,20 @@ use std::{cell::RefCell, ops::AddAssign, rc::Rc};
 
 use ndarray::{ArrayBase, ArrayD, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
 
+use crate::{PzeudoErr, able_broadcast};
+
 pub fn mul(
     lhs: ArrayViewD<f32>,
     rhs: ArrayViewD<f32>,
-) -> ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32> {
-    &lhs * &rhs
+) -> Result<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>, PzeudoErr> {
+    if lhs.shape() < rhs.shape() {
+        able_broadcast(lhs.shape(), rhs.shape())
+            .map_err(|err| PzeudoErr::DivErr(err.into_msg()))?;
+    } else {
+        able_broadcast(rhs.shape(), lhs.shape()).map_err(|err| PzeudoErr::MulErr(err.into_msg()))?
+    }
+
+    Ok(&lhs * &rhs)
 }
 
 pub fn mul_backward(

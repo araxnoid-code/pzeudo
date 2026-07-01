@@ -1,6 +1,6 @@
-use crate::PzeudoOpsErr::{self, AbleBroadcastErr};
+use crate::PzeudoErr::{self, AbleBroadcastErr};
 
-pub fn able_broadcast(origin_shape: &[usize], to_shape: &[usize]) -> Result<(), PzeudoOpsErr> {
+pub fn able_broadcast(origin_shape: &[usize], to_shape: &[usize]) -> Result<(), PzeudoErr> {
     if origin_shape.len() > to_shape.len() {
         return Err(AbleBroadcastErr(format!(
             "AbleBroadcastErr, shape {:?} cannot be broadcast to {:?}",

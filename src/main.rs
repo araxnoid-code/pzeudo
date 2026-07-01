@@ -3,10 +3,10 @@ use pzeudo::{Backward, Tensor, TensorTrait};
 
 fn main() {
     let mut record = vec![];
-    let tensor_a = Tensor::from_array(ArrayD::<f32>::zeros(vec![2, 1, 5]));
-    let tensor_b = Tensor::from_array(ArrayD::<f32>::zeros(vec![1, 2, 3, 5]));
+    let tensor_a = Tensor::from_array(ArrayD::<f32>::ones(vec![2, 1, 1]));
+    let tensor_b = Tensor::from_array(ArrayD::<f32>::ones(vec![1, 2, 3, 5]));
 
-    let tensor_c = tensor_b.sub(&tensor_a, &mut record);
+    let tensor_c = tensor_b.mul(&tensor_a, &mut record);
 
     tensor_c.backward(&mut record);
 

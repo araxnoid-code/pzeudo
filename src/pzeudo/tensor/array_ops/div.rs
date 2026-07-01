@@ -54,7 +54,7 @@ pub fn div_backward(
             }
         }
 
-        // df(lhs, rhs)/drhs =  -lhs/rhs2
+        // df(lhs, rhs)/drhs =  -lhs/rhs^2
         if let Some(rhs_grad) = rhs_grad {
             let mut rhs_grad = rhs_grad.borrow_mut();
 

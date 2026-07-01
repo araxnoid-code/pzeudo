@@ -6,17 +6,20 @@ use std::{
 
 use ndarray::{ArrayD, ArrayViewD};
 
-use crate::{BackwardLabel, Tensor, TensorTrait, add};
+use crate::{BackwardLabel, PzeudoErr, Tensor, TensorTrait, add};
 
 impl<'backward_label> Tensor<'backward_label> {
     pub fn add<Rhs>(
         &'backward_label self,
         rhs: &'backward_label Rhs,
         record: &mut Vec<Option<Arc<BackwardLabel<'backward_label>>>>,
-    ) -> Tensor<'backward_label>
+    ) -> Result<Tensor<'backward_label>, PzeudoErr>
     where
         Rhs: TensorTrait<'backward_label>,
     {
+        let result = add(self.get_array_view(), rhs.get_array_view())?;
+        let grad = Rc::new(RefCell::new(ArrayD::<f32>::zeros(result.shape())));
+
         if !self.get_label_ops() {
             self.set_label_ops(true);
             record.push(self.get_share_backward_label());
@@ -27,8 +30,6 @@ impl<'backward_label> Tensor<'backward_label> {
             record.push(rhs.get_share_backward_label());
         }
 
-        let result = add(self.get_array_view(), rhs.get_array_view());
-        let grad = Rc::new(RefCell::new(ArrayD::<f32>::zeros(result.shape())));
         let backward_label = Arc::new(BackwardLabel::Add(
             (self.get_array_view(), self.get_share_gradient()),
             (rhs.get_array_view(), rhs.get_share_gradient()),
@@ -44,6 +45,6 @@ impl<'backward_label> Tensor<'backward_label> {
 
         record.push(tensor.get_share_backward_label());
 
-        tensor
+        Ok(tensor)
     }
 }

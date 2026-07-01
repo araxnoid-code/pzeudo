@@ -4,7 +4,7 @@ use ndarray::{ArrayD, ArrayViewD, Axis, array, concatenate, linalg::Dot, s};
 use pzeudo::{Backward, Tensor, TensorTrait, able_broadcast};
 
 fn main() {
-    able_broadcast(&[3], &[1, 2]).unwrap();
+
     // let mut record = vec![];
     // let tensor_a = Tensor::from_array(ArrayD::<f32>::ones(vec![2, 1, 1]));
     // let tensor_b = Tensor::from_array(ArrayD::<f32>::ones(vec![1, 2, 3, 5]));

@@ -1,11 +1,8 @@
-mod add;
-pub use add::*;
+mod arithmetic;
+pub use arithmetic::*;
 
-mod sub;
-pub use sub::*;
+mod error;
+pub use error::*;
 
-mod div;
-pub use div::*;
-
-mod mul;
-pub use mul::*;
+mod ops_tools;
+pub use ops_tools::*;

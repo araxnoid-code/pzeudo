@@ -6,18 +6,18 @@ use std::{
 
 use ndarray::ArrayD;
 
-use crate::{BackwardLabel, PzeudoErr, Tensor, TensorTrait, sub};
+use crate::{BackwardLabel, PzeudoErr, TensorF32, TensorTrait, mul};
 
-impl<'backward_label> Tensor<'backward_label> {
-    pub fn sub<Rhs>(
+pub trait PzeudoOpsMul<'backward_label>: TensorTrait<'backward_label, f32> {
+    fn mul<Rhs>(
         &'backward_label self,
         rhs: &'backward_label Rhs,
         record: &mut Vec<Option<Arc<BackwardLabel<'backward_label>>>>,
-    ) -> Result<Tensor<'backward_label>, PzeudoErr>
+    ) -> Result<TensorF32<'backward_label>, PzeudoErr>
     where
-        Rhs: TensorTrait<'backward_label>,
+        Rhs: TensorTrait<'backward_label, f32>,
     {
-        let result = sub(self.get_array_view(), rhs.get_array_view())?;
+        let result = mul(self.get_array_view(), rhs.get_array_view())?;
         let grad = Rc::new(RefCell::new(ArrayD::<f32>::zeros(result.shape())));
 
         if !self.get_label_ops() {
@@ -30,13 +30,13 @@ impl<'backward_label> Tensor<'backward_label> {
             record.push(rhs.get_share_backward_label());
         }
 
-        let backward_label = Arc::new(BackwardLabel::Sub(
+        let backward_label = Arc::new(BackwardLabel::Mul(
             (self.get_array_view(), self.get_share_gradient()),
             (rhs.get_array_view(), rhs.get_share_gradient()),
             Some(grad.clone()),
         ));
 
-        let tensor = Tensor {
+        let tensor = TensorF32 {
             array: result,
             gradient: Some(grad),
             backward_label: Some(backward_label),

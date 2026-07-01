@@ -8,7 +8,7 @@ pub fn add(
     lhs: ArrayViewD<f32>,
     rhs: ArrayViewD<f32>,
 ) -> Result<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>, PzeudoErr> {
-    if lhs.shape() < rhs.shape() {
+    if lhs.shape().len() < rhs.shape().len() {
         able_broadcast(lhs.shape(), rhs.shape())
             .map_err(|err| PzeudoErr::AddErr(err.into_msg()))?;
     } else {

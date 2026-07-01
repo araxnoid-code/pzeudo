@@ -10,21 +10,23 @@ use std::{
 
 use ndarray::{ArrayD, ArrayViewD};
 
-use crate::{Backward, BackwardLabel, TensorTrait};
+use crate::{
+    Backward, BackwardLabel, PzeudoOpsAdd, PzeudoOpsDiv, PzeudoOpsMul, PzeudoOpsSub, TensorTrait,
+};
 
-pub struct Tensor<'backward_label> {
+pub struct TensorF32<'backward_label> {
     pub(crate) array: ArrayD<f32>,
     pub(crate) gradient: Option<Rc<RefCell<ArrayD<f32>>>>,
     pub(crate) backward_label: Option<Arc<BackwardLabel<'backward_label>>>,
     pub(crate) label_ops: AtomicBool,
 }
 
-impl<'bacward_label> Tensor<'bacward_label> {
+impl<'bacward_label> TensorF32<'bacward_label> {
     pub fn new(
         array: ArrayD<f32>,
         gradient: Option<ArrayD<f32>>,
         backward_label: Option<BackwardLabel<'bacward_label>>,
-    ) -> Tensor<'bacward_label> {
+    ) -> TensorF32<'bacward_label> {
         Self {
             array,
             gradient: gradient.map(|grad| Rc::new(RefCell::new(grad))),
@@ -33,7 +35,7 @@ impl<'bacward_label> Tensor<'bacward_label> {
         }
     }
 
-    pub fn from_array(array: ArrayD<f32>) -> Tensor<'bacward_label> {
+    pub fn from_array(array: ArrayD<f32>) -> TensorF32<'bacward_label> {
         Self {
             gradient: Some(Rc::new(RefCell::new(ArrayD::<f32>::zeros(array.shape())))),
             array,
@@ -43,7 +45,7 @@ impl<'bacward_label> Tensor<'bacward_label> {
     }
 }
 
-impl<'backward_label> TensorTrait<'backward_label> for Tensor<'backward_label> {
+impl<'backward_label> TensorTrait<'backward_label, f32> for TensorF32<'backward_label> {
     fn get_label_ops(&self) -> bool {
         self.label_ops.load(Ordering::Relaxed)
     }
@@ -74,10 +76,15 @@ impl<'backward_label> TensorTrait<'backward_label> for Tensor<'backward_label> {
     }
 }
 
-impl<'bacward_label> Display for Tensor<'bacward_label> {
+impl<'bacward_label> PzeudoOpsAdd<'bacward_label> for TensorF32<'bacward_label> {}
+impl<'bacward_label> PzeudoOpsSub<'bacward_label> for TensorF32<'bacward_label> {}
+impl<'bacward_label> PzeudoOpsMul<'bacward_label> for TensorF32<'bacward_label> {}
+impl<'bacward_label> PzeudoOpsDiv<'bacward_label> for TensorF32<'bacward_label> {}
+
+impl<'bacward_label> Backward<'bacward_label, f32> for TensorF32<'bacward_label> {}
+
+impl<'bacward_label> Display for TensorF32<'bacward_label> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!("{}", self.array))
     }
 }
-
-impl<'bacward_label> Backward<'bacward_label> for Tensor<'bacward_label> {}

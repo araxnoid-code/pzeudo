@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{BackwardLabel, TensorTrait, add_backward, div_backward, mul_backward, sub_backward};
 
-pub trait Backward<'bacward_label>: TensorTrait<'bacward_label> {
+pub trait Backward<'bacward_label, F>: TensorTrait<'bacward_label, F> {
     fn backward(&self, record: &Vec<Option<Arc<BackwardLabel<'bacward_label>>>>) {
         if let Err(_) = self.set_gradient_ones() {
             return;

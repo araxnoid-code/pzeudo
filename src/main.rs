@@ -1,17 +1,17 @@
 use std::ops::AddAssign;
 
 use ndarray::{ArrayD, ArrayViewD, Axis, array, concatenate, linalg::Dot, s};
-use pzeudo::{Backward, Tensor, TensorTrait, able_broadcast};
+use pzeudo::{Backward, PzeudoOpsAdd, TensorF32, TensorTrait, able_broadcast};
 
 fn main() {
+    let mut record = vec![];
+    let tensor_a = TensorF32::from_array(ArrayD::<f32>::ones(vec![2, 1, 5]));
+    let tensor_b = TensorF32::from_array(ArrayD::<f32>::ones(vec![5, 2, 3, 5]));
 
-    // let mut record = vec![];
-    // let tensor_a = Tensor::from_array(ArrayD::<f32>::ones(vec![2, 1, 1]));
-    // let tensor_b = Tensor::from_array(ArrayD::<f32>::ones(vec![1, 2, 3, 5]));
+    let tensor_c = tensor_a.add(&tensor_b, &mut record).unwrap();
+    println!("{}", tensor_c);
 
-    // let tensor_c = tensor_b.div(&tensor_a, &mut record);
-
-    // tensor_c.backward(&mut record);
+    tensor_c.backward(&mut record);
 
     // let grad = tensor_a.get_share_gradient().unwrap();
     // println!("{}", grad.borrow());

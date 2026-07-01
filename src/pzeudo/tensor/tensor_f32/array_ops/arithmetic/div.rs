@@ -4,84 +4,85 @@ use ndarray::{ArrayBase, ArrayD, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
 
 use crate::{PzeudoErr, able_broadcast};
 
-pub fn sub(
+pub fn div(
     lhs: ArrayViewD<f32>,
     rhs: ArrayViewD<f32>,
 ) -> Result<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>, PzeudoErr> {
-    if lhs.shape() < rhs.shape() {
+    if lhs.shape().len() < rhs.shape().len() {
         able_broadcast(lhs.shape(), rhs.shape())
             .map_err(|err| PzeudoErr::DivErr(err.into_msg()))?;
     } else {
-        able_broadcast(rhs.shape(), lhs.shape()).map_err(|err| PzeudoErr::SubErr(err.into_msg()))?
+        able_broadcast(rhs.shape(), lhs.shape()).map_err(|err| PzeudoErr::AddErr(err.into_msg()))?
     }
 
-    Ok(&lhs - &rhs)
+    Ok(&lhs / &rhs)
 }
 
-pub fn sub_backward(
+pub fn div_backward(
+    lhs: ArrayViewD<f32>,
     lhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
+    rhs: ArrayViewD<f32>,
     rhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
     gradient: &Option<Rc<RefCell<ArrayD<f32>>>>,
 ) {
-    // f(x, y) = x - y
+    // f(lhs, rhs) = lhs / rhs
     if let Some(gradient) = gradient {
         let gradient = gradient.borrow();
 
-        // df(x, y)/dx = 1
+        // df(lhs, rhs)/dlhs = 1/rhs
         if let Some(lhs_grad) = lhs_grad {
-            let mut lhs = lhs_grad.borrow_mut();
-            if gradient.shape() == lhs.shape() {
-                lhs.add_assign(&gradient.view());
+            let mut lhs_grad = lhs_grad.borrow_mut();
+
+            if gradient.shape() == lhs_grad.shape() {
+                lhs_grad.add_assign(&(1. / &rhs * &gradient.view()));
             } else {
                 let gradient_shape = gradient.shape();
-                let mut lhs_shape = lhs.shape().to_vec();
-                let distance = gradient_shape.len() - lhs_shape.len();
+                let mut lhs_grad_shape = lhs_grad.shape().to_vec();
+                let distance = gradient_shape.len() - lhs_grad_shape.len();
                 if distance != 0 {
                     let ones = vec![1; distance];
-                    lhs_shape = [ones, lhs_shape].concat();
+                    lhs_grad_shape = [ones, lhs_grad_shape].concat();
                 }
 
                 let mut gradient_axis: Option<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>> =
-                    None;
-                for (idx, (gradient_shape, lhs_shape)) in
-                    gradient_shape.iter().zip(lhs_shape.iter()).enumerate()
+                    Some(1. / &rhs * &gradient.view());
+
+                for (idx, (gradient_shape, lhs_grad_shape)) in
+                    gradient_shape.iter().zip(lhs_grad_shape.iter()).enumerate()
                 {
-                    if *lhs_shape == 1 && *gradient_shape != 1 {
+                    if *lhs_grad_shape == 1 && *gradient_shape != 1 {
                         if let Some(grad) = gradient_axis {
                             gradient_axis = Some(grad.sum_axis(Axis(idx)).insert_axis(Axis(idx)));
-                        } else {
-                            gradient_axis =
-                                Some(gradient.sum_axis(Axis(idx)).insert_axis(Axis(idx)));
                         }
                     }
                 }
 
                 let gradient = gradient_axis.unwrap();
-                let gradient = gradient.to_shape(lhs.shape()).unwrap();
-                lhs.add_assign(&gradient);
+                let gradient = gradient.to_shape(lhs_grad.shape()).unwrap();
+                lhs_grad.add_assign(&gradient);
             }
         }
 
-        // df(x, y)/dy = -1
+        // df(lhs, rhs)/drhs =  -lhs/rhs^2
         if let Some(rhs_grad) = rhs_grad {
-            let mut rhs = rhs_grad.borrow_mut();
+            let mut rhs_grad = rhs_grad.borrow_mut();
 
-            if gradient.shape() == rhs.shape() {
-                rhs.add_assign(&-&gradient.view());
+            if gradient.shape() == rhs_grad.shape() {
+                rhs_grad.add_assign(&(-&lhs / rhs.pow2() * &gradient.view()));
             } else {
                 let gradient_shape = gradient.shape();
-                let mut rhs_shape = rhs.shape().to_vec();
-                let distance = gradient_shape.len() - rhs_shape.len();
+                let mut rhs_grad_shape = rhs_grad.shape().to_vec();
+                let distance = gradient_shape.len() - rhs_grad_shape.len();
                 if distance != 0 {
                     let ones = vec![1; distance];
-                    rhs_shape = [ones, rhs_shape].concat();
+                    rhs_grad_shape = [ones, rhs_grad_shape].concat();
                 }
 
                 let mut gradient_axis: Option<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>> =
-                    Some(-&gradient.view());
+                    Some(-&lhs / rhs.pow2() * &gradient.view());
 
                 for (idx, (gradient_shape, rhs_shape)) in
-                    gradient_shape.iter().zip(rhs_shape.iter()).enumerate()
+                    gradient_shape.iter().zip(rhs_grad_shape.iter()).enumerate()
                 {
                     if *rhs_shape == 1 && *gradient_shape != 1 {
                         if let Some(grad) = gradient_axis {
@@ -91,8 +92,8 @@ pub fn sub_backward(
                 }
 
                 let gradient = gradient_axis.unwrap();
-                let gradient = gradient.to_shape(rhs.shape()).unwrap();
-                rhs.add_assign(&gradient);
+                let gradient = gradient.to_shape(rhs_grad.shape()).unwrap();
+                rhs_grad.add_assign(&gradient);
             }
         }
     }

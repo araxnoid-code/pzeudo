@@ -1,16 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
 use ndarray::array;
-use pzeudo::Tensor;
 
-fn main() {
-    let array = array![[1., 2., 3.]].into_dyn();
-    let grad = array![[1., 2., 3.]].into_dyn();
-    let tensor = Tensor {
-        array,
-        gradient: Some(Rc::new(RefCell::new(grad))),
-    };
-}
+fn main() {}
 
 // use std::ops::AddAssign;
 

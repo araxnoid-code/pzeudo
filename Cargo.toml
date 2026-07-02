@@ -8,3 +8,4 @@ path = "./src/pzeudo/mod.rs"
 
 [dependencies]
 ndarray = "0.17.2"
+num-traits = "0.2.19"

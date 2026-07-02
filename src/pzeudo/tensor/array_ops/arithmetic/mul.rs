@@ -1,13 +1,20 @@
-use std::{cell::RefCell, ops::AddAssign, rc::Rc};
+use std::{
+    cell::RefCell,
+    ops::{AddAssign, Mul},
+    rc::Rc,
+};
 
 use ndarray::{ArrayBase, ArrayD, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
 
 use crate::{PzeudoErr, able_broadcast};
 
-pub fn mul(
-    lhs: ArrayViewD<f32>,
-    rhs: ArrayViewD<f32>,
-) -> Result<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>, PzeudoErr> {
+pub fn mul<F>(
+    lhs: ArrayViewD<F>,
+    rhs: ArrayViewD<F>,
+) -> Result<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>, PzeudoErr>
+where
+    F: Mul<Output = F> + Copy,
+{
     if lhs.shape().len() < rhs.shape().len() {
         able_broadcast(lhs.shape(), rhs.shape())
             .map_err(|err| PzeudoErr::DivErr(err.into_msg()))?;

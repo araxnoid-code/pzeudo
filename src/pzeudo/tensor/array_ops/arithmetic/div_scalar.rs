@@ -7,7 +7,7 @@ use std::{
 use ndarray::{ArrayBase, ArrayD, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
 use num_traits::Zero;
 
-use crate::{PzeudoErr, able_broadcast, pow2};
+use crate::{PzeudoErr, able_broadcast};
 
 pub fn div<F>(
     lhs: ArrayViewD<F>,

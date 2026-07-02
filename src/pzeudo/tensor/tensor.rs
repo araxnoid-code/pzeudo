@@ -12,5 +12,5 @@ pub trait TensorTrait<'backward_label, F> {
 
     fn get_array_view(&self) -> ArrayViewD<'_, F>;
     fn get_share_gradient(&self) -> Option<Rc<RefCell<ArrayD<F>>>>;
-    fn get_share_backward_label(&self) -> Option<Arc<BackwardLabel<'backward_label>>>;
+    fn get_share_backward_label(&self) -> Option<Arc<BackwardLabel<'backward_label, F>>>;
 }

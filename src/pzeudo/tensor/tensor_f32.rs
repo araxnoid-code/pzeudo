@@ -9,24 +9,26 @@ use std::{
 };
 
 use ndarray::{ArrayD, ArrayViewD};
+use num_traits::{One, Zero};
 
-use crate::{
-    Backward, BackwardLabel, PzeudoOpsAdd, PzeudoOpsDiv, PzeudoOpsMul, PzeudoOpsSub, TensorTrait,
-};
+use crate::{Backward, BackwardLabel, TensorTrait};
 
-pub struct TensorF32<'backward_label> {
-    pub(crate) array: ArrayD<f32>,
-    pub(crate) gradient: Option<Rc<RefCell<ArrayD<f32>>>>,
-    pub(crate) backward_label: Option<Arc<BackwardLabel<'backward_label>>>,
+pub struct Tensor<'backward_label, F> {
+    pub(crate) array: ArrayD<F>,
+    pub(crate) gradient: Option<Rc<RefCell<ArrayD<F>>>>,
+    pub(crate) backward_label: Option<Arc<BackwardLabel<'backward_label, F>>>,
     pub(crate) label_ops: AtomicBool,
 }
 
-impl<'bacward_label> TensorF32<'bacward_label> {
+impl<'bacward_label, F> Tensor<'bacward_label, F>
+where
+    F: Clone + Zero + One,
+{
     pub fn new(
-        array: ArrayD<f32>,
-        gradient: Option<ArrayD<f32>>,
-        backward_label: Option<BackwardLabel<'bacward_label>>,
-    ) -> TensorF32<'bacward_label> {
+        array: ArrayD<F>,
+        gradient: Option<ArrayD<F>>,
+        backward_label: Option<BackwardLabel<'bacward_label, F>>,
+    ) -> Tensor<'bacward_label, F> {
         Self {
             array,
             gradient: gradient.map(|grad| Rc::new(RefCell::new(grad))),
@@ -35,9 +37,9 @@ impl<'bacward_label> TensorF32<'bacward_label> {
         }
     }
 
-    pub fn from_array(array: ArrayD<f32>) -> TensorF32<'bacward_label> {
+    pub fn from_array(array: ArrayD<F>) -> Tensor<'bacward_label, F> {
         Self {
-            gradient: Some(Rc::new(RefCell::new(ArrayD::<f32>::zeros(array.shape())))),
+            gradient: Some(Rc::new(RefCell::new(ArrayD::<F>::zeros(array.shape())))),
             array,
             backward_label: None,
             label_ops: AtomicBool::new(false),
@@ -45,7 +47,10 @@ impl<'bacward_label> TensorF32<'bacward_label> {
     }
 }
 
-impl<'backward_label> TensorTrait<'backward_label, f32> for TensorF32<'backward_label> {
+impl<'backward_label, F> TensorTrait<'backward_label, F> for Tensor<'backward_label, F>
+where
+    F: Clone + One,
+{
     fn get_label_ops(&self) -> bool {
         self.label_ops.load(Ordering::Relaxed)
     }
@@ -54,21 +59,21 @@ impl<'backward_label> TensorTrait<'backward_label, f32> for TensorF32<'backward_
         self.label_ops.store(label, Ordering::Relaxed);
     }
 
-    fn get_array_view(&self) -> ArrayViewD<'_, f32> {
+    fn get_array_view(&self) -> ArrayViewD<'_, F> {
         self.array.view()
     }
 
-    fn get_share_gradient(&self) -> Option<Rc<RefCell<ArrayD<f32>>>> {
+    fn get_share_gradient(&self) -> Option<Rc<RefCell<ArrayD<F>>>> {
         self.gradient.clone()
     }
 
-    fn get_share_backward_label(&self) -> Option<Arc<BackwardLabel<'backward_label>>> {
+    fn get_share_backward_label(&self) -> Option<Arc<BackwardLabel<'backward_label, F>>> {
         self.backward_label.clone()
     }
 
     fn set_gradient_ones(&self) -> Result<(), &str> {
         if let Some(grad) = &self.gradient {
-            *grad.borrow_mut() = ArrayD::<f32>::ones(self.array.shape());
+            *grad.borrow_mut() = ArrayD::<F>::ones(self.array.shape());
             return Ok(());
         } else {
             return Err("Gradient Disable");
@@ -76,14 +81,17 @@ impl<'backward_label> TensorTrait<'backward_label, f32> for TensorF32<'backward_
     }
 }
 
-impl<'bacward_label> PzeudoOpsAdd<'bacward_label> for TensorF32<'bacward_label> {}
-impl<'bacward_label> PzeudoOpsSub<'bacward_label> for TensorF32<'bacward_label> {}
-impl<'bacward_label> PzeudoOpsMul<'bacward_label> for TensorF32<'bacward_label> {}
-impl<'bacward_label> PzeudoOpsDiv<'bacward_label> for TensorF32<'bacward_label> {}
+// impl<'bacward_label, F> PzeudoOpsAdd<'bacward_label> for Tensor<'bacward_label, F> {}
+// impl<'bacward_label, F> PzeudoOpsSub<'bacward_label> for Tensor<'bacward_label, F> {}
+// impl<'bacward_label, F> PzeudoOpsMul<'bacward_label> for Tensor<'bacward_label, F> {}
+// impl<'bacward_label, F> PzeudoOpsDiv<'bacward_label> for Tensor<'bacward_label, F> {}
 
-impl<'bacward_label> Backward<'bacward_label, f32> for TensorF32<'bacward_label> {}
+// impl<'bacward_label, F> Backward<'bacward_label, F> for Tensor<'bacward_label, F> {}
 
-impl<'bacward_label> Display for TensorF32<'bacward_label> {
+impl<'bacward_label, F> Display for Tensor<'bacward_label, F>
+where
+    F: Display,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!("{}", self.array))
     }

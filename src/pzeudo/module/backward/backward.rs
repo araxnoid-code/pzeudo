@@ -1,9 +1,14 @@
-use std::sync::Arc;
+use std::{ops::AddAssign, sync::Arc};
+
+use num_traits::Zero;
 
 use crate::{BackwardLabel, TensorTrait, add_backward, div_backward, mul_backward, sub_backward};
 
-pub trait Backward<'bacward_label, F>: TensorTrait<'bacward_label, F> {
-    fn backward(&self, record: &Vec<Option<Arc<BackwardLabel<'bacward_label>>>>) {
+pub trait Backward<'bacward_label, F>: TensorTrait<'bacward_label, F>
+where
+    F: AddAssign<F> + Clone + Copy + Zero,
+{
+    fn backward(&self, record: &Vec<Option<Arc<BackwardLabel<'bacward_label, F>>>>) {
         if let Err(_) = self.set_gradient_ones() {
             return;
         };

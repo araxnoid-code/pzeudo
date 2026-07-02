@@ -1,13 +1,28 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{
+    cell::RefCell,
+    ops::{Add, AddAssign},
+    rc::Rc,
+};
 
-use ndarray::{ArrayD, ArrayRefD, ArrayViewD, CowArray, Dim, IxDynImpl, array};
+use ndarray::{ArrayD, ArrayRefD, ArrayViewD, CowArray, Dim, IxDynImpl, array, linalg::Dot};
 
 fn main() {
-    let data = array![[1., 2., 3.]];
-    let reshape = data.to_shape(vec![10]).unwrap();
+    // let reshape = data.to_shape(vec![10]).unwrap();
+    let mut data = ArrayD::<f32>::zeros(vec![10]);
+    let rhs = ArrayD::<f32>::zeros(vec![10]);
 
-    // get_new(&reshape);
+    add(data);
 }
+
+fn add<F>(lhs: ArrayD<F>)
+where
+    F: AddAssign<F> + Copy,
+    ArrayD<F>: Pow<i32>,
+{
+    lhs;
+}
+
+//
 
 // fn get_new<'a>(data: &'a CowArray<'_, f32, Dim<IxDynImpl>>) -> ArrayViewD<'a, f32> {
 //     data.view()

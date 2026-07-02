@@ -1,13 +1,21 @@
-use std::{cell::RefCell, ops::AddAssign, rc::Rc};
+use std::{
+    cell::RefCell,
+    ops::{Add, AddAssign},
+    rc::Rc,
+};
 
 use ndarray::{ArrayBase, ArrayD, ArrayView, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
+use num_traits::Zero;
 
 use crate::{PzeudoErr, able_broadcast};
 
-pub fn add(
-    lhs: ArrayViewD<f32>,
-    rhs: ArrayViewD<f32>,
-) -> Result<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>, PzeudoErr> {
+pub fn add<F>(
+    lhs: ArrayViewD<F>,
+    rhs: ArrayViewD<F>,
+) -> Result<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>, PzeudoErr>
+where
+    F: Add<Output = F> + Copy,
+{
     if lhs.shape().len() < rhs.shape().len() {
         able_broadcast(lhs.shape(), rhs.shape())
             .map_err(|err| PzeudoErr::AddErr(err.into_msg()))?;
@@ -18,11 +26,13 @@ pub fn add(
     Ok(&lhs + &rhs)
 }
 
-pub fn add_backward(
-    lhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
-    rhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
-    gradient: &Option<Rc<RefCell<ArrayD<f32>>>>,
-) {
+pub fn add_backward<F>(
+    lhs_grad: &Option<Rc<RefCell<ArrayD<F>>>>,
+    rhs_grad: &Option<Rc<RefCell<ArrayD<F>>>>,
+    gradient: &Option<Rc<RefCell<ArrayD<F>>>>,
+) where
+    F: Clone + Zero + AddAssign<F>,
+{
     // f(x, y) = x + y
     if let Some(gradient) = gradient {
         let gradient = gradient.borrow();
@@ -41,8 +51,7 @@ pub fn add_backward(
                     lhs_shape = [ones, lhs_shape].concat();
                 }
 
-                let mut gradient_axis: Option<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>> =
-                    None;
+                let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> = None;
                 for (idx, (gradient_shape, lhs_shape)) in
                     gradient_shape.iter().zip(lhs_shape.iter()).enumerate()
                 {
@@ -76,8 +85,7 @@ pub fn add_backward(
                     rhs_shape = [ones, rhs_shape].concat();
                 }
 
-                let mut gradient_axis: Option<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>> =
-                    None;
+                let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> = None;
                 for (idx, (gradient_shape, rhs_shape)) in
                     gradient_shape.iter().zip(rhs_shape.iter()).enumerate()
                 {

@@ -6,14 +6,14 @@ use std::{
 
 use ndarray::{ArrayD, ArrayViewD};
 
-use crate::{BackwardLabel, PzeudoErr, TensorF32, TensorTrait, div, mul};
+use crate::{BackwardLabel, PzeudoErr, Tensor, TensorTrait, div, mul};
 
 pub trait PzeudoOpsDiv<'backward_label>: TensorTrait<'backward_label, f32> {
     fn div<Rhs>(
         &'backward_label self,
         rhs: &'backward_label Rhs,
         record: &mut Vec<Option<Arc<BackwardLabel<'backward_label>>>>,
-    ) -> Result<TensorF32<'backward_label>, PzeudoErr>
+    ) -> Result<Tensor<'backward_label>, PzeudoErr>
     where
         Rhs: TensorTrait<'backward_label, f32>,
     {
@@ -36,7 +36,7 @@ pub trait PzeudoOpsDiv<'backward_label>: TensorTrait<'backward_label, f32> {
             Some(grad.clone()),
         ));
 
-        let tensor = TensorF32 {
+        let tensor = Tensor {
             array: result,
             gradient: Some(grad),
             backward_label: Some(backward_label),

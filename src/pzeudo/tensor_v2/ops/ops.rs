@@ -1,42 +1,64 @@
-use ndarray::{ArrayD, ArrayViewD, Axis};
+use ndarray::{ArrayD, ArrayViewD, Axis, CowArray, Dim, IxDynImpl};
 
-use crate::{ArrayAble, ArrayRef};
+use crate::ArrayAble;
 
-pub trait OpsAble {
-    type Array: ArrayAble;
+pub trait OpsAble {}
 
-    // Arith
-    fn _add(&self, rhs: &Self) -> Self::Array;
+impl OpsAble for ArrayViewD<'_, f32> {}
 
-    // Sum
-    fn _sum_axis(&self, axis: usize) -> Self::Array;
-
-    // shape
-    fn _to_shape<ArrayR>(&self, shape: &[usize])
+// Arith
+pub trait AddOps<'ops>: ArrayAble<'ops> {
+    type Out<'out>: ArrayAble<'out>
     where
-        ArrayR: ArrayRef,
-    {
+        Self: 'out;
+
+    fn _add(&self, rhs: &Self) -> Self::Out<'_>;
+}
+
+// Sum
+pub trait SumOps: ArrayAble {
+    type Out<'out>: ArrayAble<'out>
+    where
+        Self: 'out;
+
+    fn _sum_axis(&self, axis: usize) -> Self::Out<'_>;
+}
+
+// ToShape
+pub trait ToShape: ArrayAble {
+    type Out<'a>: ArrayAble
+    where
+        Self: 'a;
+
+    fn _to_shape(&self, new_shape: &[usize]) -> Self::Out<'_>;
+}
+
+// impl
+impl<'ops> AddOps<'ops> for ArrayViewD<'ops, f32> {
+    type Out<'out>
+        = ArrayD<f32>
+    where
+        Self: 'out;
+
+    fn _add(&self, rhs: &Self) -> Self::Out<'_> {
+        self + rhs
     }
 }
 
-impl OpsAble for ArrayViewD<'_, f32> {
-    type Array = ArrayD<f32>;
-
-    fn _add(&self, rhs: &Self) -> Self::Array {
-        self + rhs
-    }
-
-    // sum
-    fn _sum_axis(&self, axis: usize) -> Self::Array {
+impl SumOps for ArrayViewD<'_, f32> {
+    type Out = ArrayD<f32>;
+    fn _sum_axis(&self, axis: usize) -> Self::Out {
         self.sum_axis(Axis(axis))
     }
+}
 
-    fn _to_shape<ArrayR>(&self, shape: &[usize])
+impl ToShape for ArrayViewD<'_, f32> {
+    type Out<'a>
+        = CowArray<'a, f32, Dim<IxDynImpl>>
     where
-        ArrayR: ArrayRef,
-    {
+        Self: 'a;
+
+    fn _to_shape(&self, new_shape: &[usize]) -> Self::Out<'_> {
+        self.to_shape(new_shape).unwrap()
     }
-    // fn _to_shape(&self, shape: &[usize]) {
-    //     let reshape = self.to_shape(shape).unwrap();
-    // }
 }

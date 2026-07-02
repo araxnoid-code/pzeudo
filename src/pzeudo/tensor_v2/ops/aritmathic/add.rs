@@ -1,10 +1,10 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{ArrayAble, ArrayMutAble, OpsAble};
+use crate::{AddOps, ArrayAble, ArrayMutAble, OpsAble, SumOps, ToShape};
 
-fn add<Ops>(lhs: Ops, rhs: Ops) -> <Ops as OpsAble>::Array
+fn add<Ops>(lhs: Ops, rhs: Ops) -> <Ops as AddOps>::Out
 where
-    Ops: OpsAble,
+    Ops: OpsAble + AddOps,
 {
     lhs._add(&rhs)
 }
@@ -14,8 +14,8 @@ fn add_bacward<Array, Ops>(
     rhs_grad: &Option<Rc<RefCell<Array>>>,
     gradient: &Option<Rc<RefCell<Array>>>,
 ) where
-    for<'a> Array: ArrayMutAble<Ops<'a> = Ops>,
-    Ops: OpsAble<Array = Array>,
+    for<'a> Array: ArrayMutAble<Ops<'a> = Ops> + 'a,
+    for<'a> Ops: OpsAble + SumOps<Out = Array> + ToShape,
 {
     if let Some(gradient) = gradient {
         let gradient = gradient.borrow();
@@ -52,6 +52,12 @@ fn add_bacward<Array, Ops>(
 
                     lhs_grad_dim_idx -= 1
                 }
+
+                let acc = acc.unwrap();
+                let ops = acc.into_ops();
+                let reshape = ops._to_shape(lhs_grad.shape());
+                let ops = reshape.into_ops();
+                // lhs_grad._add_assign(reshape.into_ops());
             }
         }
     }

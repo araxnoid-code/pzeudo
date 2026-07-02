@@ -11,7 +11,7 @@ use std::{
 use ndarray::{ArrayD, ArrayViewD};
 use num_traits::{One, Zero};
 
-use crate::{Backward, BackwardLabel, TensorTrait};
+use crate::{BackwardLabel, TensorTrait};
 
 pub struct Tensor<'backward_label, F> {
     pub(crate) array: ArrayD<F>,
@@ -49,7 +49,7 @@ where
 
 impl<'backward_label, F> TensorTrait<'backward_label, F> for Tensor<'backward_label, F>
 where
-    F: Clone + One,
+    F: Clone + One + Zero,
 {
     fn get_label_ops(&self) -> bool {
         self.label_ops.load(Ordering::Relaxed)

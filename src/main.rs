@@ -10,16 +10,6 @@ fn main() {
     // let reshape = data.to_shape(vec![10]).unwrap();
     let mut data = ArrayD::<f32>::zeros(vec![10]);
     let rhs = ArrayD::<f32>::zeros(vec![10]);
-
-    add(data);
-}
-
-fn add<F>(lhs: ArrayD<F>)
-where
-    F: AddAssign<F> + Copy,
-    ArrayD<F>: Pow<i32>,
-{
-    lhs;
 }
 
 //

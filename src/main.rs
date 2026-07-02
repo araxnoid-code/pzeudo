@@ -1,8 +1,17 @@
 use std::{cell::RefCell, rc::Rc};
 
-use ndarray::array;
+use ndarray::{ArrayD, ArrayRefD, ArrayViewD, CowArray, Dim, IxDynImpl, array};
 
-fn main() {}
+fn main() {
+    let data = array![[1., 2., 3.]];
+    let reshape = data.to_shape(vec![10]).unwrap();
+
+    // get_new(&reshape);
+}
+
+// fn get_new<'a>(data: &'a CowArray<'_, f32, Dim<IxDynImpl>>) -> ArrayViewD<'a, f32> {
+//     data.view()
+// }
 
 // use std::ops::AddAssign;
 

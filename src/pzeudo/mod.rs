@@ -4,5 +4,5 @@ pub use tensor::*;
 mod module;
 pub use module::*;
 
-// mod new_tensor;
-// pub use new_tensor::*;
+mod tensor_v2;
+pub use tensor_v2::*;

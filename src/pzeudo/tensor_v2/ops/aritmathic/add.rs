@@ -1,62 +1,56 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::{OpsAble, OwnAble, RefAble, TensorAble, TensorMutAble};
+use crate::{ArrayAble, ArrayMutAble, OpsAble};
 
-fn add<Ops, Own>(lhs: &Ops, rhs: &Ops) -> Own
+fn add<Ops>(lhs: Ops, rhs: Ops) -> <Ops as OpsAble>::Array
 where
-    Own: TensorAble,
-    Ops: OpsAble<TensorType = Own>,
+    Ops: OpsAble,
 {
-    // f(x, y) = x + y
-    lhs.add(&rhs)
+    lhs._add(&rhs)
 }
 
-fn add_backward<T>(
-    lhs_grad: &Option<Rc<RefCell<T>>>,
-    rhs_grad: &Option<Rc<RefCell<T>>>,
-    gradient: &Option<Rc<RefCell<T>>>,
+fn add_bacward<Array, Ops>(
+    lhs_grad: &Option<Rc<RefCell<Array>>>,
+    rhs_grad: &Option<Rc<RefCell<Array>>>,
+    gradient: &Option<Rc<RefCell<Array>>>,
 ) where
-    T: TensorAble + TensorMutAble,
+    for<'a> Array: ArrayMutAble<Ops<'a> = Ops>,
+    Ops: OpsAble<Array = Array>,
 {
-    // f(x, y) = x + y
     if let Some(gradient) = gradient {
         let gradient = gradient.borrow();
 
-        // df(x, y)/dx = 1
         if let Some(lhs_grad) = lhs_grad {
             let mut lhs_grad = lhs_grad.borrow_mut();
 
-            if lhs_grad.get_shape() == gradient.get_shape() {
-                let ops = gradient.to_ops_able();
-                lhs_grad.tensor_add_assign(ops);
+            let gradient_shape = gradient.shape();
+            let lhs_grad_shape = lhs_grad.shape();
+
+            if gradient_shape == lhs_grad_shape {
+                lhs_grad._add_assign(gradient.into_ops());
             } else {
-                // broadcasting handler
-                let gradient_shape = gradient.get_shape();
-                let lhs_shape = lhs_grad.get_shape();
+                // broadcast handler
+                let mut acc: Option<Array> = None;
+                let mut lhs_grad_dim_idx = lhs_grad_shape.len() - 1;
+                let mut flow_handler = false;
+                for dim in (0..gradient_shape.len()).rev() {
+                    let gradient_dim = gradient_shape[dim];
+                    let lhs_grad_dim = lhs_grad_shape[lhs_grad_dim_idx];
 
-                let mut lhs_dim_idx = lhs_shape.len() - 1;
-                let mut sum_axis: Option<<<T as TensorAble>::OpsType<'_> as OpsAble>::OwnType> =
-                    None;
-
-                for (dim, gradient_dim_idx) in gradient_shape.iter().enumerate().rev() {
-                    let lhs_dim = lhs_shape[lhs_dim_idx];
-                    let gradint_dim = gradient_shape[*gradient_dim_idx];
-
-                    if lhs_dim == 1 && gradint_dim != 1 {
-                        if let Some(sum) = sum_axis {
-                            sum.to_ops_able();
-                            // sum.to_ops_able();
-                            // sum_axis = Some(sum);
+                    if (lhs_grad_dim == 1 || flow_handler) && gradient_dim != 1 {
+                        if let Some(_acc) = &acc {
+                            acc = Some(_acc.into_ops()._sum_axis(dim))
                         } else {
-                            let sum = gradient.to_ops_able().ops_sum_axis(dim);
-                            sum_axis = Some(sum);
+                            acc = Some(gradient.into_ops()._sum_axis(dim));
                         }
                     }
 
-                    if lhs_dim_idx == 0 {
+                    if lhs_grad_dim_idx == 0 && gradient_dim != 1 {
+                        flow_handler = true;
                         continue;
                     }
-                    lhs_dim_idx -= 1;
+
+                    lhs_grad_dim_idx -= 1
                 }
             }
         }
@@ -64,11 +58,11 @@ fn add_backward<T>(
 }
 
 // pub fn add_backward(
-//     lhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
-//     rhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
-//     gradient: &Option<Rc<RefCell<ArrayD<f32>>>>,
+// lhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
+// rhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
+// gradient: &Option<Rc<RefCell<ArrayD<f32>>>>,
 // ) {
-// f(x, y) = x + y
+//     // f(x, y) = x + y
 //     if let Some(gradient) = gradient {
 //         let gradient = gradient.borrow();
 

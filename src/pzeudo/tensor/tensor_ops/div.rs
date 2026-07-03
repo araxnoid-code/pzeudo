@@ -5,20 +5,22 @@ use std::{
 };
 
 use ndarray::{ArrayD, ArrayViewD};
+use num_traits::Float;
 
 use crate::{BackwardLabel, PzeudoErr, Tensor, TensorTrait, div, mul};
 
-pub trait PzeudoOpsDiv<'backward_label>: TensorTrait<'backward_label, f32> {
+pub trait PzeudoOpsDiv<'backward_label, F>: TensorTrait<'backward_label, F> {
     fn div<Rhs>(
         &'backward_label self,
         rhs: &'backward_label Rhs,
-        record: &mut Vec<Option<Arc<BackwardLabel<'backward_label>>>>,
-    ) -> Result<Tensor<'backward_label>, PzeudoErr>
+        record: &mut Vec<Option<Arc<BackwardLabel<'backward_label, F>>>>,
+    ) -> Result<Tensor<'backward_label, F>, PzeudoErr>
     where
-        Rhs: TensorTrait<'backward_label, f32>,
+        Rhs: TensorTrait<'backward_label, F>,
+        F: Float,
     {
         let result = div(self.get_array_view(), rhs.get_array_view())?;
-        let grad = Rc::new(RefCell::new(ArrayD::<f32>::zeros(result.shape())));
+        let grad = Rc::new(RefCell::new(ArrayD::<F>::zeros(result.shape())));
 
         if !self.get_label_ops() {
             self.set_label_ops(true);

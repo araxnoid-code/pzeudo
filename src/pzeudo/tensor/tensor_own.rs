@@ -12,7 +12,9 @@ use std::{
 use ndarray::{ArrayD, ArrayViewD};
 use num_traits::{Float, One, Zero};
 
-use crate::{Backward, BackwardLabel, PzeudoOpsAdd, TensorTrait};
+use crate::{
+    Backward, BackwardLabel, PzeudoOpsAdd, PzeudoOpsDiv, PzeudoOpsMul, PzeudoOpsSub, TensorTrait,
+};
 
 pub struct Tensor<'backward_label, F> {
     pub(crate) array: ArrayD<F>,
@@ -87,9 +89,20 @@ impl<'bacward_label, F> PzeudoOpsAdd<'bacward_label, F> for Tensor<'bacward_labe
 {
 }
 
-// impl<'bacward_label, F> PzeudoOpsSub<'bacward_label> for Tensor<'bacward_label, F> {}
-// impl<'bacward_label, F> PzeudoOpsMul<'bacward_label> for Tensor<'bacward_label, F> {}
-// impl<'bacward_label, F> PzeudoOpsDiv<'bacward_label> for Tensor<'bacward_label, F> {}
+impl<'bacward_label, F> PzeudoOpsSub<'bacward_label, F> for Tensor<'bacward_label, F> where
+    F: Add<Output = F> + Copy + Zero + Float
+{
+}
+
+impl<'bacward_label, F> PzeudoOpsMul<'bacward_label, F> for Tensor<'bacward_label, F> where
+    F: Add<Output = F> + Copy + Zero + Float
+{
+}
+
+impl<'bacward_label, F> PzeudoOpsDiv<'bacward_label, F> for Tensor<'bacward_label, F> where
+    F: Add<Output = F> + Copy + Zero + Float
+{
+}
 
 impl<'bacward_label, F> Backward<'bacward_label, F> for Tensor<'bacward_label, F> where
     F: AddAssign<F>

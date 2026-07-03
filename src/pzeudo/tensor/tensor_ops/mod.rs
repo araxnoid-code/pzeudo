@@ -1,11 +1,11 @@
 mod add;
 pub use add::*;
 
-// mod div;
-// pub use div::*;
+mod div;
+pub use div::*;
 
-// mod mul;
-// pub use mul::*;
+mod mul;
+pub use mul::*;
 
-// mod sub;
-// pub use sub::*;
+mod sub;
+pub use sub::*;

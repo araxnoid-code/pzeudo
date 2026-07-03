@@ -9,7 +9,7 @@ use std::{
 };
 
 use ndarray::{ArrayD, ArrayViewD};
-use num_traits::{One, Zero};
+use num_traits::{Float, One, Zero};
 
 use crate::{BackwardLabel, TensorTrait};
 
@@ -22,7 +22,7 @@ pub struct Tensor<'backward_label, F> {
 
 impl<'bacward_label, F> Tensor<'bacward_label, F>
 where
-    F: Clone + Zero + One,
+    F: Clone + Zero + One + Float,
 {
     pub fn new(
         array: ArrayD<F>,

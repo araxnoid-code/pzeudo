@@ -4,7 +4,7 @@ use std::{
     rc::Rc,
 };
 
-use ndarray::{ArrayBase, ArrayD, ArrayView, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
+use ndarray::{ArrayBase, ArrayD, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
 use num_traits::Zero;
 
 use crate::{PzeudoErr, able_broadcast};

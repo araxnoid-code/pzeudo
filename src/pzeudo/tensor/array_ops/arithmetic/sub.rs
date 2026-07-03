@@ -1,13 +1,21 @@
-use std::{cell::RefCell, ops::AddAssign, rc::Rc};
+use std::{
+    cell::RefCell,
+    ops::{AddAssign, Neg, Sub},
+    rc::Rc,
+};
 
 use ndarray::{ArrayBase, ArrayD, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
+use num_traits::Zero;
 
-use crate::{PzeudoErr, able_broadcast};
+use crate::{PzeudoErr, able_broadcast, neg};
 
-pub fn sub(
-    lhs: ArrayViewD<f32>,
-    rhs: ArrayViewD<f32>,
-) -> Result<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>, PzeudoErr> {
+pub fn sub<F>(
+    lhs: ArrayViewD<F>,
+    rhs: ArrayViewD<F>,
+) -> Result<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>, PzeudoErr>
+where
+    F: Sub<Output = F> + Copy,
+{
     if lhs.shape().len() < rhs.shape().len() {
         able_broadcast(lhs.shape(), rhs.shape())
             .map_err(|err| PzeudoErr::DivErr(err.into_msg()))?;
@@ -18,11 +26,13 @@ pub fn sub(
     Ok(&lhs - &rhs)
 }
 
-pub fn sub_backward(
-    lhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
-    rhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
-    gradient: &Option<Rc<RefCell<ArrayD<f32>>>>,
-) {
+pub fn sub_backward<F>(
+    lhs_grad: &Option<Rc<RefCell<ArrayD<F>>>>,
+    rhs_grad: &Option<Rc<RefCell<ArrayD<F>>>>,
+    gradient: &Option<Rc<RefCell<ArrayD<F>>>>,
+) where
+    F: Zero + Clone + AddAssign + Neg<Output = F>,
+{
     // f(x, y) = x - y
     if let Some(gradient) = gradient {
         let gradient = gradient.borrow();
@@ -41,8 +51,7 @@ pub fn sub_backward(
                     lhs_shape = [ones, lhs_shape].concat();
                 }
 
-                let mut gradient_axis: Option<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>> =
-                    None;
+                let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> = None;
                 for (idx, (gradient_shape, lhs_shape)) in
                     gradient_shape.iter().zip(lhs_shape.iter()).enumerate()
                 {
@@ -67,7 +76,7 @@ pub fn sub_backward(
             let mut rhs = rhs_grad.borrow_mut();
 
             if gradient.shape() == rhs.shape() {
-                rhs.add_assign(&-&gradient.view());
+                rhs.add_assign(&neg(gradient.view()));
             } else {
                 let gradient_shape = gradient.shape();
                 let mut rhs_shape = rhs.shape().to_vec();
@@ -77,8 +86,8 @@ pub fn sub_backward(
                     rhs_shape = [ones, rhs_shape].concat();
                 }
 
-                let mut gradient_axis: Option<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>> =
-                    Some(-&gradient.view());
+                let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> =
+                    Some(neg(gradient.view()));
 
                 for (idx, (gradient_shape, rhs_shape)) in
                     gradient_shape.iter().zip(rhs_shape.iter()).enumerate()

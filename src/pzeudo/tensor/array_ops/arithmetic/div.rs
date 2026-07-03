@@ -5,16 +5,23 @@ use std::{
 };
 
 use ndarray::{ArrayBase, ArrayD, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
-use num_traits::Zero;
+use num_traits::{Float, One, Zero, one};
 
-use crate::{PzeudoErr, able_broadcast, pow2};
+use crate::{PzeudoErr, able_broadcast, neg, pow2};
+
+fn scalar_div<F>(scalar: F, arr: ArrayViewD<F>) -> ArrayD<F>
+where
+    F: Div<Output = F> + Clone + Copy,
+{
+    arr.mapv(|x| scalar / x)
+}
 
 pub fn div<F>(
     lhs: ArrayViewD<F>,
     rhs: ArrayViewD<F>,
 ) -> Result<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>, PzeudoErr>
 where
-    F: Div<Output = F> + Copy,
+    F: Div<Output = F> + Copy + Float,
 {
     if lhs.shape().len() < rhs.shape().len() {
         able_broadcast(lhs.shape(), rhs.shape())
@@ -33,7 +40,14 @@ pub fn div_backward<F>(
     rhs_grad: &Option<Rc<RefCell<ArrayD<F>>>>,
     gradient: &Option<Rc<RefCell<ArrayD<F>>>>,
 ) where
-    F: Div<Output = F> + Copy + Mul<Output = F> + Zero + AddAssign<F> + Clone + Neg<Output = F>,
+    F: Div<Output = F>
+        + Copy
+        + Mul<Output = F>
+        + Zero
+        + AddAssign<F>
+        + Clone
+        + Neg<Output = F>
+        + One,
 {
     // f(lhs, rhs) = lhs / rhs
     if let Some(gradient) = gradient {
@@ -44,8 +58,8 @@ pub fn div_backward<F>(
             let mut lhs_grad = lhs_grad.borrow_mut();
 
             if gradient.shape() == lhs_grad.shape() {
-                // let div = div(lhs, rhs);
-                lhs_grad.add_assign(&(1. / &rhs * &gradient.view()));
+                let assign = &scalar_div(one(), rhs.view()).view() * &gradient.view();
+                lhs_grad.add_assign(&assign);
             } else {
                 let gradient_shape = gradient.shape();
                 let mut lhs_grad_shape = lhs_grad.shape().to_vec();
@@ -56,7 +70,7 @@ pub fn div_backward<F>(
                 }
 
                 let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> =
-                    Some(1. / &rhs * &gradient.view());
+                    Some(scalar_div(one(), rhs.view()) * &gradient.view());
 
                 for (idx, (gradient_shape, lhs_grad_shape)) in
                     gradient_shape.iter().zip(lhs_grad_shape.iter()).enumerate()
@@ -79,7 +93,7 @@ pub fn div_backward<F>(
             let mut rhs_grad = rhs_grad.borrow_mut();
 
             if gradient.shape() == rhs_grad.shape() {
-                rhs_grad.add_assign(&(-&lhs / rhs.pow2() * &gradient.view()));
+                rhs_grad.add_assign(&(neg(lhs) / pow2(rhs.view()) * &gradient.view()));
             } else {
                 let gradient_shape = gradient.shape();
                 let mut rhs_grad_shape = rhs_grad.shape().to_vec();
@@ -91,7 +105,7 @@ pub fn div_backward<F>(
 
                 // pow2(rhs.view()) * &gradient.view();
                 let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> =
-                    Some(-&lhs / pow2(rhs.view()) * &gradient.view());
+                    Some(neg(lhs) / pow2(rhs.view()) * &gradient.view());
 
                 for (idx, (gradient_shape, rhs_shape)) in
                     gradient_shape.iter().zip(rhs_grad_shape.iter()).enumerate()

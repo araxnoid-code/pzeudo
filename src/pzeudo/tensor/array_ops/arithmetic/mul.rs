@@ -5,6 +5,7 @@ use std::{
 };
 
 use ndarray::{ArrayBase, ArrayD, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
+use num_traits::Zero;
 
 use crate::{PzeudoErr, able_broadcast};
 
@@ -25,13 +26,15 @@ where
     Ok(&lhs * &rhs)
 }
 
-pub fn mul_backward(
-    lhs: ArrayViewD<f32>,
-    lhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
-    rhs: ArrayViewD<f32>,
-    rhs_grad: &Option<Rc<RefCell<ArrayD<f32>>>>,
-    gradient: &Option<Rc<RefCell<ArrayD<f32>>>>,
-) {
+pub fn mul_backward<F>(
+    lhs: ArrayViewD<F>,
+    lhs_grad: &Option<Rc<RefCell<ArrayD<F>>>>,
+    rhs: ArrayViewD<F>,
+    rhs_grad: &Option<Rc<RefCell<ArrayD<F>>>>,
+    gradient: &Option<Rc<RefCell<ArrayD<F>>>>,
+) where
+    F: Mul<Output = F> + AddAssign + Copy + Zero + Clone,
+{
     if let Some(gradient) = gradient {
         let gradient = gradient.borrow();
 
@@ -49,7 +52,7 @@ pub fn mul_backward(
                     lhs_grad_shape = [ones, lhs_grad_shape].concat();
                 }
 
-                let mut gradient_axis: Option<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>> =
+                let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> =
                     Some(&rhs * &gradient.view());
 
                 for (idx, (gradient_shape, lhs_grad_shape)) in
@@ -82,7 +85,7 @@ pub fn mul_backward(
                     rhs_grad_shape = [ones, rhs_grad_shape].concat();
                 }
 
-                let mut gradient_axis: Option<ArrayBase<OwnedRepr<f32>, Dim<IxDynImpl>, f32>> =
+                let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> =
                     Some(&lhs * &gradient.view());
 
                 for (idx, (gradient_shape, rhs_shape)) in

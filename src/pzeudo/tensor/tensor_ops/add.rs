@@ -1,24 +1,27 @@
 use std::{
     cell::{Ref, RefCell},
+    ops::Add,
     rc::Rc,
     sync::{Arc, atomic::AtomicBool},
 };
 
 use ndarray::{ArrayD, ArrayViewD};
+use num_traits::{Float, Zero};
 
 use crate::{BackwardLabel, PzeudoErr, Tensor, TensorTrait, add};
 
-pub trait PzeudoOpsAdd<'backward_label>: TensorTrait<'backward_label, f32> {
+pub trait PzeudoOpsAdd<'backward_label, F>: TensorTrait<'backward_label, F> {
     fn add<Rhs>(
         &'backward_label self,
         rhs: &'backward_label Rhs,
-        record: &mut Vec<Option<Arc<BackwardLabel<'backward_label>>>>,
-    ) -> Result<Tensor<'backward_label>, PzeudoErr>
+        record: &mut Vec<Option<Arc<BackwardLabel<'backward_label, F>>>>,
+    ) -> Result<Tensor<'backward_label, F>, PzeudoErr>
     where
-        Rhs: TensorTrait<'backward_label, f32>,
+        F: Add<Output = F> + Copy + Zero + Float,
+        Rhs: TensorTrait<'backward_label, F>,
     {
         let result = add(self.get_array_view(), rhs.get_array_view())?;
-        let grad = Rc::new(RefCell::new(ArrayD::<f32>::zeros(result.shape())));
+        let grad = Rc::new(RefCell::new(ArrayD::<F>::zeros(result.shape())));
 
         if !self.get_label_ops() {
             self.set_label_ops(true);

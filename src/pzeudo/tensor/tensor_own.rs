@@ -1,6 +1,7 @@
 use std::{
     cell::RefCell,
     fmt::Display,
+    ops::Add,
     rc::Rc,
     sync::{
         Arc,
@@ -11,7 +12,7 @@ use std::{
 use ndarray::{ArrayD, ArrayViewD};
 use num_traits::{Float, One, Zero};
 
-use crate::{BackwardLabel, TensorTrait};
+use crate::{BackwardLabel, PzeudoOpsAdd, TensorTrait};
 
 pub struct Tensor<'backward_label, F> {
     pub(crate) array: ArrayD<F>,
@@ -22,7 +23,7 @@ pub struct Tensor<'backward_label, F> {
 
 impl<'bacward_label, F> Tensor<'bacward_label, F>
 where
-    F: Clone + Zero + One + Float,
+    F: Clone + Zero + One + Float + Add<Output = F> + Copy,
 {
     pub fn new(
         array: ArrayD<F>,
@@ -81,7 +82,11 @@ where
     }
 }
 
-// impl<'bacward_label, F> PzeudoOpsAdd<'bacward_label> for Tensor<'bacward_label, F> {}
+impl<'bacward_label, F> PzeudoOpsAdd<'bacward_label, F> for Tensor<'bacward_label, F> where
+    F: Add<Output = F> + Copy + Zero + Float
+{
+}
+
 // impl<'bacward_label, F> PzeudoOpsSub<'bacward_label> for Tensor<'bacward_label, F> {}
 // impl<'bacward_label, F> PzeudoOpsMul<'bacward_label> for Tensor<'bacward_label, F> {}
 // impl<'bacward_label, F> PzeudoOpsDiv<'bacward_label> for Tensor<'bacward_label, F> {}

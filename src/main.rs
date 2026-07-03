@@ -1,16 +1,49 @@
 use std::{
-    borrow,
+    borrow::{self, Cow},
     cell::RefCell,
     ops::{Add, AddAssign},
     rc::Rc,
 };
 
 use ndarray::{ArrayD, ArrayRefD, ArrayViewD, CowArray, Dim, IxDynImpl, array, linalg::Dot};
-use pzeudo::Tensor;
+use pzeudo::{Array, ArrayToShape, Tensor};
 
 fn main() {
-    let array: ArrayD<f32> = array![[1., 2., 4.]].into_dyn();
-    // let gradient = array![[1., 2., 4.]].into_dyn();
+    let data = array![[1., 2., 3.]].into_dyn();
+    let view: ArrayViewD<f32> = data.view();
 
-    let tensor = Tensor::from_array(array);
+    // operate(view);
 }
+
+// impl ToOps for ArrayViewD<'_, f32> {
+//     type OpsType<'a>
+//         = ArrayViewD<'a, f32>
+//     where
+//         Self: 'a;
+
+//     fn to_ops(&self) -> Self::OpsType<'_> {
+//         self.view()
+//     }
+// }
+
+// impl ToBorrow for ArrayViewD<'_, f32> {
+//     type BorrowType<'a>
+//         = CowArray<'a, f32, Dim<IxDynImpl>>
+//     where
+//         Self: 'a;
+
+//     fn to_borrow(&self) -> Self::BorrowType<'_> {
+//         self.to_shape(vec![10]).unwrap()
+//     }
+// }
+
+// impl ToOps for CowArray<'_, f32, Dim<IxDynImpl>> {
+//     type OpsType<'a>
+//         = ArrayViewD<'a, f32>
+//     where
+//         Self: 'a;
+
+//     fn to_ops(&self) -> Self::OpsType<'_> {
+//         self.view()
+//     }
+// }

@@ -48,4 +48,15 @@ pub enum BackwardLabel<'backward_label, F> {
         ),
         Option<Rc<RefCell<ArrayD<F>>>>,
     ),
+    Matmul(
+        (
+            ArrayViewD<'backward_label, F>,
+            Option<Rc<RefCell<ArrayD<F>>>>,
+        ),
+        (
+            ArrayViewD<'backward_label, F>,
+            Option<Rc<RefCell<ArrayD<F>>>>,
+        ),
+        Option<Rc<RefCell<ArrayD<F>>>>,
+    ),
 }

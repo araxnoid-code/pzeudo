@@ -9,11 +9,12 @@ use std::{
     },
 };
 
-use ndarray::{ArrayD, ArrayViewD};
+use ndarray::{Array2, ArrayD, ArrayView2, ArrayViewD, linalg::Dot};
 use num_traits::{Float, One, Zero};
 
 use crate::{
-    Backward, BackwardLabel, PzeudoOpsAdd, PzeudoOpsDiv, PzeudoOpsMul, PzeudoOpsSub, TensorTrait,
+    Backward, BackwardLabel, PzeudoOpsAdd, PzeudoOpsDiv, PzeudoOpsMatmul2D, PzeudoOpsMul,
+    PzeudoOpsSub, TensorTrait,
 };
 
 pub struct Tensor<'backward_label, F> {
@@ -104,7 +105,13 @@ impl<'bacward_label, F> PzeudoOpsDiv<'bacward_label, F> for Tensor<'bacward_labe
 {
 }
 
-impl<'bacward_label, F> Backward<'bacward_label, F> for Tensor<'bacward_label, F> where
+impl<'bacward_label, F> PzeudoOpsMatmul2D<'bacward_label, F> for Tensor<'bacward_label, F> where
+    F: Add<Output = F> + Copy + Zero + Float
+{
+}
+
+impl<'bacward_label, F> Backward<'bacward_label, F> for Tensor<'bacward_label, F>
+where
     F: AddAssign<F>
         + Clone
         + Copy
@@ -112,7 +119,8 @@ impl<'bacward_label, F> Backward<'bacward_label, F> for Tensor<'bacward_label, F
         + Neg<Output = F>
         + Mul<Output = F>
         + Div<Output = F>
-        + One
+        + One,
+    for<'a> ArrayView2<'a, F>: Dot<ArrayView2<'a, F>, Output = Array2<F>>,
 {
 }
 

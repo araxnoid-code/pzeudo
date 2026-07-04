@@ -3,9 +3,13 @@ use std::{
     sync::Arc,
 };
 
+use ndarray::{Array2, ArrayView2, linalg::Dot};
 use num_traits::{One, Zero};
 
-use crate::{BackwardLabel, TensorTrait, add_backward, div_backward, mul_backward, sub_backward};
+use crate::{
+    BackwardLabel, TensorTrait, add_backward, div_backward, matmul_2d_backward, mul_backward,
+    sub_backward,
+};
 
 pub trait Backward<'bacward_label, F>: TensorTrait<'bacward_label, F>
 where
@@ -17,6 +21,7 @@ where
         + Mul<Output = F>
         + Div<Output = F>
         + One,
+    for<'a> ArrayView2<'a, F>: Dot<ArrayView2<'a, F>, Output = Array2<F>>,
 {
     fn backward(&self, record: &Vec<Option<Arc<BackwardLabel<'bacward_label, F>>>>) {
         if let Err(_) = self.set_gradient_ones() {
@@ -37,6 +42,9 @@ where
                     }
                     BackwardLabel::Div(lhs, rhs, gradient) => {
                         div_backward(lhs.0.view(), &lhs.1, rhs.0.view(), &rhs.1, gradient);
+                    }
+                    BackwardLabel::Matmul(lhs, rhs, gradient) => {
+                        matmul_2d_backward(lhs.0.view(), &lhs.1, rhs.0.view(), &rhs.1, gradient);
                     }
                 }
             }

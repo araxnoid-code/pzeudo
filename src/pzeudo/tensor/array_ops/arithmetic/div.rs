@@ -9,13 +9,6 @@ use num_traits::{Float, One, Zero, one};
 
 use crate::{PzeudoErr, able_broadcast, neg, pow2};
 
-fn scalar_div<F>(scalar: F, arr: ArrayViewD<F>) -> ArrayD<F>
-where
-    F: Div<Output = F> + Clone + Copy,
-{
-    arr.mapv(|x| scalar / x)
-}
-
 pub fn div<F>(
     lhs: ArrayViewD<F>,
     rhs: ArrayViewD<F>,
@@ -123,4 +116,11 @@ pub fn div_backward<F>(
             }
         }
     }
+}
+
+fn scalar_div<F>(scalar: F, arr: ArrayViewD<F>) -> ArrayD<F>
+where
+    F: Div<Output = F> + Clone + Copy,
+{
+    arr.mapv(|x| scalar / x)
 }

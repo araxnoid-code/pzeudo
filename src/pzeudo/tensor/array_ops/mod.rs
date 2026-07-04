@@ -9,3 +9,6 @@ pub use ops_tools::*;
 
 mod unary;
 pub use unary::*;
+
+mod matmul;
+pub use matmul::*;

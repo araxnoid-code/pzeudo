@@ -7,7 +7,8 @@ pub enum PzeudoErr {
     DivErr(String),
 
     // Matmul
-    Matmul2dErr(String),
+    Matmul2DErr(String),
+    Matmul2DBackwardErr(String),
 
     // tools
     AbleBroadcastErr(String),
@@ -23,7 +24,8 @@ impl PzeudoErr {
             Self::DivErr(msg) => msg,
 
             // Matmul
-            PzeudoErr::Matmul2dErr(msg) => msg,
+            PzeudoErr::Matmul2DErr(msg) => msg,
+            PzeudoErr::Matmul2DBackwardErr(msg) => msg,
 
             // tools
             Self::AbleBroadcastErr(msg) => msg,

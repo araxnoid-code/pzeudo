@@ -1,3 +1,6 @@
+mod storage;
+pub use storage::*;
+
 mod tensor_own;
 pub use tensor_own::*;
 

@@ -12,6 +12,9 @@ pub enum PzeudoErr {
 
     // tools
     AbleBroadcastErr(String),
+
+    // Tensor Method
+    GetGradErr(String),
 }
 
 impl PzeudoErr {
@@ -29,6 +32,9 @@ impl PzeudoErr {
 
             // tools
             Self::AbleBroadcastErr(msg) => msg,
+
+            // Tensor Method
+            Self::GetGradErr(msg) => msg,
         }
     }
 }

@@ -1,26 +1,32 @@
 use std::{
     cell::RefCell,
+    ops::Div,
     rc::Rc,
     sync::{Arc, atomic::AtomicBool},
 };
 
-use ndarray::ArrayD;
+use ndarray::{ArrayD, ArrayViewD};
 use num_traits::Float;
 
-use crate::{BackwardLabel, PzeudoErr, Tensor, TensorTrait, mul};
+use crate::{BackwardLabel, GradientStorage, PzeudoErr, Tensor, TensorTrait, div, mul};
 
-pub trait PzeudoOpsMul<'backward_label, F>: TensorTrait<'backward_label, F> {
+pub trait PzeudoOpsMul<'backward_label, F, Grad, GradStorage>:
+    TensorTrait<'backward_label, F, ArrayD<F>, GradStorage>
+where
+    GradStorage: GradientStorage<ArrayD<F>>,
+{
     fn mul<Rhs>(
         &'backward_label self,
         rhs: &'backward_label Rhs,
-        record: &mut Vec<Option<Arc<BackwardLabel<'backward_label, F>>>>,
-    ) -> Result<Tensor<'backward_label, F>, PzeudoErr>
+        record: &mut Vec<Option<&BackwardLabel<'backward_label, F>>>,
+    ) -> Result<Tensor<'backward_label, F, GradStorage>, PzeudoErr>
     where
-        Rhs: TensorTrait<'backward_label, F>,
-        F: Float,
+        F: Div<Output = F> + Copy + Float,
+        Rhs: TensorTrait<'backward_label, F, ArrayD<F>, GradStorage>,
     {
         let result = mul(self.get_array_view(), rhs.get_array_view())?;
-        let grad = Rc::new(RefCell::new(ArrayD::<F>::zeros(result.shape())));
+        let grad = ArrayD::<F>::zeros(result.shape());
+        let idx_grad = self.get_storage().borrow_mut().push_grad(grad);
 
         if !self.get_label_ops() {
             self.set_label_ops(true);
@@ -32,17 +38,18 @@ pub trait PzeudoOpsMul<'backward_label, F>: TensorTrait<'backward_label, F> {
             record.push(rhs.get_share_backward_label());
         }
 
-        let backward_label = Arc::new(BackwardLabel::Mul(
+        let backward_label = BackwardLabel::Div(
             (self.get_array_view(), self.get_share_gradient()),
             (rhs.get_array_view(), rhs.get_share_gradient()),
-            Some(grad.clone()),
-        ));
+            Some(idx_grad),
+        );
 
         let tensor = Tensor {
             array: result,
-            gradient: Some(grad),
+            gradient: Some(idx_grad),
             backward_label: Some(backward_label),
             label_ops: AtomicBool::new(true),
+            grad_storage: self.get_storage().clone(),
         };
 
         record.push(tensor.get_share_backward_label());

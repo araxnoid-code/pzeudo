@@ -2,7 +2,9 @@ pub trait StorageDeref {
     type Storage;
     type Empty;
 
+    fn get_storage(&self) -> &Self::Storage;
     fn get_mut_storage(&mut self) -> &mut Self::Storage;
+    fn get_empty(&self) -> &Self::Empty;
     fn get_mut_empty(&mut self) -> &mut Self::Empty;
 }
 

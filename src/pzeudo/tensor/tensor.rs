@@ -3,12 +3,13 @@ use std::{
     fmt::{Debug, Display},
     marker::PhantomData,
     rc::Rc,
+    sync::atomic::AtomicBool,
 };
 
 use ndarray::{ArrayD, ArrayViewD, CowArray, Dim, IxDynImpl};
 use num_traits::Float;
 
-use crate::{PzeudoStorageErr, StorageTrait};
+use crate::{OpsLabel, PzeudoStorageErr, StorageTrait};
 
 /// Tensor Trait
 /// This trait is specifically for ndarrays
@@ -17,45 +18,60 @@ pub trait TensorNDArray<F> {
 }
 
 /// tensor using ndarray
-pub struct Tensor<F, A, GradStore>
+pub struct Tensor<'ops_label, F, A, GradStore>
 where
     A: TensorNDArray<F>,
     F: Float,
     GradStore: StorageTrait<ArrayD<F>>,
 {
     pub(crate) array: A,
+
     pub(crate) grad: Option<usize>,
     pub(crate) grad_storage: Rc<RefCell<GradStore>>,
-    pub(crate) is_record: bool,
+
+    pub(crate) record: Option<usize>,
+    pub(crate) record_storage: Rc<RefCell<Vec<(OpsLabel<'ops_label, F>, Option<usize>)>>>,
     _float_type: PhantomData<F>,
 }
 
-impl<F, A, GradStorage> Tensor<F, A, GradStorage>
+impl<'ops_label, F, A, GradStorage> Tensor<'ops_label, F, A, GradStorage>
 where
-    GradStorage: StorageTrait<ArrayD<F>>,
     A: TensorNDArray<F>,
     F: Float,
+    GradStorage: StorageTrait<ArrayD<F>>,
 {
     pub fn new(
         array: A,
+
         gradient: Option<ArrayD<F>>,
         grad_storage: Rc<RefCell<GradStorage>>,
-    ) -> Result<Tensor<F, A, GradStorage>, PzeudoStorageErr> {
+
+        record: Option<OpsLabel<'ops_label, F>>,
+        record_storage: Rc<RefCell<Vec<(OpsLabel<'ops_label, F>, Option<usize>)>>>,
+    ) -> Result<Tensor<'ops_label, F, A, GradStorage>, PzeudoStorageErr> {
+        let mut grad_idx = None;
         Ok(Self {
             array,
             grad: gradient.map_or(Ok(None::<usize>), |grad| {
-                Ok(Some(grad_storage.borrow_mut().push_element(grad)?))
+                grad_idx = Some(grad_storage.borrow_mut().push_element(grad)?);
+                Ok(grad_idx)
             })?,
             grad_storage,
-            is_record: false,
+
+            record: record.map(|record| {
+                let mut borrow = record_storage.borrow_mut();
+                borrow.push((record, grad_idx));
+                borrow.len()
+            }),
+            record_storage,
             _float_type: PhantomData::default(),
         })
     }
 }
 
-impl<F, A, GradStorage> Display for Tensor<F, A, GradStorage>
+impl<'ops_label, F, A, GradStorage> Display for Tensor<'ops_label, F, A, GradStorage>
 where
-    GradStorage: StorageTrait<ArrayD<F>>,
+    for<'a> GradStorage: StorageTrait<ArrayD<F>>,
     A: TensorNDArray<F> + Display,
     F: Float,
 {

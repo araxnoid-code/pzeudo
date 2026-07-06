@@ -3,7 +3,7 @@ use crate::PzeudoOpsErr::{self, BroadcastErr};
 pub fn able_broadcast(origin_shape: &[usize], to_shape: &[usize]) -> Result<(), PzeudoOpsErr> {
     if origin_shape.len() > to_shape.len() {
         return Err(BroadcastErr(format!(
-            "BroadcastErr, shape {:?} cannot be broadcast to {:?}",
+            "BroadcastErr. shape {:?} cannot be broadcast to {:?}",
             origin_shape, to_shape
         )));
     }
@@ -18,7 +18,7 @@ pub fn able_broadcast(origin_shape: &[usize], to_shape: &[usize]) -> Result<(), 
 
         if origin_dim != 1 && origin_dim != *to_shape_dim {
             return Err(BroadcastErr(format!(
-                "BroadcastErr, shape {:?} cannot be broadcast to {:?}",
+                "BroadcastErr. shape {:?} cannot be broadcast to {:?}",
                 origin_shape, to_shape
             )));
         }

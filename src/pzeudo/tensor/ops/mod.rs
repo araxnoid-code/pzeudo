@@ -6,3 +6,6 @@ pub use tensor::*;
 
 mod error;
 pub use error::*;
+
+mod label;
+pub use label::*;

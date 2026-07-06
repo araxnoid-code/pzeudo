@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc, sync::atomic::Ordering};
 use ndarray::ArrayD;
 use num_traits::Float;
 
-use crate::{OpsLabel, PzeudoOpsErr, StorageTrait, Tensor, TensorNDArray, add};
+use crate::{OpsLabel, PzeudoOpsErr, StorageTrait, Tensor, TensorNDArray, add, mul};
 
 impl<'ops_label, F, A, GradStorage> Tensor<'ops_label, F, A, GradStorage>
 where
@@ -11,16 +11,16 @@ where
     A: TensorNDArray<F>,
     F: Float,
 {
-    pub fn add<Rhs>(
+    pub fn mul<Rhs>(
         &'ops_label self,
         rhs: &'ops_label Tensor<F, Rhs, GradStorage>,
     ) -> Result<Tensor<'ops_label, F, ArrayD<F>, GradStorage>, PzeudoOpsErr>
     where
         Rhs: TensorNDArray<F>,
     {
-        let result = add(self.array._view(), rhs.array._view())?;
+        let result = mul(self.array._view(), rhs.array._view())?;
         let grad = ArrayD::<F>::zeros(result.shape());
-        let label = OpsLabel::Add(
+        let label = OpsLabel::Mul(
             (self.array._view(), self.grad),
             (rhs.array._view(), rhs.grad),
         );

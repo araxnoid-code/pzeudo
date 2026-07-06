@@ -3,7 +3,7 @@ use std::{cell::RefCell, fmt::Display, ops::AddAssign, rc::Rc};
 use ndarray::{ArrayD, ArrayView, ArrayViewD, ArrayViewMutD};
 use num_traits::{Float, Zero};
 
-use crate::{PzeudoBackwardErr, StorageTrait, add_backward};
+use crate::{PzeudoOpsErr, StorageTrait, add_backward};
 
 pub enum OpsLabel<'ops_label, F> {
     Init,
@@ -29,18 +29,19 @@ pub enum OpsLabel<'ops_label, F> {
 impl<'ops_label, F> OpsLabel<'ops_label, F> {
     fn backward<GradStorage>(
         self,
-        gradient: ArrayViewD<F>,
+        gradient_idx: Option<usize>,
         grad_storage: Rc<RefCell<GradStorage>>,
-    ) -> Result<(), &'static str>
+    ) -> Result<(), PzeudoOpsErr>
     where
         GradStorage: StorageTrait<ArrayD<F>>,
         F: AddAssign + Clone + Zero,
     {
-        let mut borrow = grad_storage.borrow_mut();
-        let storage = borrow.get_mut_storage();
-        let storage_len = storage.len();
+        let mut storage = grad_storage.borrow_mut();
+        // let storage = borrow.get_mut_storage();
         match self {
-            Self::Add(lhs, rhs) => {}
+            Self::Add(lhs, rhs) => {
+                add_backward(lhs.1, rhs.1, gradient_idx, &mut *storage)?;
+            }
             _ => (),
         }
 

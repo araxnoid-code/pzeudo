@@ -1,4 +1,9 @@
-use std::{cell::RefCell, marker::PhantomData, rc::Rc};
+use std::{
+    cell::RefCell,
+    fmt::{Debug, Display},
+    marker::PhantomData,
+    rc::Rc,
+};
 
 use ndarray::{ArrayD, ArrayViewD, CowArray, Dim, IxDynImpl};
 use num_traits::Float;
@@ -18,9 +23,10 @@ where
     F: Float,
     GradStore: StorageTrait<ArrayD<F>>,
 {
-    array: A,
-    grad: Option<usize>,
-    grad_storage: Rc<RefCell<GradStore>>,
+    pub(crate) array: A,
+    pub(crate) grad: Option<usize>,
+    pub(crate) grad_storage: Rc<RefCell<GradStore>>,
+    pub(crate) is_record: bool,
     _float_type: PhantomData<F>,
 }
 
@@ -41,8 +47,20 @@ where
                 Ok(Some(grad_storage.borrow_mut().push_element(grad)?))
             })?,
             grad_storage,
+            is_record: false,
             _float_type: PhantomData::default(),
         })
+    }
+}
+
+impl<F, A, GradStorage> Display for Tensor<F, A, GradStorage>
+where
+    GradStorage: StorageTrait<ArrayD<F>>,
+    A: TensorNDArray<F> + Display,
+    F: Float,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&format!("{}", self.array))
     }
 }
 

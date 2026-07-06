@@ -1,9 +1,14 @@
-use std::{cell::RefCell, fmt::Display, ops::AddAssign, rc::Rc};
+use std::{
+    cell::RefCell,
+    fmt::Display,
+    ops::{AddAssign, Div, Neg},
+    rc::Rc,
+};
 
 use ndarray::{ArrayD, ArrayView, ArrayViewD, ArrayViewMutD};
-use num_traits::{Float, Zero};
+use num_traits::{Float, One, Zero};
 
-use crate::{PzeudoOpsErr, StorageTrait, add_backward};
+use crate::{PzeudoOpsErr, StorageTrait, add_backward, div_backward, mul_backward};
 
 pub enum OpsLabel<'ops_label, F> {
     Init,
@@ -34,13 +39,19 @@ impl<'ops_label, F> OpsLabel<'ops_label, F> {
     ) -> Result<(), PzeudoOpsErr>
     where
         GradStorage: StorageTrait<ArrayD<F>>,
-        F: AddAssign + Clone + Zero,
+        F: AddAssign + Clone + Zero + Div<Output = F> + Copy + One + Neg<Output = F>,
     {
         let mut storage = grad_storage.borrow_mut();
         // let storage = borrow.get_mut_storage();
         match self {
             Self::Add(lhs, rhs) => {
                 add_backward(lhs.1, rhs.1, gradient_idx, &mut *storage)?;
+            }
+            OpsLabel::Div(lhs, rhs) => {
+                div_backward(lhs.0, lhs.1, rhs.0, rhs.1, gradient_idx, &mut *storage)?
+            }
+            OpsLabel::Mul(lhs, rhs) => {
+                mul_backward(lhs.0, lhs.1, rhs.0, rhs.1, gradient_idx, &mut *storage)?
             }
             _ => (),
         }

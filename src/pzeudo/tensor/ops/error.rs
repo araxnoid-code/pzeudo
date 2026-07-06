@@ -7,6 +7,9 @@ pub enum PzeudoOpsErr {
     DivErr(String),
     DivBackwardErr(String),
 
+    MulErr(String),
+    MulBackwardErr(String),
+
     // Transform
     BroadcastErr(String),
 }

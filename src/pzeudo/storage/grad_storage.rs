@@ -7,7 +7,7 @@ pub struct GradStorage<F> {
 }
 
 impl<F> GradStorage<F> {
-    fn new(with_capacity: Option<usize>) -> GradStorage<F> {
+    pub fn new(with_capacity: Option<usize>) -> GradStorage<F> {
         Self {
             storage: with_capacity.map_or(Vec::new(), |capacity| Vec::with_capacity(capacity)),
             empty_idx: Vec::new(),

@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub enum PzeudoStorageErr {
     IndexNotFoundErr(String),
     PushElementErr(String),

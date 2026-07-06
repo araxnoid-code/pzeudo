@@ -10,6 +10,9 @@ pub enum PzeudoOpsErr {
     MulErr(String),
     MulBackwardErr(String),
 
+    Sub(String),
+    SubBackwardErr(String),
+
     // Transform
     BroadcastErr(String),
 }

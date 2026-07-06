@@ -7,7 +7,7 @@ use std::{
 use ndarray::{ArrayBase, ArrayD, ArrayViewD, Axis, Dim, IxDynImpl, OwnedRepr};
 use num_traits::Zero;
 
-use crate::{PzeudoOpsErr, able_broadcast, neg};
+use crate::{PzeudoOpsErr, StorageTrait, able_broadcast, broadcast_handling, neg};
 
 pub fn sub<F>(
     lhs: ArrayViewD<F>,
@@ -25,83 +25,69 @@ where
     Ok(&lhs - &rhs)
 }
 
-pub fn sub_backward<F>(
-    lhs_grad: &Option<Rc<RefCell<ArrayD<F>>>>,
-    rhs_grad: &Option<Rc<RefCell<ArrayD<F>>>>,
-    gradient: &Option<Rc<RefCell<ArrayD<F>>>>,
-) where
+pub fn sub_backward<F, GradStorage>(
+    lhs_grad_idx: Option<usize>,
+    rhs_grad_idx: Option<usize>,
+    gradient_idx: Option<usize>,
+    grad_storage: &mut GradStorage,
+) -> Result<(), PzeudoOpsErr>
+where
     F: Zero + Clone + AddAssign + Neg<Output = F>,
+    GradStorage: StorageTrait<ArrayD<F>>,
 {
-    // f(x, y) = x - y
-    if let Some(gradient) = gradient {
-        let gradient = gradient.borrow();
+    let storage = grad_storage.get_mut_storage();
+    let mut lhs_assign = None;
+    let mut rhs_assign = None;
 
-        // df(x, y)/dx = 1
-        if let Some(lhs_grad) = lhs_grad {
-            let mut lhs = lhs_grad.borrow_mut();
+    // f(lhs, rhs) = lhs - rhs
+    if let Some(grad_idx) = gradient_idx {
+        let gradient = storage
+            .get(grad_idx)
+            .ok_or(PzeudoOpsErr::SubBackwardErr(format!(
+                "SubBackwardErr. index {} is not available on gradient storage",
+                grad_idx
+            )))?
+            .as_ref()
+            .ok_or(PzeudoOpsErr::SubBackwardErr(format!(
+                "SubBackwardErr. index {} points to a value that is None in Storage",
+                grad_idx
+            )))?;
+
+        // df(lhs, rhs)/dlhs = 1
+        if let Some(lhs) = lhs_grad_idx {
+            let lhs = storage.get(lhs).unwrap().as_ref().unwrap();
             if gradient.shape() == lhs.shape() {
-                lhs.add_assign(&gradient.view());
+                lhs_assign = Some(gradient.to_owned());
             } else {
-                let gradient_shape = gradient.shape();
-                let mut lhs_shape = lhs.shape().to_vec();
-                let distance = gradient_shape.len() - lhs_shape.len();
-                if distance != 0 {
-                    let ones = vec![1; distance];
-                    lhs_shape = [ones, lhs_shape].concat();
-                }
-
-                let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> = None;
-                for (idx, (gradient_shape, lhs_shape)) in
-                    gradient_shape.iter().zip(lhs_shape.iter()).enumerate()
-                {
-                    if *lhs_shape == 1 && *gradient_shape != 1 {
-                        if let Some(grad) = gradient_axis {
-                            gradient_axis = Some(grad.sum_axis(Axis(idx)).insert_axis(Axis(idx)));
-                        } else {
-                            gradient_axis =
-                                Some(gradient.sum_axis(Axis(idx)).insert_axis(Axis(idx)));
-                        }
-                    }
-                }
-
-                let gradient = gradient_axis.unwrap();
-                let gradient = gradient.to_shape(lhs.shape()).unwrap();
-                lhs.add_assign(&gradient);
+                able_broadcast(lhs.shape(), gradient.shape())?;
+                let gradient = broadcast_handling(lhs.view(), gradient.view(), gradient.view());
+                lhs_assign = Some(gradient.to_owned());
             }
         }
 
-        // df(x, y)/dy = -1
-        if let Some(rhs_grad) = rhs_grad {
-            let mut rhs = rhs_grad.borrow_mut();
-
+        // df(lhs, rhs)/drhs =  -1
+        if let Some(rhs) = rhs_grad_idx {
+            let rhs = storage.get(rhs).unwrap().as_ref().unwrap();
             if gradient.shape() == rhs.shape() {
-                rhs.add_assign(&neg(gradient.view()));
+                rhs_assign = Some(neg(gradient.view()));
             } else {
-                let gradient_shape = gradient.shape();
-                let mut rhs_shape = rhs.shape().to_vec();
-                let distance = gradient_shape.len() - rhs_shape.len();
-                if distance != 0 {
-                    let ones = vec![1; distance];
-                    rhs_shape = [ones, rhs_shape].concat();
-                }
-
-                let mut gradient_axis: Option<ArrayBase<OwnedRepr<F>, Dim<IxDynImpl>, F>> =
-                    Some(neg(gradient.view()));
-
-                for (idx, (gradient_shape, rhs_shape)) in
-                    gradient_shape.iter().zip(rhs_shape.iter()).enumerate()
-                {
-                    if *rhs_shape == 1 && *gradient_shape != 1 {
-                        if let Some(grad) = gradient_axis {
-                            gradient_axis = Some(grad.sum_axis(Axis(idx)).insert_axis(Axis(idx)));
-                        }
-                    }
-                }
-
-                let gradient = gradient_axis.unwrap();
-                let gradient = gradient.to_shape(rhs.shape()).unwrap();
-                rhs.add_assign(&gradient);
+                able_broadcast(rhs.shape(), gradient.shape())?;
+                let init = neg(gradient.view());
+                let gradient = broadcast_handling(rhs.view(), gradient.view(), init.view());
+                rhs_assign = Some(gradient.to_owned());
             }
         }
     }
+
+    if let (Some(assign), Some(idx)) = (lhs_assign, lhs_grad_idx) {
+        let grad = storage.get_mut(idx).unwrap().as_mut().unwrap();
+        grad.add_assign(&assign);
+    }
+
+    if let (Some(assign), Some(idx)) = (rhs_assign, rhs_grad_idx) {
+        let grad = storage.get_mut(idx).unwrap().as_mut().unwrap();
+        grad.add_assign(&assign);
+    }
+
+    Ok(())
 }

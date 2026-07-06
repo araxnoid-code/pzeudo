@@ -8,7 +8,7 @@ use std::{
 use ndarray::{ArrayD, ArrayView, ArrayViewD, ArrayViewMutD};
 use num_traits::{Float, One, Zero};
 
-use crate::{PzeudoOpsErr, StorageTrait, add_backward, div_backward, mul_backward};
+use crate::{PzeudoOpsErr, StorageTrait, add_backward, div_backward, mul_backward, sub_backward};
 
 pub enum OpsLabel<'ops_label, F> {
     Init,
@@ -46,6 +46,9 @@ impl<'ops_label, F> OpsLabel<'ops_label, F> {
         match self {
             Self::Add(lhs, rhs) => {
                 add_backward(lhs.1, rhs.1, gradient_idx, &mut *storage)?;
+            }
+            OpsLabel::Sub(lhs, rhs) => {
+                sub_backward(lhs.1, rhs.1, gradient_idx, &mut *storage)?;
             }
             OpsLabel::Div(lhs, rhs) => {
                 div_backward(lhs.0, lhs.1, rhs.0, rhs.1, gradient_idx, &mut *storage)?

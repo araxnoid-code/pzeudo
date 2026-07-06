@@ -5,9 +5,16 @@ use num_traits::Float;
 
 use crate::{PzeudoStorageErr, StorageTrait};
 
+/// Tensor Trait
+/// This trait is specifically for ndarrays
+pub trait TensorNDArray<F> {
+    fn _view(&self) -> ArrayViewD<'_, F>;
+}
+
+/// tensor using ndarray
 pub struct Tensor<F, A, GradStore>
 where
-    A: NDArray<F>,
+    A: TensorNDArray<F>,
     F: Float,
     GradStore: StorageTrait<ArrayD<F>>,
 {
@@ -20,7 +27,7 @@ where
 impl<F, A, GradStorage> Tensor<F, A, GradStorage>
 where
     GradStorage: StorageTrait<ArrayD<F>>,
-    A: NDArray<F>,
+    A: TensorNDArray<F>,
     F: Float,
 {
     pub fn new(
@@ -39,12 +46,8 @@ where
     }
 }
 
-// trait
-pub trait NDArray<F> {
-    fn _view(&self) -> ArrayViewD<'_, F>;
-}
-
-impl<F> NDArray<F> for ArrayD<F>
+// impl trait
+impl<F> TensorNDArray<F> for ArrayD<F>
 where
     F: Float,
 {
@@ -53,7 +56,7 @@ where
     }
 }
 
-impl<F> NDArray<F> for ArrayViewD<'_, F>
+impl<F> TensorNDArray<F> for ArrayViewD<'_, F>
 where
     F: Float,
 {
@@ -62,7 +65,7 @@ where
     }
 }
 
-impl<F> NDArray<F> for CowArray<'_, F, Dim<IxDynImpl>>
+impl<F> TensorNDArray<F> for CowArray<'_, F, Dim<IxDynImpl>>
 where
     F: Float,
 {

@@ -32,17 +32,15 @@ pub enum OpsLabel<'ops_label, F> {
 }
 
 impl<'ops_label, F> OpsLabel<'ops_label, F> {
-    fn backward<GradStorage>(
-        self,
+    pub fn backward<GradStorage>(
+        &self,
         gradient_idx: Option<usize>,
-        grad_storage: Rc<RefCell<GradStorage>>,
+        storage: &mut GradStorage,
     ) -> Result<(), PzeudoOpsErr>
     where
         GradStorage: StorageTrait<ArrayD<F>>,
         F: AddAssign + Clone + Zero + Div<Output = F> + Copy + One + Neg<Output = F>,
     {
-        let mut storage = grad_storage.borrow_mut();
-        // let storage = borrow.get_mut_storage();
         match self {
             Self::Add(lhs, rhs) => {
                 add_backward(lhs.1, rhs.1, gradient_idx, &mut *storage)?;
@@ -50,12 +48,22 @@ impl<'ops_label, F> OpsLabel<'ops_label, F> {
             OpsLabel::Sub(lhs, rhs) => {
                 sub_backward(lhs.1, rhs.1, gradient_idx, &mut *storage)?;
             }
-            OpsLabel::Div(lhs, rhs) => {
-                div_backward(lhs.0, lhs.1, rhs.0, rhs.1, gradient_idx, &mut *storage)?
-            }
-            OpsLabel::Mul(lhs, rhs) => {
-                mul_backward(lhs.0, lhs.1, rhs.0, rhs.1, gradient_idx, &mut *storage)?
-            }
+            OpsLabel::Div(lhs, rhs) => div_backward(
+                lhs.0.view(),
+                lhs.1,
+                rhs.0.view(),
+                rhs.1,
+                gradient_idx,
+                &mut *storage,
+            )?,
+            OpsLabel::Mul(lhs, rhs) => mul_backward(
+                lhs.0.view(),
+                lhs.1,
+                rhs.0.view(),
+                rhs.1,
+                gradient_idx,
+                &mut *storage,
+            )?,
             _ => (),
         }
 

@@ -6,7 +6,7 @@ use std::{
 };
 
 use ndarray::{ArrayD, CowArray};
-use pzeudo::{GradStorage, Tensor};
+use pzeudo::{BackwardTrait, GradStorage, Tensor};
 
 fn main() {
     // let num = Arc::new(1);
@@ -41,11 +41,13 @@ fn main() {
     let mut tensor_c = tensor_view.add(&tensor_cow).unwrap();
     let tensor_d = tensor_c.add(&tensor_view).unwrap();
     let tensor_e = tensor_d.add(&tensor_d).unwrap();
-    println!("{}", tensor_e);
+    tensor_e.backward().unwrap();
+    // println!("{}", tensor_e);
 
-    for i in record_storage.borrow().iter() {
-        println!("grad_idx {:?}", i.1);
-        println!("{}", i.0);
-        println!("===========")
-    }
+    // for i in record_storage.borrow().iter() {
+    //     // i.0.backward(gradient_idx, grad_storage)
+    //     // println!("grad_idx {:?}", i.1);
+    //     // println!("{}", i.0);
+    //     // println!("===========")
+    // }
 }

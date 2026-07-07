@@ -27,18 +27,4 @@ fn main() {
     let ops_c = ops_a.div(&ops_b).unwrap();
 
     let ops_d = ops_b.sub(&ops_c).unwrap();
-
-    // println!("{}", ops_b);
-
-    ops_d.backward().unwrap();
-
-    let grad_idx = array_a.get_grad_idx().unwrap();
-    let _storage = storage.borrow_mut();
-    let storage = _storage
-        .get_storage()
-        .get(grad_idx)
-        .unwrap()
-        .as_ref()
-        .unwrap();
-    println!("{}", storage);
 }

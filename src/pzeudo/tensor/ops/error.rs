@@ -13,6 +13,10 @@ pub enum PzeudoOpsErr {
     Sub(String),
     SubBackwardErr(String),
 
+    // Matmul
+    Matmul2dErr(String),
+    Matmul2dBackwardErr(String),
+
     // Transform
     BroadcastErr(String),
 }

@@ -28,11 +28,11 @@ fn main() {
 
     let ops_d = ops_b.sub(&ops_c).unwrap();
 
-    // println!("{}", ops_d);
+    // println!("{}", ops_b);
 
     ops_d.backward().unwrap();
 
-    let grad_idx = array_c.get_grad_idx().unwrap();
+    let grad_idx = array_a.get_grad_idx().unwrap();
     let _storage = storage.borrow_mut();
     let storage = _storage
         .get_storage()

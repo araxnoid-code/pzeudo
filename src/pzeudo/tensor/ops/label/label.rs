@@ -48,14 +48,17 @@ impl<'ops_label, F> OpsLabel<'ops_label, F> {
             OpsLabel::Sub(lhs, rhs) => {
                 sub_backward(lhs.1, rhs.1, gradient_idx, &mut *storage)?;
             }
-            OpsLabel::Div(lhs, rhs) => div_backward(
-                lhs.0.view(),
-                lhs.1,
-                rhs.0.view(),
-                rhs.1,
-                gradient_idx,
-                &mut *storage,
-            )?,
+            OpsLabel::Div(lhs, rhs) => {
+                // println!("{}", rhs.0);
+                div_backward(
+                    lhs.0.view(),
+                    lhs.1,
+                    rhs.0.view(),
+                    rhs.1,
+                    gradient_idx,
+                    &mut *storage,
+                )?
+            }
             OpsLabel::Mul(lhs, rhs) => mul_backward(
                 lhs.0.view(),
                 lhs.1,

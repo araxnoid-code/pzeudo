@@ -1,5 +1,6 @@
 use std::{
     cell::RefCell,
+    fmt::Display,
     ops::{Add, AddAssign, Div, Mul, Neg},
     rc::Rc,
 };
@@ -41,7 +42,8 @@ where
         + AddAssign<F>
         + Clone
         + Neg<Output = F>
-        + One,
+        + One
+        + Display,
     GradStorage: StorageTrait<ArrayD<F>>,
 {
     let storage = grad_storage.get_mut_storage();
@@ -63,29 +65,30 @@ where
             )))?;
 
         // df(lhs, rhs)/dlhs = 1/rhs
-        if let Some(lhs) = lhs_grad_idx {
-            let lhs = storage.get(lhs).unwrap().as_ref().unwrap();
-            if gradient.shape() == lhs.shape() {
+        if let Some(lhs_grad_idx) = lhs_grad_idx {
+            let lhs_grad = storage.get(lhs_grad_idx).unwrap().as_ref().unwrap();
+            if gradient.shape() == lhs_grad.shape() {
                 let gradient = scalar_div(one(), rhs.view()) * gradient;
                 lhs_assign = Some(gradient);
             } else {
-                able_broadcast(lhs.shape(), gradient.shape())?;
+                able_broadcast(lhs_grad.shape(), gradient.shape())?;
                 let init = scalar_div(one(), rhs.view()) * gradient;
-                let gradient = broadcast_handling(lhs.view(), gradient.view(), init.view());
+                let gradient = broadcast_handling(lhs_grad.view(), gradient.view(), init.view());
                 lhs_assign = Some(gradient.to_owned());
             }
         }
 
         // df(lhs, rhs)/drhs =  -lhs/rhs^2
-        if let Some(rhs) = rhs_grad_idx {
-            let rhs = storage.get(rhs).unwrap().as_ref().unwrap();
-            if gradient.shape() == rhs.shape() {
+        if let Some(rhs_grad_idx) = rhs_grad_idx {
+            let rhs_grad = storage.get(rhs_grad_idx).unwrap().as_ref().unwrap();
+            if gradient.shape() == rhs_grad.shape() {
+                // println!("{}", rhs);
                 let gradient = neg(lhs.view()) / pow2(rhs.view()) * gradient;
                 rhs_assign = Some(gradient);
             } else {
-                able_broadcast(rhs.shape(), gradient.shape())?;
-                let init = neg(lhs.view()) / pow2(rhs.view()) * gradient;
-                let gradient = broadcast_handling(rhs.view(), gradient.view(), init.view());
+                able_broadcast(rhs_grad.shape(), gradient.shape())?;
+                let init = neg(lhs.view()) / pow2(rhs_grad.view()) * gradient;
+                let gradient = broadcast_handling(rhs_grad.view(), gradient.view(), init.view());
                 rhs_assign = Some(gradient.to_owned());
             }
         }

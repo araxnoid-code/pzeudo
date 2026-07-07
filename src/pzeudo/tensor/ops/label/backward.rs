@@ -1,5 +1,6 @@
 use std::{
     cell::RefCell,
+    fmt::Display,
     ops::{AddAssign, Div, Neg},
     rc::Rc,
     slice::Iter,
@@ -12,20 +13,32 @@ use crate::{OpsLabel, PzeudoOpsErr, StorageTrait, Tensor, TensorNDArray};
 
 pub trait BackwardTrait<'ops_label, F, GradStorage>
 where
-    F: AddAssign + Clone + Zero + Div<Output = F> + Copy + One + Neg<Output = F> + 'ops_label,
+    F: AddAssign
+        + Clone
+        + Zero
+        + Div<Output = F>
+        + Copy
+        + One
+        + Neg<Output = F>
+        + 'ops_label
+        + Display,
     GradStorage: StorageTrait<ArrayD<F>>,
 {
+    fn grad_to_ones(&self);
+
     fn get_record(&'ops_label self) -> Rc<RefCell<Vec<(OpsLabel<'ops_label, F>, Option<usize>)>>>;
 
     fn get_storage(&self) -> Rc<RefCell<GradStorage>>;
 
     fn backward(&'ops_label self) -> Result<(), PzeudoOpsErr> {
+        self.grad_to_ones();
+
         let record = self.get_record();
         let mut record_mut = record.borrow_mut();
 
         let storage = self.get_storage();
         let mut storage_mut = storage.borrow_mut();
-        for (record, grad_idx) in record_mut.iter() {
+        for (record, grad_idx) in record_mut.iter().rev() {
             record.backward(*grad_idx, &mut *storage_mut)?;
         }
 
@@ -38,9 +51,24 @@ impl<'ops_label, F, A, GradStorage> BackwardTrait<'ops_label, F, GradStorage>
     for Tensor<'ops_label, F, A, GradStorage>
 where
     A: TensorNDArray<F>,
-    F: AddAssign + Clone + Zero + Div<Output = F> + Copy + One + Neg<Output = F> + Float,
+    F: AddAssign + Clone + Zero + Div<Output = F> + Copy + One + Neg<Output = F> + Float + Display,
     GradStorage: StorageTrait<ArrayD<F>>,
 {
+    fn grad_to_ones(&self) {
+        if let Some(grad_idx) = self.grad {
+            let zeros = ArrayD::<F>::ones(self.array.shape());
+            *self
+                .grad_storage
+                .borrow_mut()
+                .get_mut_storage()
+                .get_mut(grad_idx)
+                .as_mut()
+                .unwrap()
+                .as_mut()
+                .unwrap() = zeros;
+        }
+    }
+
     fn get_record(&'ops_label self) -> Rc<RefCell<Vec<(OpsLabel<'ops_label, F>, Option<usize>)>>> {
         self.record_storage.clone()
     }

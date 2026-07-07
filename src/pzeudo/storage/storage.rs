@@ -13,7 +13,7 @@ pub trait StorageTrait<Element> {
                 .get_mut_storage()
                 .get_mut(idx)
                 .ok_or(PzeudoStorageErr::IndexNotFoundErr(
-                    String::from("the index of empty_idx is obtained. However, this index is not available in storage.")
+                    String::from("PzeudoStorageErr, IndexNotFoundErr. the index of empty_idx is obtained. However, this index is not available in storage.")
                 ))?
                 .replace(elem)
                 .map_or(Ok(()), |_| Err(PzeudoStorageErr::PushElementErr(String::from(""))

@@ -1,5 +1,6 @@
 use std::{
     cell::RefCell,
+    fmt::Display,
     ops::{AddAssign, Neg, Sub},
     rc::Rc,
 };
@@ -32,7 +33,7 @@ pub fn sub_backward<F, GradStorage>(
     grad_storage: &mut GradStorage,
 ) -> Result<(), PzeudoOpsErr>
 where
-    F: Zero + Clone + AddAssign + Neg<Output = F>,
+    F: Zero + Clone + AddAssign + Neg<Output = F> + Display,
     GradStorage: StorageTrait<ArrayD<F>>,
 {
     let storage = grad_storage.get_mut_storage();

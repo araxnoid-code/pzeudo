@@ -15,6 +15,7 @@ use crate::{OpsLabel, PzeudoStorageErr, StorageTrait};
 /// This trait is specifically for ndarrays
 pub trait TensorNDArray<F> {
     fn _view(&self) -> ArrayViewD<'_, F>;
+    fn shape(&self) -> &[usize];
 }
 
 /// tensor using ndarray
@@ -67,6 +68,28 @@ where
             _float_type: PhantomData::default(),
         })
     }
+
+    pub fn from_array(
+        array: A,
+        grad_storage: Rc<RefCell<GradStorage>>,
+        record_storage: Rc<RefCell<Vec<(OpsLabel<'ops_label, F>, Option<usize>)>>>,
+    ) -> Result<Tensor<'ops_label, F, A, GradStorage>, PzeudoStorageErr> {
+        let gradient = ArrayD::<F>::zeros(array.shape());
+        let grad_idx = grad_storage.borrow_mut().push_element(gradient)?;
+
+        Ok(Self {
+            array,
+            grad: Some(grad_idx),
+            grad_storage: grad_storage,
+            record: None,
+            record_storage,
+            _float_type: Default::default(),
+        })
+    }
+
+    pub fn get_grad_idx(&self) -> Option<usize> {
+        self.grad
+    }
 }
 
 impl<'ops_label, F, A, GradStorage> Display for Tensor<'ops_label, F, A, GradStorage>
@@ -88,6 +111,10 @@ where
     fn _view(&self) -> ArrayViewD<'_, F> {
         self.view()
     }
+
+    fn shape(&self) -> &[usize] {
+        self.shape()
+    }
 }
 
 impl<F> TensorNDArray<F> for ArrayViewD<'_, F>
@@ -97,6 +124,10 @@ where
     fn _view(&self) -> ArrayViewD<'_, F> {
         self.view()
     }
+
+    fn shape(&self) -> &[usize] {
+        self.shape()
+    }
 }
 
 impl<F> TensorNDArray<F> for CowArray<'_, F, Dim<IxDynImpl>>
@@ -105,5 +136,9 @@ where
 {
     fn _view(&self) -> ArrayViewD<'_, F> {
         self.view()
+    }
+
+    fn shape(&self) -> &[usize] {
+        self.shape()
     }
 }

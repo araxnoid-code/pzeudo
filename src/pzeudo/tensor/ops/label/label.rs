@@ -39,7 +39,7 @@ impl<'ops_label, F> OpsLabel<'ops_label, F> {
     ) -> Result<(), PzeudoOpsErr>
     where
         GradStorage: StorageTrait<ArrayD<F>>,
-        F: AddAssign + Clone + Zero + Div<Output = F> + Copy + One + Neg<Output = F>,
+        F: AddAssign + Clone + Zero + Div<Output = F> + Copy + One + Neg<Output = F> + Display,
     {
         match self {
             Self::Add(lhs, rhs) => {

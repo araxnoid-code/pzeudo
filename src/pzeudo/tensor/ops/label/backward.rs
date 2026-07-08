@@ -6,7 +6,7 @@ use std::{
     slice::Iter,
 };
 
-use ndarray::ArrayD;
+use ndarray::{Array2, ArrayD, ArrayView2, linalg::Dot};
 use num_traits::{Float, One, Zero};
 
 use crate::{OpsLabel, PzeudoOpsErr, StorageTrait, Tensor, TensorNDArray};
@@ -22,6 +22,7 @@ where
         + Neg<Output = F>
         + 'ops_label
         + Display,
+    for<'a> ArrayView2<'a, F>: Dot<ArrayView2<'a, F>, Output = Array2<F>>,
     GradStorage: StorageTrait<ArrayD<F>>,
 {
     fn grad_to_ones(&self);
@@ -52,6 +53,7 @@ impl<'ops_label, F, A, GradStorage> BackwardTrait<'ops_label, F, GradStorage>
 where
     A: TensorNDArray<F>,
     F: AddAssign + Clone + Zero + Div<Output = F> + Copy + One + Neg<Output = F> + Float + Display,
+    for<'a> ArrayView2<'a, F>: Dot<ArrayView2<'a, F>, Output = Array2<F>>,
     GradStorage: StorageTrait<ArrayD<F>>,
 {
     fn grad_to_ones(&self) {

@@ -45,6 +45,36 @@ pub trait StorageTrait<Element> {
         Ok(())
     }
 
+    fn get_element(&self, idx: usize) -> Result<&Element, PzeudoStorageErr> {
+        let storage = self.get_storage();
+        storage
+            .get(idx)
+            .ok_or(PzeudoStorageErr::GetElementErr(format!(
+                "GetElementErr. index {} is not available on gradient storage",
+                idx
+            )))?
+            .as_ref()
+            .ok_or(PzeudoStorageErr::GetElementErr(format!(
+                "GetElementErr. index {} points to a value that is None in Storage",
+                idx
+            )))
+    }
+
+    fn get_mut_element(&mut self, idx: usize) -> Result<&mut Element, PzeudoStorageErr> {
+        let storage = self.get_mut_storage();
+        storage
+            .get_mut(idx)
+            .ok_or(PzeudoStorageErr::GetElementErr(format!(
+                "GetElementErr. index {} is not available on gradient storage",
+                idx
+            )))?
+            .as_mut()
+            .ok_or(PzeudoStorageErr::GetElementErr(format!(
+                "GetElementErr. index {} points to a value that is None in Storage",
+                idx
+            )))
+    }
+
     fn clear(&mut self) {
         self.get_mut_storage().clear();
         self.get_mut_empty_idx().clear();

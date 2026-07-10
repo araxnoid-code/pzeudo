@@ -1,22 +1,14 @@
 use std::{cell::RefCell, rc::Rc};
 
-use ndarray::array;
-use pzeudo::{BackwardTrait, GradStorage, Tensor};
+use ndarray::{ArrayD, ArrayViewD, array};
+use pzeudo::{Module, OpsLabel, Tensor, ndarray_backend};
+
+// impl Float for f16 {}
 
 fn main() {
-    let grad_storage = Rc::new(RefCell::new(GradStorage::new(None)));
-    let record_storage = Rc::new(RefCell::new(vec![]));
-    let tensor_a = Tensor::from_array(
-        array![10.].into_dyn(),
-        grad_storage.clone(),
-        record_storage.clone(),
-    )
-    .unwrap();
+    let module = Module::new(ndarray_backend::<f32>());
 
-    let array = array![10.].into_dyn();
-    let tensor_b =
-        Tensor::from_array(array.view(), grad_storage.clone(), record_storage.clone()).unwrap();
+    let array = array![[10.]].into_dyn();
 
-    let tensor = tensor_b.matmul_2d(&tensor_a).unwrap();
-    tensor.backward().unwrap();
+    let array = module.new_tensor(array, None, None).unwrap();
 }

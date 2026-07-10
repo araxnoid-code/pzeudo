@@ -1,13 +1,13 @@
 use crate::StorageTrait;
 use ndarray::ArrayD;
 
-pub struct GradStorage<F> {
+pub struct GradientStorage<F> {
     storage: Vec<Option<ArrayD<F>>>,
     empty_idx: Vec<usize>,
 }
 
-impl<F> GradStorage<F> {
-    pub fn new(with_capacity: Option<usize>) -> GradStorage<F> {
+impl<F> GradientStorage<F> {
+    pub fn new(with_capacity: Option<usize>) -> GradientStorage<F> {
         Self {
             storage: with_capacity.map_or(Vec::new(), |capacity| Vec::with_capacity(capacity)),
             empty_idx: Vec::new(),
@@ -15,7 +15,7 @@ impl<F> GradStorage<F> {
     }
 }
 
-impl<F> StorageTrait<ArrayD<F>> for GradStorage<F> {
+impl<F> StorageTrait<ArrayD<F>> for GradientStorage<F> {
     fn get_storage(&self) -> &Vec<Option<ArrayD<F>>> {
         &self.storage
     }

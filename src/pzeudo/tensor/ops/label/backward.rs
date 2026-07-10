@@ -9,7 +9,7 @@ use std::{
 use ndarray::{Array2, ArrayD, ArrayView2, linalg::Dot};
 use num_traits::{Float, One, Zero};
 
-use crate::{OpsLabel, PzeudoOpsErr, StorageTrait, Tensor, TensorNDArray};
+use crate::{NDArray, OpsLabel, PzeudoOpsErr, StorageTrait, Tensor};
 
 pub trait BackwardTrait<'ops_label, F, GradStorage>
 where
@@ -51,14 +51,14 @@ where
 impl<'ops_label, F, A, GradStorage> BackwardTrait<'ops_label, F, GradStorage>
     for Tensor<'ops_label, F, A, GradStorage>
 where
-    A: TensorNDArray<F>,
+    A: NDArray<F>,
     F: AddAssign + Clone + Zero + Div<Output = F> + Copy + One + Neg<Output = F> + Float + Display,
     for<'a> ArrayView2<'a, F>: Dot<ArrayView2<'a, F>, Output = Array2<F>>,
     GradStorage: StorageTrait<ArrayD<F>>,
 {
     fn grad_to_ones(&self) {
         if let Some(grad_idx) = self.grad {
-            let zeros = ArrayD::<F>::ones(self.array.shape());
+            let ones = ArrayD::<F>::ones(self.array.shape());
             *self
                 .grad_storage
                 .borrow_mut()
@@ -67,7 +67,7 @@ where
                 .as_mut()
                 .unwrap()
                 .as_mut()
-                .unwrap() = zeros;
+                .unwrap() = ones;
         }
     }
 

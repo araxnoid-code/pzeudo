@@ -9,19 +9,12 @@ use std::{
 use ndarray::{ArrayD, ArrayViewD, CowArray, Dim, IxDynImpl};
 use num_traits::Float;
 
-use crate::{OpsLabel, PzeudoStorageErr, StorageTrait};
-
-/// Tensor Trait
-/// This trait is specifically for ndarrays
-pub trait TensorNDArray<F> {
-    fn _view(&self) -> ArrayViewD<'_, F>;
-    fn shape(&self) -> &[usize];
-}
+use crate::{NDArray, OpsLabel, PzeudoStorageErr, StorageTrait};
 
 /// tensor using ndarray
 pub struct Tensor<'ops_label, F, A, GradStore>
 where
-    A: TensorNDArray<F>,
+    A: NDArray<F>,
     F: Float,
     GradStore: StorageTrait<ArrayD<F>>,
 {
@@ -37,7 +30,7 @@ where
 
 impl<'ops_label, F, A, GradStorage> Tensor<'ops_label, F, A, GradStorage>
 where
-    A: TensorNDArray<F>,
+    A: NDArray<F>,
     F: Float,
     GradStorage: StorageTrait<ArrayD<F>>,
 {
@@ -95,50 +88,10 @@ where
 impl<'ops_label, F, A, GradStorage> Display for Tensor<'ops_label, F, A, GradStorage>
 where
     for<'a> GradStorage: StorageTrait<ArrayD<F>>,
-    A: TensorNDArray<F> + Display,
+    A: NDArray<F> + Display,
     F: Float,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&format!("{}", self.array))
-    }
-}
-
-// impl trait
-impl<F> TensorNDArray<F> for ArrayD<F>
-where
-    F: Float,
-{
-    fn _view(&self) -> ArrayViewD<'_, F> {
-        self.view()
-    }
-
-    fn shape(&self) -> &[usize] {
-        self.shape()
-    }
-}
-
-impl<F> TensorNDArray<F> for ArrayViewD<'_, F>
-where
-    F: Float,
-{
-    fn _view(&self) -> ArrayViewD<'_, F> {
-        self.view()
-    }
-
-    fn shape(&self) -> &[usize] {
-        self.shape()
-    }
-}
-
-impl<F> TensorNDArray<F> for CowArray<'_, F, Dim<IxDynImpl>>
-where
-    F: Float,
-{
-    fn _view(&self) -> ArrayViewD<'_, F> {
-        self.view()
-    }
-
-    fn shape(&self) -> &[usize] {
-        self.shape()
     }
 }

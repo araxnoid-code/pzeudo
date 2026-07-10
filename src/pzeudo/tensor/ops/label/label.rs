@@ -10,7 +10,7 @@ use num_traits::{Float, One, Zero};
 
 use crate::{
     PzeudoOpsErr, StorageTrait, add_backward, div_backward, matmul_2d_backward, mul_backward,
-    sub_backward,
+    sub_backward, view_backward,
 };
 
 pub enum OpsLabel<'ops_label, F> {
@@ -38,6 +38,9 @@ pub enum OpsLabel<'ops_label, F> {
         (ArrayViewD<'ops_label, F>, Option<usize>),
         (ArrayViewD<'ops_label, F>, Option<usize>),
     ),
+
+    // Transform
+    View(Option<usize>),
 }
 
 impl<'ops_label, F> OpsLabel<'ops_label, F> {
@@ -87,6 +90,8 @@ impl<'ops_label, F> OpsLabel<'ops_label, F> {
                 gradient_idx,
                 &mut *storage,
             )?,
+
+            Self::View(own) => view_backward(*own, gradient_idx, &mut *storage)?,
         }
 
         Ok(())
@@ -117,9 +122,12 @@ impl<'ops_label, F> Display for OpsLabel<'ops_label, F> {
 
             // Matmul
             Self::Matmul2d(lhs, rhs) => f.write_str(&format!(
-                "OpsLabel: Div | Lhs_grad_idx: {:?} | Rhs_grad_idx: {:?}",
+                "OpsLabel: Matmul | Lhs_grad_idx: {:?} | Rhs_grad_idx: {:?}",
                 lhs.1, rhs.1
             )),
+
+            // Transform
+            Self::View(_) => f.write_str(&format!("OpsLabel: View")),
         }
     }
 }

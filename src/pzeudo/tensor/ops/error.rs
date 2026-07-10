@@ -19,4 +19,7 @@ pub enum PzeudoOpsErr {
 
     // Transform
     BroadcastErr(String),
+
+    ViewErr(String),
+    ViewBackwardErr(String),
 }

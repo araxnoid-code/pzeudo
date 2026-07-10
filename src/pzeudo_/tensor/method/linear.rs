@@ -2,26 +2,26 @@ use num_traits::Float;
 
 use crate::{GradientStorage, NDArray, PzeodoMethodErr, Tensor, TensorNDArrayOwn};
 
-struct Linear<'ops_label, F>
+pub struct Linear<'ops_label, F>
 where
     F: Float,
 {
     //
-    in_features: usize,
-    out_features: usize,
+    pub in_features: usize,
+    pub out_features: usize,
 
     //
-    weight: TensorNDArrayOwn<'ops_label, F>,
-    bias: TensorNDArrayOwn<'ops_label, F>,
+    pub weight: TensorNDArrayOwn<'ops_label, F>,
+    pub bias: TensorNDArrayOwn<'ops_label, F>,
 }
 
-impl<'ops_label, F> Linear<'ops_label, F>
+impl<F> Linear<'_, F>
 where
     F: Float + 'static,
 {
-    fn forward<A>(
-        &'ops_label self,
-        input: &'ops_label Tensor<'ops_label, F, A, GradientStorage<F>>,
+    pub fn forward<'a, A>(
+        &'a self,
+        input: &'a Tensor<'a, F, A, GradientStorage<F>>,
     ) -> Result<(), PzeodoMethodErr>
     where
         A: NDArray<F>,
@@ -30,6 +30,7 @@ where
             .matmul_2d(&self.weight)
             .map_err(|err| PzeodoMethodErr::LinearErr(format!("{err:?}")))?;
 
+        println!("matmul added");
         // let result = matmul.add(&self.bias);
 
         Ok(())

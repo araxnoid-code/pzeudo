@@ -3,10 +3,13 @@ use std::{cell::RefCell, rc::Rc};
 use ndarray::ArrayD;
 use num_traits::Float;
 
-use crate::{GradientStorage, Module, NDArray, OpsLabel, PzeudoModuleErr, StorageTrait, Tensor};
+use crate::{
+    GradientStorage, Module, ModuleNDArrayBackend, NDArray, OpsLabel, PzeudoModuleErr,
+    StorageTrait, Tensor,
+};
 
 // New Tensor
-impl<'ops_label, F> Module<GradientStorage<F>, ArrayD<F>, OpsLabel<'ops_label, F>>
+impl<'ops_label, F> ModuleNDArrayBackend<'ops_label, F>
 where
     F: Float,
 {

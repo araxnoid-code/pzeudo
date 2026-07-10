@@ -6,9 +6,15 @@ use pzeudo::{Module, OpsLabel, Tensor, ndarray_backend};
 // impl Float for f16 {}
 
 fn main() {
-    let module = Module::new(ndarray_backend::<f32>());
+    let data = Data {
+        data: String::from("halo"),
+    };
+}
 
-    let array = array![[10.]].into_dyn();
+struct Data {
+    data: String,
+}
 
-    let array = module.new_tensor(array, None, None).unwrap();
+struct DataView<'a> {
+    view: &'a String,
 }

@@ -12,3 +12,6 @@ pub use backend::*;
 
 mod ndarray_trait;
 pub use ndarray_trait::*;
+
+mod method;
+pub use method::*;

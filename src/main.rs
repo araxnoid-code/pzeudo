@@ -1,3 +1,3 @@
-use ndarray::{ArrayViewD, array};
+use pzeudo::{Array, shape_to_stride};
 
 fn main() {}

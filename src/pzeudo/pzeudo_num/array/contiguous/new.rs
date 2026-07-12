@@ -1,7 +1,7 @@
 use crate::{Array, PzeudoNumErr, shape_to_stride};
 
 impl<F> Array<F> {
-    fn new(data: Vec<F>, offset: usize, stride: Vec<usize>, shape: Vec<usize>) -> Array<F> {
+    pub fn new(data: Vec<F>, offset: usize, stride: Vec<usize>, shape: Vec<usize>) -> Array<F> {
         Self {
             data,
             offset,
@@ -29,7 +29,7 @@ impl<F> Array<F> {
     {
         if vector.len() != shape.iter().product::<usize>() {
             return Err(PzeudoNumErr::ArrayNewErr(
-                "ArrayNewErr. from_vector_with_shape\ncannot create array because shape size and vector length are different",
+                "ArrayNewErr. from_vector_with_shape\ncannot create array because shape size and vector length are different".to_string(),
             ));
         }
 

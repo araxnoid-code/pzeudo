@@ -1,6 +1,6 @@
 pub struct ArrayView<'v, F> {
-    data: &'v Vec<F>,
-    offset: usize,
-    stride: Vec<usize>,
-    shape: Vec<usize>,
+    pub(crate) data: &'v [F],
+    pub(crate) offset: usize,
+    pub(crate) stride: Vec<usize>,
+    pub(crate) shape: Vec<usize>,
 }

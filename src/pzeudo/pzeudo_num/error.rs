@@ -17,4 +17,7 @@ pub enum PzeudoNumErr {
     SubErr(String),
     MulErr(String),
     DivErr(String),
+
+    // // Matmul
+    Matmul2DErr(String),
 }

@@ -72,7 +72,7 @@ pub trait OpsMatmul2DF64: ArrayTrait<f64> {
 
         if lhs_meta.shape[1] != rhs_meta.shape[0] {
             return Err(PzeudoNumErr::Matmul2DErr(format!(
-                "Matmul2DErr. OpsMatmul2Df32. cannot perform matmul_2d on lhs which has shape {:?} and rhs has shape {:?}. does not satisfy the form 'mxk * kxn'.",
+                "Matmul2DErr. OpsMatmul2Df32. cannot perform matmul_2d on lhs which has shape {:?} and rhs has shape {:?}. does not satisfy the form 'm×k * k×n'.",
                 lhs_meta.shape, rhs_meta.shape
             )));
         }

@@ -20,4 +20,5 @@ pub enum PzeudoNumErr {
 
     // // Matmul
     Matmul2DErr(String),
+    MatmulNDErr(String),
 }

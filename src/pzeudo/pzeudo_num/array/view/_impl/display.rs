@@ -24,7 +24,6 @@ where
     F: Debug + Copy,
 {
     let shape = &arr.shape;
-    // println!("{:?}", shape);
 
     if shape.len() == 1 {
         let end = shape.iter().product::<usize>();

@@ -1,12 +1,10 @@
-use std::ops::Add;
-
-use crate::{Array, ArrayView, PzeudoNumErr, add, shape_to_stride};
+use crate::{ArrayView, PzeudoNumErr, shape_to_stride};
 
 pub struct Metadata<'a, F> {
-    pub(crate) data: &'a [F],
-    pub(crate) offset: usize,
-    pub(crate) stride: &'a [usize],
-    pub(crate) shape: &'a [usize],
+    pub data: &'a [F],
+    pub offset: usize,
+    pub stride: &'a [usize],
+    pub shape: &'a [usize],
 }
 
 pub trait ArrayTrait<F> {
@@ -66,15 +64,5 @@ pub trait ArrayTrait<F> {
         };
 
         Ok(array)
-    }
-
-    fn add<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoNumErr>
-    where
-        Self: Sized,
-        F: Copy,
-        F: Add<Output = F>,
-        Rhs: ArrayTrait<F>,
-    {
-        add(self, rhs)
     }
 }

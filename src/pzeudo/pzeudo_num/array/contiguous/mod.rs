@@ -4,8 +4,5 @@ pub use contiguous::*;
 mod new;
 pub use new::*;
 
-mod display;
-pub use display::*;
-
-mod array;
-pub use array::*;
+mod _impl;
+pub use _impl::*;

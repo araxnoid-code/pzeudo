@@ -20,15 +20,14 @@ fn rec_helper<F>(data: &[F], shape: &[usize], level: usize, count: &mut usize, s
 where
     F: Debug,
 {
-    let space = " ".repeat(level);
-    string.push_str(&space);
-    string.push_str("[\n");
-
     if shape.len() == 1 {
         string.push_str(&format!("{data:?}"));
         return;
     }
 
+    let space = " ".repeat(level);
+    string.push_str(&space);
+    string.push_str("[\n");
     for _ in 0..shape[level] {
         if shape.len() - 2 == level {
             let start = *count * *shape.last().unwrap();

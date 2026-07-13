@@ -9,10 +9,7 @@ pub trait OpsBroadcast<F>: ArrayTrait<F> {
         let d = to.len() - metadata.shape.len();
         let mut new_stride = vec![0; d];
         new_stride.extend_from_slice(metadata.stride);
-
         broadcast_dim.iter().for_each(|dim| new_stride[*dim] = 0);
-
-        println!("stride out {:?}", new_stride);
 
         let array = ArrayView {
             data: metadata.data,

@@ -15,11 +15,14 @@ pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoNumErr>
     }
 
     let d = to.len() - shape.len();
-    for (idx, to) in to.iter().enumerate().rev() {
+    for (idx, to_dim) in to.iter().enumerate().rev() {
         let index = idx - d;
-        let shape = shape[index];
-        if shape != 1 && shape != *to {
-            return Err(PzeudoNumErr::BroadcastErr(format!("")));
+        let shape_dim = shape[index];
+        if shape_dim != 1 && shape_dim != *to_dim {
+            return Err(PzeudoNumErr::BroadcastErr(format!(
+                "BroadcastErr. able_broadcast. cannot broadcast the shape {:?} to {:?} because {:?} cannot be broadcast to {:?}",
+                shape, to, shape_dim, to_dim
+            )));
         }
 
         if index == 0 {
@@ -30,7 +33,7 @@ pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoNumErr>
     Ok(())
 }
 
-pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<(), PzeudoNumErr> {
+pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<Vec<usize>, PzeudoNumErr> {
     if shape.len() > to.len() {
         return Err(BroadcastErr(format!(
             "BroadcastErr. get_broadcast_dim. The shape {:?} cannot be broadcast to shape {:?} because the target shape is smaller.",
@@ -46,12 +49,15 @@ pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<(), PzeudoNumE
 
     let d = to.len() - shape.len();
     let mut dim = (0..d).map(|idx| idx).collect::<Vec<usize>>();
-    for (idx, to) in to.iter().enumerate().rev() {
+    for (idx, to_dim) in to.iter().enumerate().rev() {
         let index = idx - d;
-        let shape = shape[index];
-        if shape != 1 && shape != *to {
-            return Err(PzeudoNumErr::BroadcastErr(format!("")));
-        } else if shape == 1 {
+        let shape_dim = shape[index];
+        if shape_dim != 1 && shape_dim != *to_dim {
+            return Err(PzeudoNumErr::BroadcastErr(format!(
+                "BroadcastErr. get_broadcast_dim. cannot broadcast the shape {:?} to {:?} because {:?} cannot be broadcast to {:?}",
+                shape, to, shape_dim, to_dim
+            )));
+        } else if shape_dim == 1 {
             dim.push(idx);
         }
 
@@ -60,7 +66,5 @@ pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<(), PzeudoNumE
         }
     }
 
-    println!("{:?}", dim);
-
-    Ok(())
+    Ok(dim)
 }

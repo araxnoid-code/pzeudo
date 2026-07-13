@@ -14,7 +14,7 @@ fn main() {
     .unwrap();
     println!("{}", array_a.to_string());
 
-    let per = array_a.permute(&[1, 0, 0]).unwrap();
+    let per = array_a.t();
 
     println!("{}", per.to_string().unwrap());
 

@@ -52,4 +52,19 @@ pub trait OpsPermute<F>: ArrayTrait<F> {
 
         Ok(array)
     }
+
+    fn t(&self) -> ArrayView<'_, F> {
+        let metadata = self.get_metadata();
+        let mut stride = metadata.stride.to_vec();
+        stride.reverse();
+        let mut shape = metadata.shape.to_vec();
+        shape.reverse();
+
+        ArrayView {
+            data: metadata.data,
+            offset: metadata.offset,
+            shape,
+            stride,
+        }
+    }
 }

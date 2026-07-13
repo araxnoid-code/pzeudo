@@ -21,4 +21,7 @@ pub enum PzeudoNumErr {
     // // Matmul
     Matmul2DErr(String),
     MatmulNDErr(String),
+
+    // // View
+    SlicingErr(String),
 }

@@ -1,6 +1,6 @@
 [package]
 name = "pzeudo"
-version = "0.0.1-dev.2"
+version = "0.0.1-dev.3"
 edition = "2024"
 
 [lib]

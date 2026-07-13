@@ -1,7 +1,9 @@
-use pzeudo::{Array, ArrayTrait, OpsAdd, OpsMatmul2DF64, OpsMatmulNDF32, shape_to_stride};
+use pzeudo::{
+    Array, ArrayTrait, OpsAdd, OpsMatmul2DF64, OpsMatmulNDF32, OpsSlicing, r, shape_to_stride,
+};
 
 fn main() {
-    let shape = [2, 3, 4, 5, 2];
+    let shape = [3, 3, 4];
     let array_a = Array::from_vector_with_shape(
         &(0..shape.iter().product::<usize>())
             .map(|idx| idx as f32)
@@ -10,15 +12,8 @@ fn main() {
     )
     .unwrap();
 
-    let shape = [2, 3, 5, 4];
-    let array_b = Array::from_vector_with_shape(
-        &(0..shape.iter().product::<usize>())
-            .map(|idx| idx as f32)
-            .collect::<Vec<f32>>(),
-        &shape,
-    )
-    .unwrap();
+    println!("{}", array_a.to_string());
 
-    let array_c = array_a.matmul_nd(&array_b).unwrap();
-    println!("{}", array_c.to_string());
+    let index = array_a.slicing(&[r(..), r(..2), r(3..3)]).unwrap();
+    println!("{}", index.to_string().unwrap());
 }

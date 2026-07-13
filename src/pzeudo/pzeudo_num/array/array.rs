@@ -22,9 +22,13 @@ pub trait ArrayTrait<F> {
             shape,
         } = self.get_metadata();
 
+        let output_stride = shape_to_stride(shape);
+
         let mut idx = offset;
-        for (shape, stride) in shape.iter().zip(stride.iter()) {
-            let permute = (index / stride) % shape;
+        for (shape, (stride, out_stride)) in
+            shape.iter().zip(stride.iter().zip(output_stride.iter()))
+        {
+            let permute = (index / out_stride) % shape;
             idx += permute * stride;
         }
 

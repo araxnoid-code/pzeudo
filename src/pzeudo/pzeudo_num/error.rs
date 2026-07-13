@@ -24,4 +24,5 @@ pub enum PzeudoNumErr {
 
     // // View
     SlicingErr(String),
+    BroadcastErr(String),
 }

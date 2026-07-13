@@ -45,30 +45,33 @@ pub trait OpsMatmulNDF32: OpsMatmul2DF32 {
         let matrix_count = lhs_shape[..dim - 2].iter().product::<usize>();
         for i in 0..matrix_count {
             let mut lhs_new_offset = lhs_metadata.offset;
-            for (shape, stride) in lhs_shape[..dim - 3]
+            let stride_out = shape_to_stride(&lhs_shape[..dim - 3]);
+            for ((shape, stride), stride_out) in lhs_shape[..dim - 3]
                 .iter()
                 .zip(lhs_metadata.stride[..dim - 3].iter())
+                .zip(stride_out.iter())
             {
                 let permute = if *stride == 0 {
                     0
                 } else {
-                    (i / stride) % shape
+                    (i / stride_out) % shape
                 };
                 lhs_new_offset += permute * stride;
             }
-
             let lhs_new_shape = &lhs_metadata.shape[dim - 2..];
             let lhs_new_stride = &lhs_metadata.stride[dim - 2..];
 
             let mut rhs_new_offset = rhs_metadata.offset;
-            for (shape, stride) in rhs_shape[..dim - 3]
+            let stride_out = shape_to_stride(&rhs_shape[..dim - 3]);
+            for ((shape, stride), stride_out) in rhs_shape[..dim - 3]
                 .iter()
                 .zip(rhs_metadata.stride[..dim - 3].iter())
+                .zip(stride_out.iter())
             {
                 let permute = if *stride == 0 {
                     0
                 } else {
-                    (i / stride) % shape
+                    (i / stride_out) % shape
                 };
                 rhs_new_offset += permute * stride;
             }

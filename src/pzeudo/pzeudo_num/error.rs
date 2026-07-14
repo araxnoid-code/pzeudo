@@ -26,4 +26,7 @@ pub enum PzeudoNumErr {
     SlicingErr(String),
     BroadcastErr(String),
     PermuteErr(String),
+
+    // // Sum
+    SumAxisErr(String),
 }

@@ -6,3 +6,6 @@ pub use matmul::*;
 
 mod view;
 pub use view::*;
+
+mod sum;
+pub use sum::*;

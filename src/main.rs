@@ -1,6 +1,6 @@
 use pzeudo::{
     Array, ArrayTrait, OpsAdd, OpsBroadcast, OpsMatmul2DF64, OpsMatmulNDF32, OpsPermute,
-    OpsSlicing, able_broadcast, get_broadcast_dim, r, shape_to_stride,
+    OpsSlicing, OpsSum, able_broadcast, get_broadcast_dim, r, shape_to_stride,
 };
 
 fn main() {
@@ -14,10 +14,6 @@ fn main() {
     .unwrap();
     println!("{}", array_a.to_string());
 
-    let per = array_a.t();
-
-    println!("{}", per.to_string().unwrap());
-
-    // shape [2, 1, 4]
-    // stride [4, 4, 1]
+    let data = array_a.sum_axis(&[0, 1, 2], false).unwrap();
+    println!("{}", data.to_string());
 }

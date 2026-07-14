@@ -1,3 +1,5 @@
+use std::slice::Iter;
+
 use crate::{ArrayView, PzeudoNumErr, shape_to_stride};
 
 pub struct Metadata<'a, F> {
@@ -8,6 +10,7 @@ pub struct Metadata<'a, F> {
 }
 
 pub trait ArrayTrait<F> {
+    // metadata
     fn get_metadata(&self) -> Metadata<'_, F>;
 
     // Method

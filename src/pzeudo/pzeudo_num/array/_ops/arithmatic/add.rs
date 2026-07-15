@@ -35,4 +35,40 @@ pub trait OpsAdd<F>: ArrayTrait<F> {
 
         Ok(array)
     }
+
+    fn add_scalar(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    where
+        F: Copy + Add<Output = F>,
+    {
+        let metadata = self.get_metadata();
+        let len = metadata.shape.iter().product::<usize>();
+        let mut output = Vec::with_capacity(len);
+        for idx in 0..len {
+            let value = self.linear_index(idx)?;
+            output.push(value + scalar);
+        }
+
+        let shape = metadata.shape.to_vec();
+        let array = Array::new(output, 0, shape_to_stride(&shape), shape);
+
+        Ok(array)
+    }
+
+    fn scalar_add(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    where
+        F: Copy + Add<Output = F>,
+    {
+        let metadata = self.get_metadata();
+        let len = metadata.shape.iter().product::<usize>();
+        let mut output = Vec::with_capacity(len);
+        for idx in 0..len {
+            let value = self.linear_index(idx)?;
+            output.push(scalar + value);
+        }
+
+        let shape = metadata.shape.to_vec();
+        let array = Array::new(output, 0, shape_to_stride(&shape), shape);
+
+        Ok(array)
+    }
 }

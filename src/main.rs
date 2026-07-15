@@ -6,4 +6,28 @@ use pzeudo::{
     shape_to_stride,
 };
 
-fn main() {}
+fn main() {
+    let shape = [10];
+    let array_a = Array::from_vector_with_shape(
+        &(0..shape.iter().product::<usize>())
+            .map(|idx| idx as f32)
+            .collect::<Vec<f32>>(),
+        &shape,
+    )
+    .unwrap();
+    println!("{}", array_a.to_string());
+
+    let shape = [10];
+    let array_b = Array::from_vector_with_shape(
+        &(0..shape.iter().product::<usize>())
+            .map(|idx| idx as f32)
+            .collect::<Vec<f32>>(),
+        &shape,
+    )
+    .unwrap();
+    let view = array_b.index(&[1]).unwrap();
+    println!("{}", array_b.to_string());
+
+    // let sum = array_a.avg().unwrap();
+    // println!("{}", sum.to_string());
+}

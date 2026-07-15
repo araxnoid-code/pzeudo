@@ -1,5 +1,6 @@
 use std::usize;
 
+use num_traits::{Float, Num, Signed};
 use pzeudo::{
     Array, ArrayTrait, OpsAdd, OpsAvg, OpsBroadcast, OpsDotProductF32, OpsMatmul2DF64,
     OpsMatmulNDF32, OpsPermute, OpsSlicing, OpsSum, able_broadcast, get_broadcast_dim, r,
@@ -27,7 +28,4 @@ fn main() {
     .unwrap();
     let view = array_b.index(&[1]).unwrap();
     println!("{}", array_b.to_string());
-
-    // let sum = array_a.avg().unwrap();
-    // println!("{}", sum.to_string());
 }

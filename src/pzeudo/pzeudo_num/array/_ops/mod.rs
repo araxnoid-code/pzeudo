@@ -12,3 +12,6 @@ pub use reduction::*;
 
 mod dot_product;
 pub use dot_product::*;
+
+mod unary;
+pub use unary::*;

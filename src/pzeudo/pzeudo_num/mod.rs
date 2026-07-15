@@ -6,3 +6,6 @@ pub use tools::*;
 
 mod error;
 pub use error::*;
+
+#[cfg(test)]
+mod _test;

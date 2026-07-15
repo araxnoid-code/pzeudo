@@ -9,3 +9,6 @@ pub use view::*;
 
 mod sum;
 pub use sum::*;
+
+mod dot_product;
+pub use dot_product::*;

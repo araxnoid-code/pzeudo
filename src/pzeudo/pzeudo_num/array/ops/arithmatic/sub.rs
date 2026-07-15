@@ -7,7 +7,7 @@ use crate::{
 };
 
 pub trait OpsSub<F>: ArrayTrait<F> {
-    fn mul<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoNumErr>
+    fn sub<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoNumErr>
     where
         F: Copy + Sub<Output = F>,
         Rhs: ArrayTrait<F>,

@@ -29,4 +29,7 @@ pub enum PzeudoNumErr {
 
     // // Sum
     SumAxisErr(String),
+
+    // // DotProduct
+    DotProductErr(String),
 }

@@ -27,7 +27,7 @@ pub trait OpsSum<F>: ArrayTrait<F> {
 
     fn sum_axis(&self, axis: &[usize], keep_dim: bool) -> Result<Array<F>, PzeudoNumErr>
     where
-        F: Display + AddAssign + Zero + Copy,
+        F: AddAssign + Zero + Copy,
     {
         let metadata = self.get_metadata();
 

@@ -7,5 +7,5 @@ pub use view::*;
 mod array;
 pub use array::*;
 
-mod ops;
-pub use ops::*;
+mod _ops;
+pub use _ops::*;

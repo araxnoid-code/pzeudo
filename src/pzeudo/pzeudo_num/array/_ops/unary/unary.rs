@@ -2,7 +2,7 @@ use num_traits::Float;
 
 use crate::{Array, ArrayTrait, PzeudoNumErr};
 
-trait OpsUnary<F>: ArrayTrait<F>
+pub trait OpsUnary<F>: ArrayTrait<F>
 where
     F: Copy + Float,
 {

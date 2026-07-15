@@ -27,8 +27,9 @@ pub enum PzeudoNumErr {
     BroadcastErr(String),
     PermuteErr(String),
 
-    // // Sum
+    // // Reduction
     SumAxisErr(String),
+    AvgErr(String),
 
     // // DotProduct
     DotProductErr(String),

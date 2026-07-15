@@ -7,8 +7,8 @@ pub use matmul::*;
 mod view;
 pub use view::*;
 
-mod sum;
-pub use sum::*;
+mod reduction;
+pub use reduction::*;
 
 mod dot_product;
 pub use dot_product::*;

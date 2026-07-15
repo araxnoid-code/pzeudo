@@ -4,6 +4,6 @@ mod matmul;
 
 mod view_method;
 
-mod sum;
+mod reduction;
 
 mod dot_product;

@@ -1,6 +1,6 @@
 use std::iter::Sum;
 
-use crate::{Array, OpsSum};
+use crate::{Array, OpsAvg, OpsSum};
 
 impl<F> OpsSum<F> for Array<F>
 where
@@ -18,4 +18,11 @@ where
             shape: vec![1],
         })
     }
+}
+
+impl<F> OpsAvg<F> for Array<F>
+where
+    F: Copy,
+    for<'a> F: Copy + Sum<&'a F>,
+{
 }

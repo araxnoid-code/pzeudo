@@ -2,12 +2,12 @@ use std::ops::{Div, Mul, Sub};
 
 use crate::{
     Array, ArrayTrait,
-    PzeudoNumErr::{self, DivErr, MulErr, SubErr},
+    PzeudoErr::{self, DivErr, MulErr, SubErr},
     shape_to_stride,
 };
 
 pub trait OpsSub<F>: ArrayTrait<F> {
-    fn sub<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoNumErr>
+    fn sub<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Sub<Output = F>,
         Rhs: ArrayTrait<F>,
@@ -36,7 +36,7 @@ pub trait OpsSub<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn sub_scalar(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn sub_scalar(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Sub<Output = F>,
     {
@@ -54,7 +54,7 @@ pub trait OpsSub<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn scalar_sub(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn scalar_sub(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Sub<Output = F>,
     {

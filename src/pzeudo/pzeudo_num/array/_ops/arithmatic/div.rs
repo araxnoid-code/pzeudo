@@ -2,12 +2,12 @@ use std::ops::Div;
 
 use crate::{
     Array, ArrayTrait,
-    PzeudoNumErr::{self, DivErr},
+    PzeudoErr::{self, DivErr},
     shape_to_stride,
 };
 
 pub trait OpsDiv<F>: ArrayTrait<F> {
-    fn div<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoNumErr>
+    fn div<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Div<Output = F>,
         Rhs: ArrayTrait<F>,
@@ -36,7 +36,7 @@ pub trait OpsDiv<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn div_scalar(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn div_scalar(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Div<Output = F>,
     {
@@ -54,7 +54,7 @@ pub trait OpsDiv<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn scalar_div(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn scalar_div(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Div<Output = F>,
     {

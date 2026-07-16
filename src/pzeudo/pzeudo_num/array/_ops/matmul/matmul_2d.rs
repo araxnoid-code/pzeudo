@@ -1,7 +1,7 @@
-use crate::{Array, ArrayTrait, PzeudoNumErr, shape_to_stride};
+use crate::{Array, ArrayTrait, PzeudoErr, shape_to_stride};
 
 pub trait OpsMatmul2DF32: ArrayTrait<f32> {
-    fn matmul_2d<Rhs>(&self, rhs: &Rhs) -> Result<Array<f32>, PzeudoNumErr>
+    fn matmul_2d<Rhs>(&self, rhs: &Rhs) -> Result<Array<f32>, PzeudoErr>
     where
         Rhs: ArrayTrait<f32>,
     {
@@ -9,14 +9,14 @@ pub trait OpsMatmul2DF32: ArrayTrait<f32> {
         let rhs_meta = rhs.get_metadata();
 
         if lhs_meta.shape.len() != 2 || rhs_meta.shape.len() != 2 {
-            return Err(PzeudoNumErr::Matmul2DErr(format!(
+            return Err(PzeudoErr::Matmul2DErr(format!(
                 "Matmul2DErr. OpsMatmul2Df32::matmul_2d. cannot perform matmul_2d on lhs which has shape {:?} and rhs has shape {:?}. dimension must be 2-dimensional.",
                 lhs_meta.shape, rhs_meta.shape
             )));
         }
 
         if lhs_meta.shape[1] != rhs_meta.shape[0] {
-            return Err(PzeudoNumErr::Matmul2DErr(format!(
+            return Err(PzeudoErr::Matmul2DErr(format!(
                 "Matmul2DErr. OpsMatmul2Df32. cannot perform matmul_2d on lhs which has shape {:?} and rhs has shape {:?}. does not satisfy the form 'mxk * kxn'.",
                 lhs_meta.shape, rhs_meta.shape
             )));
@@ -56,7 +56,7 @@ pub trait OpsMatmul2DF32: ArrayTrait<f32> {
 }
 
 pub trait OpsMatmul2DF64: ArrayTrait<f64> {
-    fn matmul_2d<Rhs>(&self, rhs: &Rhs) -> Result<Array<f64>, PzeudoNumErr>
+    fn matmul_2d<Rhs>(&self, rhs: &Rhs) -> Result<Array<f64>, PzeudoErr>
     where
         Rhs: ArrayTrait<f64>,
     {
@@ -64,14 +64,14 @@ pub trait OpsMatmul2DF64: ArrayTrait<f64> {
         let rhs_meta = rhs.get_metadata();
 
         if lhs_meta.shape.len() != 2 || rhs_meta.shape.len() != 2 {
-            return Err(PzeudoNumErr::Matmul2DErr(format!(
+            return Err(PzeudoErr::Matmul2DErr(format!(
                 "Matmul2DErr. OpsMatmul2Df32::matmul_2d. cannot perform matmul_2d on lhs which has shape {:?} and rhs has shape {:?}. dimension must be 2-dimensional.",
                 lhs_meta.shape, rhs_meta.shape
             )));
         }
 
         if lhs_meta.shape[1] != rhs_meta.shape[0] {
-            return Err(PzeudoNumErr::Matmul2DErr(format!(
+            return Err(PzeudoErr::Matmul2DErr(format!(
                 "Matmul2DErr. OpsMatmul2Df32. cannot perform matmul_2d on lhs which has shape {:?} and rhs has shape {:?}. does not satisfy the form 'm×k * k×n'.",
                 lhs_meta.shape, rhs_meta.shape
             )));

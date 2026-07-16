@@ -6,7 +6,7 @@ impl<F> OpsSum<F> for Array<F>
 where
     for<'a> F: Copy + Sum<&'a F>,
 {
-    fn sum(&self) -> Result<Array<F>, crate::PzeudoNumErr>
+    fn sum(&self) -> Result<Array<F>, crate::PzeudoErr>
     where
         F: Copy + std::ops::AddAssign + num_traits::Zero,
     {

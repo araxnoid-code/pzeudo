@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub enum PzeudoNumErr {
+pub enum PzeudoErr {
     // tools
     ShapeToStride(String),
 
@@ -33,4 +33,8 @@ pub enum PzeudoNumErr {
 
     // // DotProduct
     DotProductErr(String),
+
+    // Storage
+    StoragePushErr(String),
+    StorageRemoveErr(String),
 }

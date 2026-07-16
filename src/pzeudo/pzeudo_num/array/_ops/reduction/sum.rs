@@ -2,10 +2,10 @@ use std::{fmt::Display, ops::AddAssign, vec};
 
 use num_traits::{Zero, zero};
 
-use crate::{Array, ArrayTrait, PzeudoNumErr, shape_to_stride};
+use crate::{Array, ArrayTrait, PzeudoErr, shape_to_stride};
 
 pub trait OpsSum<F>: ArrayTrait<F> {
-    fn sum(&self) -> Result<Array<F>, PzeudoNumErr>
+    fn sum(&self) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + AddAssign + Zero,
     {
@@ -25,18 +25,18 @@ pub trait OpsSum<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn sum_axis(&self, axis: &[usize], keep_dim: bool) -> Result<Array<F>, PzeudoNumErr>
+    fn sum_axis(&self, axis: &[usize], keep_dim: bool) -> Result<Array<F>, PzeudoErr>
     where
         F: AddAssign + Zero + Copy,
     {
         let metadata = self.get_metadata();
 
         if axis.len() <= 0 {
-            return Err(PzeudoNumErr::SumAxisErr(format!(
+            return Err(PzeudoErr::SumAxisErr(format!(
                 "SumAxisErr. OpsSum::sum_axis. Cannot perform sum_axis because axis is empty.",
             )));
         } else if axis.len() > metadata.shape.len() {
-            return Err(PzeudoNumErr::SumAxisErr(format!(
+            return Err(PzeudoErr::SumAxisErr(format!(
                 "SumAxisErr. OpsSum::sum_axis. Unable to perform sum_axis because axis {:?} is out of bounds.",
                 axis
             )));
@@ -48,12 +48,12 @@ pub trait OpsSum<F>: ArrayTrait<F> {
         let mut prev = None;
         for dim in axis {
             if *dim >= metadata.shape.len() {
-                return Err(PzeudoNumErr::SumAxisErr(format!(
+                return Err(PzeudoErr::SumAxisErr(format!(
                     "SumAxisErr. OpsSum::sum_axis. Cannot perform sum_axis because axis {:?}, number {} is out of array dimension bounds.",
                     axis, dim,
                 )));
             } else if check[*dim] {
-                return Err(PzeudoNumErr::SumAxisErr(format!(
+                return Err(PzeudoErr::SumAxisErr(format!(
                     "SumAxisErr. OpsSum::sum_axis. Cannot perform sum_axis because there is a repeating number on axis {:?}.",
                     axis,
                 )));
@@ -61,7 +61,7 @@ pub trait OpsSum<F>: ArrayTrait<F> {
 
             if let Some(prev) = &mut prev {
                 if *prev > *dim {
-                    return Err(PzeudoNumErr::SumAxisErr(format!(
+                    return Err(PzeudoErr::SumAxisErr(format!(
                         "SumAxisErr. OpsSum::sum_axis. Cannot do sum_axis because axis {:?} must be arranged in order from smallest to largest.",
                         axis,
                     )));

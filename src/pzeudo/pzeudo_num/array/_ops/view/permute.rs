@@ -1,10 +1,10 @@
 use crate::{
     ArrayTrait, ArrayView,
-    PzeudoNumErr::{self, PermuteErr},
+    PzeudoErr::{self, PermuteErr},
 };
 
 pub trait OpsPermute<F>: ArrayTrait<F> {
-    fn permute(&self, permute: &[usize]) -> Result<ArrayView<'_, F>, PzeudoNumErr> {
+    fn permute(&self, permute: &[usize]) -> Result<ArrayView<'_, F>, PzeudoErr> {
         let metadata = self.get_metadata();
 
         if permute.len() == 0 {

@@ -1,4 +1,4 @@
-use crate::{ArrayView, PzeudoNumErr, shape_to_stride};
+use crate::{ArrayView, PzeudoErr, shape_to_stride};
 
 pub struct Metadata<'a, F> {
     pub data: &'a [F],
@@ -12,7 +12,7 @@ pub trait ArrayTrait<F> {
     fn get_metadata(&self) -> Metadata<'_, F>;
 
     // Method
-    fn linear_index(&self, index: usize) -> Result<F, PzeudoNumErr>
+    fn linear_index(&self, index: usize) -> Result<F, PzeudoErr>
     where
         F: Copy,
     {
@@ -34,7 +34,7 @@ pub trait ArrayTrait<F> {
         }
 
         if idx >= data.len() {
-            return Err(PzeudoNumErr::LinearIndexErr(format!(
+            return Err(PzeudoErr::LinearIndexErr(format!(
                 "LinearIndexErr. linear_index. index points to {idx} but array only has length {:?}",
                 data.len()
             )));
@@ -43,10 +43,10 @@ pub trait ArrayTrait<F> {
         Ok(data[idx])
     }
 
-    fn index(&self, index: &[usize]) -> Result<ArrayView<'_, F>, PzeudoNumErr> {
+    fn index(&self, index: &[usize]) -> Result<ArrayView<'_, F>, PzeudoErr> {
         let metadata = self.get_metadata();
         if index.len() > metadata.shape.len() {
-            return Err(PzeudoNumErr::Index(format!("")));
+            return Err(PzeudoErr::Index(format!("")));
         }
 
         let new_shape = if index.len() != metadata.shape.len() {

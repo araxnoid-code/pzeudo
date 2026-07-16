@@ -1,11 +1,11 @@
-use crate::{ArrayTrait, ArrayView, PzeudoNumErr, SliceRange};
+use crate::{ArrayTrait, ArrayView, PzeudoErr, SliceRange};
 
 pub trait OpsSlicing<F>: ArrayTrait<F> {
-    fn slicing(&self, range: &[SliceRange]) -> Result<ArrayView<'_, F>, PzeudoNumErr> {
+    fn slicing(&self, range: &[SliceRange]) -> Result<ArrayView<'_, F>, PzeudoErr> {
         let arr_metadata = self.get_metadata();
 
         if arr_metadata.shape.len() < range.len() {
-            return Err(PzeudoNumErr::SlicingErr(format!(
+            return Err(PzeudoErr::SlicingErr(format!(
                 "Slicing. OpsSlicing::slicing, An array with shape {:?} cannot perform slicing {:?} because the slicing is out of bounds",
                 arr_metadata.shape, range
             )));
@@ -18,7 +18,7 @@ pub trait OpsSlicing<F>: ArrayTrait<F> {
             let end = range.end.unwrap_or(arr_metadata.shape[idx]);
 
             if start >= end {
-                return Err(PzeudoNumErr::SlicingErr(format!(
+                return Err(PzeudoErr::SlicingErr(format!(
                     "Slicing. OpsSlicing::slicing, An array with shape {:?} cannot perform slicing {:?} because it has start >= end",
                     arr_metadata.shape, range
                 )));

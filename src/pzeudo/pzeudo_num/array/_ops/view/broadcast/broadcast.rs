@@ -1,7 +1,7 @@
-use crate::{ArrayTrait, ArrayView, PzeudoNumErr, get_broadcast_dim};
+use crate::{ArrayTrait, ArrayView, PzeudoErr, get_broadcast_dim};
 
 pub trait OpsBroadcast<F>: ArrayTrait<F> {
-    fn broadcast(&self, to: &[usize]) -> Result<ArrayView<'_, F>, PzeudoNumErr> {
+    fn broadcast(&self, to: &[usize]) -> Result<ArrayView<'_, F>, PzeudoErr> {
         let metadata = self.get_metadata();
         let broadcast_dim = get_broadcast_dim(metadata.shape, to)?;
 

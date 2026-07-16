@@ -1,6 +1,6 @@
-use crate::PzeudoNumErr::{self, BroadcastErr};
+use crate::PzeudoErr::{self, BroadcastErr};
 
-pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoNumErr> {
+pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoErr> {
     if shape.len() > to.len() {
         return Err(BroadcastErr(format!(
             "BroadcastErr. able_broadcast. The shape {:?} cannot be broadcast to shape {:?} because the target shape is smaller.",
@@ -19,7 +19,7 @@ pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoNumErr>
         let index = idx - d;
         let shape_dim = shape[index];
         if shape_dim != 1 && shape_dim != *to_dim {
-            return Err(PzeudoNumErr::BroadcastErr(format!(
+            return Err(PzeudoErr::BroadcastErr(format!(
                 "BroadcastErr. able_broadcast. cannot broadcast the shape {:?} to {:?} because {:?} cannot be broadcast to {:?}",
                 shape, to, shape_dim, to_dim
             )));
@@ -33,7 +33,7 @@ pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoNumErr>
     Ok(())
 }
 
-pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<Vec<usize>, PzeudoNumErr> {
+pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<Vec<usize>, PzeudoErr> {
     if shape.len() > to.len() {
         return Err(BroadcastErr(format!(
             "BroadcastErr. get_broadcast_dim. The shape {:?} cannot be broadcast to shape {:?} because the target shape is smaller.",
@@ -53,7 +53,7 @@ pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<Vec<usize>, Pz
         let index = idx - d;
         let shape_dim = shape[index];
         if shape_dim != 1 && shape_dim != *to_dim {
-            return Err(PzeudoNumErr::BroadcastErr(format!(
+            return Err(PzeudoErr::BroadcastErr(format!(
                 "BroadcastErr. get_broadcast_dim. cannot broadcast the shape {:?} to {:?} because {:?} cannot be broadcast to {:?}",
                 shape, to, shape_dim, to_dim
             )));

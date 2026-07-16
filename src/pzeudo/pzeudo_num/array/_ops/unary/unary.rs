@@ -1,12 +1,12 @@
 use num_traits::Float;
 
-use crate::{Array, ArrayTrait, PzeudoNumErr};
+use crate::{Array, ArrayTrait, PzeudoErr};
 
 pub trait OpsUnary<F>: ArrayTrait<F>
 where
     F: Copy + Float,
 {
-    fn exp(&self) -> Result<Array<F>, PzeudoNumErr>
+    fn exp(&self) -> Result<Array<F>, PzeudoErr>
     where
         F: Float + Copy,
     {
@@ -29,7 +29,7 @@ where
         Ok(array)
     }
 
-    fn ln(&self) -> Result<Array<F>, PzeudoNumErr>
+    fn ln(&self) -> Result<Array<F>, PzeudoErr>
     where
         F: Float + Copy,
     {
@@ -52,7 +52,7 @@ where
         Ok(array)
     }
 
-    fn log(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn log(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Float + Copy,
     {
@@ -75,7 +75,7 @@ where
         Ok(array)
     }
 
-    fn log2(&self) -> Result<Array<F>, PzeudoNumErr>
+    fn log2(&self) -> Result<Array<F>, PzeudoErr>
     where
         F: Float + Copy,
     {
@@ -98,7 +98,7 @@ where
         Ok(array)
     }
 
-    fn log10(&self) -> Result<Array<F>, PzeudoNumErr>
+    fn log10(&self) -> Result<Array<F>, PzeudoErr>
     where
         F: Float + Copy,
     {
@@ -121,7 +121,7 @@ where
         Ok(array)
     }
 
-    fn powi(&self, scalar: i32) -> Result<Array<F>, PzeudoNumErr>
+    fn powi(&self, scalar: i32) -> Result<Array<F>, PzeudoErr>
     where
         F: Float + Copy,
     {
@@ -144,7 +144,7 @@ where
         Ok(array)
     }
 
-    fn powf(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn powf(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Float + Copy,
     {

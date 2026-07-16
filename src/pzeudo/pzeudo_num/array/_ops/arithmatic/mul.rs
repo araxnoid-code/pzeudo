@@ -2,12 +2,12 @@ use std::ops::{Div, Mul};
 
 use crate::{
     Array, ArrayTrait,
-    PzeudoNumErr::{self, DivErr, MulErr},
+    PzeudoErr::{self, DivErr, MulErr},
     shape_to_stride,
 };
 
 pub trait OpsMul<F>: ArrayTrait<F> {
-    fn mul<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoNumErr>
+    fn mul<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Mul<Output = F>,
         Rhs: ArrayTrait<F>,
@@ -36,7 +36,7 @@ pub trait OpsMul<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn mul_scalar(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn mul_scalar(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Mul<Output = F>,
     {
@@ -54,7 +54,7 @@ pub trait OpsMul<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn scalar_mul(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn scalar_mul(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Mul<Output = F>,
     {

@@ -1,11 +1,11 @@
 use crate::{
     Array, ArrayTrait, OpsMatmul2DF32, OpsMatmul2DF64,
-    PzeudoNumErr::{self, MatmulNDErr},
+    PzeudoErr::{self, MatmulNDErr},
     shape_to_stride,
 };
 
 pub trait OpsMatmulNDF32: OpsMatmul2DF32 {
-    fn matmul_nd<Rhs>(&self, rhs: &Rhs) -> Result<Array<f32>, PzeudoNumErr>
+    fn matmul_nd<Rhs>(&self, rhs: &Rhs) -> Result<Array<f32>, PzeudoErr>
     where
         Rhs: ArrayTrait<f32>,
     {
@@ -118,7 +118,7 @@ pub trait OpsMatmulNDF32: OpsMatmul2DF32 {
 }
 
 pub trait OpsMatmulNDF64: OpsMatmul2DF64 {
-    fn matmul_nd<Rhs>(&self, rhs: &Rhs) -> Result<Array<f64>, PzeudoNumErr>
+    fn matmul_nd<Rhs>(&self, rhs: &Rhs) -> Result<Array<f64>, PzeudoErr>
     where
         Rhs: ArrayTrait<f64>,
     {

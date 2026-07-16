@@ -1,13 +1,9 @@
 use std::ops::Add;
 
-use crate::{
-    Array, ArrayTrait,
-    PzeudoNumErr::{self, AddErr},
-    shape_to_stride,
-};
+use crate::prelude::{PzeudoErr::*, *};
 
 pub trait OpsAdd<F>: ArrayTrait<F> {
-    fn add<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoNumErr>
+    fn add<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Add<Output = F>,
         Rhs: ArrayTrait<F>,
@@ -36,7 +32,7 @@ pub trait OpsAdd<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn add_scalar(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn add_scalar(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Add<Output = F>,
     {
@@ -54,7 +50,7 @@ pub trait OpsAdd<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn scalar_add(&self, scalar: F) -> Result<Array<F>, PzeudoNumErr>
+    fn scalar_add(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Add<Output = F>,
     {

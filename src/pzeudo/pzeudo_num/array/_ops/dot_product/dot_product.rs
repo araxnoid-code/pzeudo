@@ -2,10 +2,10 @@ use std::ops::{AddAssign, Mul};
 
 use num_traits::{Zero, zero};
 
-use crate::{Array, ArrayTrait, PzeudoNumErr};
+use crate::{Array, ArrayTrait, PzeudoErr};
 
 pub trait OpsDotProduct<F>: ArrayTrait<F> {
-    fn dot<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoNumErr>
+    fn dot<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>
     where
         F: Copy + Zero + Mul<Output = F> + AddAssign,
         Rhs: ArrayTrait<F>,
@@ -14,7 +14,7 @@ pub trait OpsDotProduct<F>: ArrayTrait<F> {
         let rhs_metadata = rhs.get_metadata();
 
         if lhs_metadata.shape.len() != 1 || rhs_metadata.shape.len() != 1 {
-            return Err(PzeudoNumErr::DotProductErr(format!(
+            return Err(PzeudoErr::DotProductErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on arrays with shape {:?} and arrays with shape {:?} because they are not 1-dimensional.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -22,7 +22,7 @@ pub trait OpsDotProduct<F>: ArrayTrait<F> {
 
         let len = lhs_metadata.shape.iter().product::<usize>();
         if len != rhs_metadata.shape.iter().product::<usize>() {
-            return Err(PzeudoNumErr::DotProductErr(format!(
+            return Err(PzeudoErr::DotProductErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on an array with shape {:?} and an array with shape {:?} because they do not have the same length.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -45,7 +45,7 @@ pub trait OpsDotProduct<F>: ArrayTrait<F> {
 }
 
 pub trait OpsDotProductF32: ArrayTrait<f32> {
-    fn dot_f32<Rhs>(&self, rhs: &Rhs) -> Result<Array<f32>, PzeudoNumErr>
+    fn dot_f32<Rhs>(&self, rhs: &Rhs) -> Result<Array<f32>, PzeudoErr>
     where
         Rhs: ArrayTrait<f32>,
     {
@@ -53,7 +53,7 @@ pub trait OpsDotProductF32: ArrayTrait<f32> {
         let rhs_metadata = rhs.get_metadata();
 
         if lhs_metadata.shape.len() != 1 || rhs_metadata.shape.len() != 1 {
-            return Err(PzeudoNumErr::DotProductErr(format!(
+            return Err(PzeudoErr::DotProductErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on arrays with shape {:?} and arrays with shape {:?} because they are not 1-dimensional.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -61,7 +61,7 @@ pub trait OpsDotProductF32: ArrayTrait<f32> {
 
         let len = lhs_metadata.shape.iter().product::<usize>();
         if len != rhs_metadata.shape.iter().product::<usize>() {
-            return Err(PzeudoNumErr::DotProductErr(format!(
+            return Err(PzeudoErr::DotProductErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on an array with shape {:?} and an array with shape {:?} because they do not have the same length.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -97,7 +97,7 @@ pub trait OpsDotProductF32: ArrayTrait<f32> {
 }
 
 pub trait OpsDotProductF64: ArrayTrait<f64> {
-    fn dot_f64<Rhs>(&self, rhs: &Rhs) -> Result<Array<f64>, PzeudoNumErr>
+    fn dot_f64<Rhs>(&self, rhs: &Rhs) -> Result<Array<f64>, PzeudoErr>
     where
         Rhs: ArrayTrait<f64>,
     {
@@ -105,7 +105,7 @@ pub trait OpsDotProductF64: ArrayTrait<f64> {
         let rhs_metadata = rhs.get_metadata();
 
         if lhs_metadata.shape.len() != 1 || rhs_metadata.shape.len() != 1 {
-            return Err(PzeudoNumErr::DotProductErr(format!(
+            return Err(PzeudoErr::DotProductErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on arrays with shape {:?} and arrays with shape {:?} because they are not 1-dimensional.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -113,7 +113,7 @@ pub trait OpsDotProductF64: ArrayTrait<f64> {
 
         let len = lhs_metadata.shape.iter().product::<usize>();
         if len != rhs_metadata.shape.iter().product::<usize>() {
-            return Err(PzeudoNumErr::DotProductErr(format!(
+            return Err(PzeudoErr::DotProductErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on an array with shape {:?} and an array with shape {:?} because they do not have the same length.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));

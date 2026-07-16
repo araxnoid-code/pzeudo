@@ -1,12 +1,12 @@
 use std::fmt::Debug;
 
-use crate::{ArrayTrait, ArrayView, Metadata, PzeudoNumErr};
+use crate::{ArrayTrait, ArrayView, Metadata, PzeudoErr};
 
 impl<F> ArrayView<'_, F>
 where
     F: Copy + Debug,
 {
-    pub fn to_string(&self) -> Result<String, PzeudoNumErr> {
+    pub fn to_string(&self) -> Result<String, PzeudoErr> {
         let mut string = String::new();
         rec_helper(self, 0, &mut 0, &mut string)?;
 
@@ -19,7 +19,7 @@ fn rec_helper<F>(
     level: usize,
     count: &mut usize,
     string: &mut String,
-) -> Result<(), PzeudoNumErr>
+) -> Result<(), PzeudoErr>
 where
     F: Debug + Copy,
 {

@@ -1,4 +1,4 @@
-use crate::{Array, PzeudoNumErr, shape_to_stride};
+use crate::{Array, PzeudoErr, shape_to_stride};
 
 impl<F> Array<F> {
     pub fn new(data: Vec<F>, offset: usize, stride: Vec<usize>, shape: Vec<usize>) -> Array<F> {
@@ -23,12 +23,12 @@ impl<F> Array<F> {
         }
     }
 
-    pub fn from_vector_with_shape(vector: &[F], shape: &[usize]) -> Result<Array<F>, PzeudoNumErr>
+    pub fn from_vector_with_shape(vector: &[F], shape: &[usize]) -> Result<Array<F>, PzeudoErr>
     where
         F: Clone,
     {
         if vector.len() != shape.iter().product::<usize>() {
-            return Err(PzeudoNumErr::ArrayNewErr(
+            return Err(PzeudoErr::ArrayNewErr(
                 "ArrayNewErr. from_vector_with_shape\ncannot create array because shape size and vector length are different".to_string(),
             ));
         }

@@ -1,4 +1,4 @@
-use crate::{Array, PzeudoTensorErr};
+use crate::prelude::*;
 
 pub struct ArrayStorage<F> {
     storage: Vec<Option<Array<F>>>,
@@ -30,10 +30,10 @@ impl<F> ArrayStorage<F> {
         &mut self.empty_idx
     }
 
-    pub fn push(&mut self, element: Array<F>) -> Result<usize, PzeudoTensorErr> {
+    pub fn push(&mut self, element: Array<F>) -> Result<usize, PzeudoErr> {
         let idx = if let Some(idx) = self.empty_idx.pop() {
             if self.storage[idx].is_some() {
-                return Err(PzeudoTensorErr::StoragePushErr(format!(
+                return Err(PzeudoErr::StoragePushErr(format!(
                     "ArrayStorage::push. The problem occurs because the index {idx} obtained from empty_idx points to an element that still has a value."
                 )));
             }
@@ -48,9 +48,9 @@ impl<F> ArrayStorage<F> {
         Ok(idx)
     }
 
-    pub fn remove(&mut self, idx: usize) -> Result<(), PzeudoTensorErr> {
+    pub fn remove(&mut self, idx: usize) -> Result<(), PzeudoErr> {
         if self.storage[idx].is_none() {
-            return Err(PzeudoTensorErr::StorageRemoveErr(format!(
+            return Err(PzeudoErr::StorageRemoveErr(format!(
                 "ArrayStorage::remove. index {idx} points to an element that has a value of None"
             )));
         }

@@ -1,13 +1,12 @@
+use crate::prelude::*;
 use std::{cell::RefCell, rc::Rc};
-
-use crate::{Array, ArrayStorage, PzeudoTensorErr, Tensor};
 
 impl<F> Tensor<F> {
     fn new(
         array: Array<F>,
         gradient: Option<Array<F>>,
         storage: Rc<RefCell<ArrayStorage<F>>>,
-    ) -> Result<Self, PzeudoTensorErr> {
+    ) -> Result<Self, PzeudoErr> {
         let mut storage_mut = storage.borrow_mut();
         let array_idx = storage_mut.push(array)?;
         let grad_idx =

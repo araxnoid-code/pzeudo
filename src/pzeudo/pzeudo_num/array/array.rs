@@ -1,5 +1,3 @@
-use std::slice::Iter;
-
 use crate::{ArrayView, PzeudoNumErr, shape_to_stride};
 
 pub struct Metadata<'a, F> {

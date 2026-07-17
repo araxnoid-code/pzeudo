@@ -1,11 +1,4 @@
-use crate::{ArrayView, PzeudoErr, shape_to_stride};
-
-pub struct Metadata<'a, F> {
-    pub data: &'a [F],
-    pub offset: usize,
-    pub stride: &'a [usize],
-    pub shape: &'a [usize],
-}
+use crate::prelude::*;
 
 pub trait ArrayTrait<F> {
     // metadata

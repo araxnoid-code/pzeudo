@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 pub struct ArrayStorage<F> {
-    storage: Vec<Option<Array<F>>>,
+    storage: Vec<Option<Vec<F>>>,
     empty_idx: Vec<usize>,
 }
 
@@ -14,11 +14,11 @@ impl<F> ArrayStorage<F> {
         }
     }
 
-    pub fn get_storage(&self) -> &Vec<Option<Array<F>>> {
+    pub fn get_storage(&self) -> &Vec<Option<Vec<F>>> {
         &self.storage
     }
 
-    pub fn get_mut_storage(&mut self) -> &mut Vec<Option<Array<F>>> {
+    pub fn get_mut_storage(&mut self) -> &mut Vec<Option<Vec<F>>> {
         &mut self.storage
     }
 
@@ -30,7 +30,7 @@ impl<F> ArrayStorage<F> {
         &mut self.empty_idx
     }
 
-    pub fn push(&mut self, element: Array<F>) -> Result<usize, PzeudoErr> {
+    pub fn push(&mut self, element: Vec<F>) -> Result<usize, PzeudoErr> {
         let idx = if let Some(idx) = self.empty_idx.pop() {
             if self.storage[idx].is_some() {
                 return Err(PzeudoErr::StoragePushErr(format!(

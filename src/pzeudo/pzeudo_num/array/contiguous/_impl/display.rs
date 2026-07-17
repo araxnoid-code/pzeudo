@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use crate::Array;
 
@@ -42,4 +42,13 @@ where
 
     string.push_str(&space);
     string.push_str("]\n");
+}
+
+impl<F> Display for Array<F>
+where
+    F: Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&Array::to_string(self))
+    }
 }

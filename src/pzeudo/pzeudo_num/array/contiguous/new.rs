@@ -1,3 +1,5 @@
+use num_traits::{Zero, zero};
+
 use crate::{Array, PzeudoErr, shape_to_stride};
 
 impl<F> Array<F> {
@@ -40,5 +42,20 @@ impl<F> Array<F> {
             shape: shape.to_vec(),
             stride,
         })
+    }
+
+    pub fn zeros(shape: &[usize]) -> Array<F>
+    where
+        F: Zero + Clone,
+    {
+        let vector: Vec<F> = vec![zero(); shape.iter().product::<usize>()];
+        let stride = shape_to_stride(shape);
+
+        Array {
+            data: vector,
+            offset: 0,
+            shape: shape.to_vec(),
+            stride,
+        }
     }
 }

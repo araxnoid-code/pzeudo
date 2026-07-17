@@ -1,6 +1,6 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
-use crate::{ArrayTrait, ArrayView, Metadata, PzeudoErr};
+use crate::prelude::*;
 
 impl<F> ArrayView<'_, F>
 where
@@ -65,4 +65,13 @@ where
     string.push_str("]\n");
 
     Ok(())
+}
+
+impl<F> Display for ArrayView<'_, F>
+where
+    F: Debug + Copy,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&ArrayView::to_string(self).unwrap())
+    }
 }

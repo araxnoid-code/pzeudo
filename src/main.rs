@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use pzeudo::{Array, ArrayStorage, ArrayTrait, Tensor};
+use pzeudo::{Array, ArrayStorage, ArrayTrait, Contiguous, Tensor};
 
 fn main() {
     let storage = Rc::new(RefCell::new(ArrayStorage::new(None)));
@@ -24,5 +24,9 @@ fn main() {
 
     let view = tensor_b.view().unwrap();
 
-    let tensor_c = tensor_a.add(&view);
+    let tensor_c = view.div(&view).unwrap();
+
+    let multiple = tensor_c.mul(&view).unwrap().view().unwrap();
+
+    let tensor = tensor_a.sub(&multiple).unwrap();
 }

@@ -1,8 +1,8 @@
 mod storage;
 pub use storage::*;
 
-// mod contiguous;
-// pub use contiguous::*;
+mod new;
+pub use new::*;
 
 mod metadata;
 pub use metadata::*;
@@ -10,11 +10,8 @@ pub use metadata::*;
 mod tensor;
 pub use tensor::*;
 
-mod tensor_trait;
-pub use tensor_trait::*;
-
-// mod view;
-// pub use view::*;
+mod view;
+pub use view::*;
 
 mod record;
 pub use record::*;

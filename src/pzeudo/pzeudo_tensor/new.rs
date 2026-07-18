@@ -4,26 +4,30 @@ use num_traits::Zero;
 
 use crate::prelude::*;
 
-impl<F> Tensor<F> {
+impl<F> Tensor<F, Contiguous> {
     pub fn new(
         array: Array<F>,
         gradient: Option<Array<F>>,
         storage: Rc<RefCell<ArrayStorage<F>>>,
         record: Rc<RefCell<Vec<RecordLabel>>>,
-    ) -> Result<Tensor<F>, PzeudoErr> {
+    ) -> Result<Tensor<F, Contiguous>, PzeudoErr> {
         let mut storage_mut = storage.borrow_mut();
 
-        let array_idx = storage_mut.push(array)?;
-        let grad_idx =
-            gradient.map_or(Ok(None), |grad| storage_mut.push(grad).map(|idx| Some(idx)));
+        let array_idx = storage_mut.push(ElementType::Contiguous(array))?;
+        let grad_idx = gradient.map_or(Ok(None), |grad| {
+            storage_mut
+                .push(ElementType::Contiguous(grad))
+                .map(|idx| Some(idx))
+        });
 
         drop(storage_mut);
 
-        let tensor: Tensor<F> = Self {
+        let tensor = Self {
             array_idx,
             grad_idx: grad_idx?,
             storage,
             record,
+            _array_type: Default::default(),
         };
 
         Ok(tensor)
@@ -34,7 +38,7 @@ impl<F> Tensor<F> {
         shape: &[usize],
         storage: Rc<RefCell<ArrayStorage<F>>>,
         record: Rc<RefCell<Vec<RecordLabel>>>,
-    ) -> Result<Self, PzeudoErr>
+    ) -> Result<Tensor<F, Contiguous>, PzeudoErr>
     where
         F: Clone + Zero,
     {
@@ -42,9 +46,9 @@ impl<F> Tensor<F> {
 
         let array = Array::from_vector_with_shape(vec, shape)?;
         let gradient: Array<F> = Array::zeros(shape);
-        let array_idx = borrow_storage.push(array)?;
+        let array_idx = borrow_storage.push(ElementType::Contiguous(array))?;
 
-        let grad_idx = Some(borrow_storage.push(gradient)?);
+        let grad_idx = Some(borrow_storage.push(ElementType::Contiguous(gradient))?);
         drop(borrow_storage);
 
         let tensor = Tensor {
@@ -52,34 +56,37 @@ impl<F> Tensor<F> {
             grad_idx,
             storage,
             record,
+            _array_type: Default::default(),
         };
 
         Ok(tensor)
     }
 
-    pub fn view(&self) -> Result<TensorView<F>, PzeudoErr>
+    pub fn view(&self) -> Result<Tensor<F, View>, PzeudoErr>
     where
         F: Clone + Zero,
     {
         let mut storage = self.storage.borrow_mut();
-        let array = storage.get_element(self.array_idx)?;
+        let array: ArrayRef<'_, F, Contiguous> = storage.get_as_array_ref(self.array_idx)?;
+
         let tensor_metadata = TensorMetadata {
             offset: array.offset,
-            shape: array.shape.clone(),
-            stride: array.stride.clone(),
+            shape: array.shape.to_vec(),
+            stride: array.stride.to_vec(),
         };
 
         let grad = Array::<F>::zeros(&array.shape);
-        let grad_idx = Some(storage.push(grad)?);
+        let grad_idx = Some(storage.push(ElementType::Contiguous(grad))?);
+
+        let view_idx = storage.push(ElementType::View(self.array_idx, tensor_metadata))?;
 
         drop(storage);
-
-        let view = TensorView {
-            array_idx: self.array_idx,
+        let view = Tensor {
+            array_idx: view_idx,
             grad_idx,
-            metadata: tensor_metadata,
             record: self.record.clone(),
             storage: self.get_storage().clone(),
+            _array_type: Default::default(),
         };
 
         Ok(view)

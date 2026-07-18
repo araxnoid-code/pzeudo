@@ -10,9 +10,6 @@ pub use metadata::*;
 mod tensor;
 pub use tensor::*;
 
-// mod view;
-// pub use view::*;
-
 mod record;
 pub use record::*;
 
@@ -22,5 +19,5 @@ pub use _ops::*;
 mod tensor_trait;
 pub use tensor_trait::*;
 
-mod tensor_view;
-pub use tensor_view::*;
+// mod tensor_view;
+// pub use tensor_view::*;

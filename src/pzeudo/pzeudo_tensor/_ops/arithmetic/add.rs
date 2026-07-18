@@ -3,7 +3,7 @@ use num_traits::Zero;
 use std::ops::Add;
 
 pub trait TensorAddOps<F, T>: TensorTrait<F, T> {
-    fn add<Rhs, J>(&self, rhs: &Rhs) -> Result<Tensor<F>, PzeudoErr>
+    fn add<Rhs, J>(&self, rhs: &Rhs) -> Result<Tensor<F, Contiguous>, PzeudoErr>
     where
         F: Copy + Add<Output = F> + Zero + Clone,
         Rhs: TensorTrait<F, J>,
@@ -12,17 +12,14 @@ pub trait TensorAddOps<F, T>: TensorTrait<F, T> {
     {
         let mut storage = self.get_storage().borrow_mut();
 
-        let lhs_array_data = self.get_array_data();
-        let lhs_array = metadata_to_array_ref(lhs_array_data, &storage)?;
-
-        let rhs_array_data = rhs.get_array_data();
-        let rhs_array = metadata_to_array_ref(rhs_array_data, &storage)?;
+        let lhs_array: ArrayRef<'_, F, T> = storage.get_as_array_ref(self.get_array_idx())?;
+        let rhs_array: ArrayRef<'_, F, J> = storage.get_as_array_ref(rhs.get_array_idx())?;
 
         let array = OpsAdd::add(&lhs_array, &rhs_array)?;
         let grad = Array::<F>::zeros(&array.shape);
 
-        let array_idx = storage.push(array)?;
-        let grad_idx = Some(storage.push(grad)?);
+        let array_idx = storage.push(ElementType::Contiguous(array))?;
+        let grad_idx = Some(storage.push(ElementType::Contiguous(grad))?);
 
         let record_label = RecordLabel::Add(
             (self.get_array_idx(), self.get_grad_idx()),
@@ -36,11 +33,11 @@ pub trait TensorAddOps<F, T>: TensorTrait<F, T> {
             grad_idx,
             record: self.get_record().clone(),
             storage: self.get_storage().clone(),
+            _array_type: Default::default(),
         };
 
         Ok(tensor)
     }
 }
 
-impl<F> TensorAddOps<F, Contiguous> for Tensor<F> {}
-impl<F> TensorAddOps<F, View> for TensorView<F> {}
+impl<F, T> TensorAddOps<F, T> for Tensor<F, T> {}

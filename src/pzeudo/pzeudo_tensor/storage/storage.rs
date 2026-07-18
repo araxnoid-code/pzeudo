@@ -1,7 +1,9 @@
+use std::array;
+
 use crate::prelude::*;
 
 pub struct ArrayStorage<F> {
-    storage: Vec<Option<Array<F>>>,
+    storage: Vec<Option<ElementType<F>>>,
     empty_idx: Vec<usize>,
 }
 
@@ -14,11 +16,11 @@ impl<F> ArrayStorage<F> {
         }
     }
 
-    pub fn get_storage(&self) -> &Vec<Option<Array<F>>> {
+    pub fn get_storage(&self) -> &Vec<Option<ElementType<F>>> {
         &self.storage
     }
 
-    pub fn get_mut_storage(&mut self) -> &mut Vec<Option<Array<F>>> {
+    pub fn get_mut_storage(&mut self) -> &mut Vec<Option<ElementType<F>>> {
         &mut self.storage
     }
 
@@ -30,7 +32,7 @@ impl<F> ArrayStorage<F> {
         &mut self.empty_idx
     }
 
-    pub fn push(&mut self, element: Array<F>) -> Result<usize, PzeudoErr> {
+    pub fn push(&mut self, element: ElementType<F>) -> Result<usize, PzeudoErr> {
         let idx = if let Some(idx) = self.empty_idx.pop() {
             if self.storage[idx].is_some() {
                 return Err(PzeudoErr::StoragePushErr(format!(
@@ -61,7 +63,7 @@ impl<F> ArrayStorage<F> {
         Ok(())
     }
 
-    pub fn get_element(&self, idx: usize) -> Result<&Array<F>, PzeudoErr> {
+    pub fn get_element(&self, idx: usize) -> Result<&ElementType<F>, PzeudoErr> {
         let data = self
             .storage
             .get(idx)
@@ -74,5 +76,54 @@ impl<F> ArrayStorage<F> {
             )))?;
 
         Ok(data)
+    }
+
+    pub fn get_as_array_ref<T>(&self, idx: usize) -> Result<ArrayRef<'_, F, T>, PzeudoErr> {
+        let element = self
+            .storage
+            .get(idx)
+            .ok_or(PzeudoErr::StorageGetAsArrayRefErr(format!(
+                "ArrayStorage::get_as_array_ref. index {idx} points to an invalid location on storage."
+            )))?
+            .as_ref()
+            .ok_or(PzeudoErr::StorageGetAsArrayRefErr(format!(
+                "ArrayStorage::get_as_array_ref. index {idx} points to elements that have the value None in storage."
+            )))?;
+
+        match element {
+            ElementType::Contiguous(array) => Ok(ArrayRef {
+                data: &array.data,
+                offset: array.offset,
+                shape: &array.shape,
+                stride: &array.stride,
+                _array_type: Default::default(),
+            }),
+            ElementType::View(array_idx, metadata) => {
+                let element = self
+                    .storage
+                    .get(*array_idx)
+                    .ok_or(PzeudoErr::StorageGetAsArrayRefErr(format!(
+                        "ArrayStorage::get_as_array_ref. index {idx} points to a View element that has index {array_idx} that points to an invalid location in storage."
+                    )))?
+                    .as_ref()
+                    .ok_or(PzeudoErr::StorageGetAsArrayRefErr(format!(
+                        "ArrayStorage::get_as_array_ref. index {idx} goes to the View element that has index {array_idx} which goes to the element that has the value None"
+                    )))?;
+
+                match element {
+                    ElementType::View(_, _) => Err(PzeudoErr::StorageGetAsArrayRefErr(format!(
+                        "ArrayStorage::get_as_array_ref. index {idx} points to the View element that has index {array_idx} which points to the element that has value View Also, View pointing to View is prohibited"
+                    ))),
+
+                    ElementType::Contiguous(array) => Ok(ArrayRef {
+                        data: &array.data,
+                        offset: metadata.offset,
+                        shape: &metadata.shape,
+                        stride: &metadata.stride,
+                        _array_type: Default::default(),
+                    }),
+                }
+            }
+        }
     }
 }

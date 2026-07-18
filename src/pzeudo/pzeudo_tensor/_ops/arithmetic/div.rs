@@ -16,12 +16,12 @@ where
         let lhs_metadata = self.get_array_metadata();
         let lhs_array_index = self.get_array_idx();
         let lhs_array: ArrayRef<'_, F, T> =
-            metadata_to_array_ref(lhs_metadata, lhs_array_index, &storage);
+            metadata_to_array_ref(lhs_metadata, lhs_array_index, &storage)?;
 
         let rhs_metadata = self.get_array_metadata();
         let rhs_array_index = self.get_array_idx();
         let rhs_array: ArrayRef<'_, F, Rhs> =
-            metadata_to_array_ref(rhs_metadata, rhs_array_index, &storage);
+            metadata_to_array_ref(rhs_metadata, rhs_array_index, &storage)?;
 
         let result = OpsDiv::div(&lhs_array, &rhs_array)?;
         let gradient = Array::<F>::zeros(&result.shape);

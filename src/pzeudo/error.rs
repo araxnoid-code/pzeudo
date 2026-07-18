@@ -36,5 +36,6 @@ pub enum PzeudoErr {
 
     // Storage
     StoragePushErr(String),
+    StorageGetErr(String),
     StorageRemoveErr(String),
 }

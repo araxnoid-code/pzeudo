@@ -60,4 +60,19 @@ impl<F> ArrayStorage<F> {
 
         Ok(())
     }
+
+    pub fn get_element(&self, idx: usize) -> Result<&Vec<F>, PzeudoErr> {
+        let data = self
+            .storage
+            .get(idx)
+            .ok_or(PzeudoErr::StorageGetErr(format!(
+                "ArrayStorage::get. index {idx} points to an invalid location on storage."
+            )))?
+            .as_ref()
+            .ok_or(PzeudoErr::StorageGetErr(format!(
+                "ArrayStorage::get. index {idx} points to elements that have the value None in storage."
+            )))?;
+
+        Ok(data)
+    }
 }

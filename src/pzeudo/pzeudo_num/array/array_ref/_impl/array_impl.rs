@@ -2,13 +2,12 @@ use crate::prelude::*;
 
 impl<F> ArrayTrait<F> for ArrayRef<'_, F, View> {
     fn get_metadata(&self) -> Metadata<'_, F> {
-        let metadata = Metadata {
+        Metadata {
             data: self.data,
             offset: self.offset,
             shape: self.shape,
             stride: self.stride,
-        };
-        metadata
+        }
     }
 }
 

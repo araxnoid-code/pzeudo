@@ -14,6 +14,7 @@ pub enum PzeudoErr {
 
     // // Arith
     AddErr(String),
+    AddAssignErr(String),
     SubErr(String),
     MulErr(String),
     DivErr(String),

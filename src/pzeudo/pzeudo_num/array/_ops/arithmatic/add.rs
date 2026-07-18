@@ -1,6 +1,5 @@
-use std::ops::Add;
-
 use crate::prelude::{PzeudoErr::*, *};
+use std::ops::Add;
 
 pub trait OpsAdd<F>: ArrayTrait<F> {
     fn add<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>
@@ -66,5 +65,22 @@ pub trait OpsAdd<F>: ArrayTrait<F> {
         let array = Array::new(output, 0, shape_to_stride(&shape), shape);
 
         Ok(array)
+    }
+
+    fn add_assign<Rhs>(&mut self, assign: Rhs) -> Result<(), PzeudoErr>
+    where
+        Rhs: ArrayTrait<F>,
+    {
+        let lhs_metadata = self.get_metadata();
+        let rhs_metadata = self.get_metadata();
+
+        if lhs_metadata.shape != rhs_metadata.shape {
+            return Err(AddAssignErr(format!(
+                "AddErr. add\ncannot add arrays of shape {:?} and {:?} because they have different shapes",
+                lhs_metadata.shape, rhs_metadata.shape
+            )));
+        }
+
+        Ok(())
     }
 }

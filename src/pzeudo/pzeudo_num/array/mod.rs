@@ -4,8 +4,8 @@ pub use contiguous::*;
 mod view;
 pub use view::*;
 
-mod array;
-pub use array::*;
+mod array_core;
+pub use array_core::*;
 
 mod _ops;
 pub use _ops::*;

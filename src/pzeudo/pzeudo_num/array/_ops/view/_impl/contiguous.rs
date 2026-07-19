@@ -1,4 +1,4 @@
-use crate::{Array, OpsBroadcast, OpsPermute, OpsSlicing};
+use crate::prelude::*;
 
 impl<F> OpsSlicing<F> for Array<F> where F: Copy {}
 impl<F> OpsBroadcast<F> for Array<F> where F: Copy {}

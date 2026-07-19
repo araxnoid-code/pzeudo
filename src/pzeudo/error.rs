@@ -20,6 +20,7 @@ pub enum PzeudoErr {
     DivErr(String),
 
     // // Assign
+    AssignErr(String),
     AddAssignErr(String),
     SubAssignErr(String),
     MulAssignErr(String),

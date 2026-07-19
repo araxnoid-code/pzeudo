@@ -13,7 +13,7 @@ pub trait OpsAddAssign<F>: ArrayAssignTrait<F> {
 
         if lhs_metadata.shape != rhs_metadata.shape {
             return Err(PzeudoErr::AddAssignErr(format!(
-                "OpsAddAssign::add_assign. add\ncannot add arrays of shape {:?} and {:?} because they have different shapes",
+                "OpsAddAssign::add_assign. cannot add_assign arrays of shape {:?} and {:?} because they have different shapes",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
         }
@@ -28,13 +28,3 @@ pub trait OpsAddAssign<F>: ArrayAssignTrait<F> {
         Ok(())
     }
 }
-
-// IMPL
-impl<F, T> OpsAddAssign<F> for ArrayRefMut<'_, F, T>
-where
-    F: Copy,
-    for<'a> ArrayRefMut<'a, F, T>: ArrayAssignTrait<F>,
-{
-}
-
-impl<F> OpsAddAssign<F> for Array<F> where F: Copy {}

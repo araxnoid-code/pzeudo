@@ -1,6 +1,5 @@
+use crate::prelude::*;
 use std::ops::{Add, Div, Mul, Sub};
-
-use crate::{Array, ArrayTrait, OpsAdd, OpsDiv, OpsMul, OpsSub};
 
 impl<F> OpsAdd<F> for Array<F> where F: Copy {}
 impl<F> OpsAdd<F> for &Array<F> where F: Copy {}

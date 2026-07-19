@@ -1,6 +1,6 @@
 use std::iter::Sum;
 
-use crate::{Array, OpsAvg, OpsSum};
+use crate::prelude::*;
 
 impl<F> OpsSum<F> for Array<F>
 where

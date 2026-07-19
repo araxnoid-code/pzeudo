@@ -1,6 +1,4 @@
-use std::ops::{Add, Div, Mul, Sub};
-
-use crate::{Array, ArrayRef, ArrayTrait, OpsAdd, OpsDiv, OpsMul, OpsSub};
+use crate::prelude::*;
 
 impl<F, T> OpsAdd<F> for ArrayRef<'_, F, T>
 where

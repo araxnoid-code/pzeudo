@@ -34,6 +34,7 @@ pub enum PzeudoErr {
     SlicingErr(String),
     BroadcastErr(String),
     PermuteErr(String),
+    ToShapeErr(String),
 
     // // Reduction
     SumAxisErr(String),

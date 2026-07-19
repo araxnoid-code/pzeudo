@@ -1,4 +1,19 @@
-fn main() {}
+use pzeudo::{Array, OpsToShape};
+
+fn main() {
+    let shape = [2, 2, 3];
+    let array = Array::from_vector_with_shape(
+        &(0..shape.iter().product::<usize>())
+            .map(|idx| idx as f32)
+            .collect::<Vec<f32>>(),
+        &shape,
+    )
+    .unwrap();
+    println!("{}", array);
+
+    let reshape = array.reshape(&[3, 3, -1]).unwrap();
+    println!("{}", reshape);
+}
 
 // use std::{cell::RefCell, error::Error, rc::Rc};
 

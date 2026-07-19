@@ -1,4 +1,4 @@
-use std::ops::Mul;
+use std::ops::{AddAssign, Mul};
 
 use num_traits::Zero;
 
@@ -43,3 +43,40 @@ pub trait TensorMulOps<F, T>: TensorTrait<F, T> {
 }
 
 impl<F, T> TensorMulOps<F, T> for Tensor<F, T> {}
+
+fn mul_backward<F, T>(
+    gradient_idx: Option<usize>,
+    lhs: usize,
+    rhs: usize,
+    lhs_grad: Option<usize>,
+    rhs_grad: Option<usize>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    F: Clone + AddAssign + Copy + Mul<Output = F>,
+{
+    // f(lhs, rhs) = lhs * rhs
+    if let Some(gradient_idx) = gradient_idx {
+        let gradien = storage.get_as_array_ref::<Contiguous>(gradient_idx)?;
+
+        if let Some(lhs_grad) = lhs_grad {
+            // df(lhs, rhs)/dlhs = rhs * gradient
+            let rhs_value: ArrayRef<'_, F, View> = storage.get_as_array_ref(rhs)?;
+            let grad = rhs_value.mul(&gradien)?;
+
+            let mut lhs_grad = storage.get_as_array_ref_mut(lhs_grad)?;
+            lhs_grad.add_assign(&grad)?;
+        }
+
+        let gradien = storage.get_as_array_ref::<Contiguous>(gradient_idx)?;
+        if let Some(rhs_grad) = rhs_grad {
+            // df(lhs, rhs)/drhs = lhs * gradient
+            let lhs_value: ArrayRef<'_, F, View> = storage.get_as_array_ref(lhs)?;
+            let grad = lhs_value.mul(&gradien)?;
+
+            let mut lhs_gradient = storage.get_as_array_ref_mut(rhs_grad)?;
+            lhs_gradient.add_assign(&grad)?;
+        }
+    }
+    Ok(())
+}

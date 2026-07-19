@@ -10,14 +10,20 @@ pub enum PzeudoErr {
     // Ops
     // //  index
     LinearIndexErr(String),
+    MutLinearIndexErr(String),
     Index(String),
 
     // // Arith
     AddErr(String),
-    AddAssignErr(String),
     SubErr(String),
     MulErr(String),
     DivErr(String),
+
+    // // Assign
+    AddAssignErr(String),
+    SubAssignErr(String),
+    MulAssignErr(String),
+    DivAssignErr(String),
 
     // // Matmul
     Matmul2DErr(String),
@@ -39,5 +45,6 @@ pub enum PzeudoErr {
     StoragePushErr(String),
     StorageGetErr(String),
     StorageGetAsArrayRefErr(String),
+    StorageGetAsArrayRefMutErr(String),
     StorageRemoveErr(String),
 }

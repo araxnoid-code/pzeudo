@@ -1,4 +1,4 @@
-use std::ops::Sub;
+use std::ops::{AddAssign, Neg, Sub};
 
 use num_traits::Zero;
 
@@ -43,3 +43,36 @@ pub trait TensorSubOps<F, T>: TensorTrait<F, T> {
 }
 
 impl<F, T> TensorSubOps<F, T> for Tensor<F, T> {}
+
+fn sub_backward<F, T>(
+    gradient_idx: Option<usize>,
+    lhs_grad: Option<usize>,
+    rhs_grad: Option<usize>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    F: Clone + AddAssign + Copy + Neg<Output = F>,
+{
+    // f(lhs, rhs) = lhs - rhs
+    if let Some(gradient_idx) = gradient_idx {
+        let gradien = storage
+            .get_as_array_ref::<Contiguous>(gradient_idx)?
+            .into_array();
+
+        if let Some(lhs_grad) = lhs_grad {
+            // df(lhs, rhs)/dlhs = 1 * gradient
+            let mut lhs_grad = storage.get_as_array_ref_mut(lhs_grad)?;
+            lhs_grad.add_assign(&gradien)?;
+        }
+
+        // let gradien = storage.get_as_array_ref::<Contiguous>(gradient_idx)?;
+        if let Some(rhs_grad) = rhs_grad {
+            // df(lhs, rhs)/drhs = -1 * gradient
+            let grad = gradien.neg()?;
+
+            let mut lhs_gradient = storage.get_as_array_ref_mut(rhs_grad)?;
+            lhs_gradient.add_assign(&grad)?;
+        }
+    }
+    Ok(())
+}

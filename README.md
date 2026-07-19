@@ -98,7 +98,4 @@ still far from stable, but will continue to be developed.
       - div
 
 ## Next Version Plan (0.0.1-dev.5)
-- Perform testing and create testing code for methods.
-- Addition of missing methods/operations.
-- Getting Started with Tensor Development.
-- coming soon.
+[0.0.1-dev.5_plan.md](./0.0.1-dev.5_plan.md)

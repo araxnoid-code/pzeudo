@@ -1,11 +1,10 @@
+use std::ops::Neg;
+
 use num_traits::Float;
 
-use crate::{Array, ArrayTrait, PzeudoErr};
+use crate::prelude::*;
 
-pub trait OpsUnary<F>: ArrayTrait<F>
-where
-    F: Copy + Float,
-{
+pub trait OpsUnary<F>: ArrayTrait<F> {
     fn exp(&self) -> Result<Array<F>, PzeudoErr>
     where
         F: Float + Copy,
@@ -154,6 +153,29 @@ where
         let mut vec = Vec::with_capacity(len);
         for idx in 0..len {
             let value = self.linear_index(idx)?.powf(scalar);
+            vec.push(value);
+        }
+
+        let array = Array {
+            data: vec,
+            offset: 0,
+            shape: metadata.shape.to_vec(),
+            stride: metadata.stride.to_vec(),
+        };
+
+        Ok(array)
+    }
+
+    fn neg(&self) -> Result<Array<F>, PzeudoErr>
+    where
+        F: Neg<Output = F> + Copy,
+    {
+        let metadata = self.get_metadata();
+
+        let len = metadata.shape.iter().product::<usize>();
+        let mut vec = Vec::with_capacity(len);
+        for idx in 0..len {
+            let value = -self.linear_index(idx)?;
             vec.push(value);
         }
 

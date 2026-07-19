@@ -1,12 +1,18 @@
 use std::{cell::RefCell, rc::Rc};
 
 use pzeudo::{
-    Array, ArrayStorage, ArrayTrait, Contiguous, Tensor, TensorAddOps, TensorDivOps, TensorMulOps,
-    TensorSubOps,
+    Array, ArrayStorage, ArrayTrait, Contiguous, OpsAdd, OpsAddAssign, Tensor, TensorAddOps,
+    TensorDivOps, TensorMulOps, TensorSubOps,
 };
 
 fn main() {
+    let mut array = Array::<f32>::zeros(&[2, 2, 2]);
+    let number =
+        Array::<f32>::from_vector_with_shape(&vec![1., 2., 3., 4., 5., 6., 7., 8.], &[2, 2, 2])
+            .unwrap();
 
+    array.add_assign(&number).unwrap();
+    println!("{}", array);
     // let storage = Rc::new(RefCell::new(ArrayStorage::new(None)));
     // let record = Rc::new(RefCell::new(Vec::new()));
 

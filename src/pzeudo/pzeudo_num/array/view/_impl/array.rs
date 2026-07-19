@@ -1,4 +1,4 @@
-use crate::{ArrayTrait, ArrayView, Metadata};
+use crate::prelude::*;
 
 impl<F> ArrayTrait<F> for ArrayView<'_, F> {
     fn get_metadata(&self) -> crate::Metadata<'_, F> {

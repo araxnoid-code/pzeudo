@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use num_traits::Zero;
-use std::ops::Add;
+use std::ops::{Add, AddAssign};
 
 pub trait TensorAddOps<F, T>: TensorTrait<F, T> {
     fn add<Rhs, J>(&self, rhs: &Rhs) -> Result<Tensor<F, Contiguous>, PzeudoErr>
@@ -41,3 +41,30 @@ pub trait TensorAddOps<F, T>: TensorTrait<F, T> {
 }
 
 impl<F, T> TensorAddOps<F, T> for Tensor<F, T> {}
+
+fn add_backward<F>(
+    gradient_idx: Option<usize>,
+    lhs_grad: Option<usize>,
+    rhs_grad: Option<usize>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    F: Clone + AddAssign + Copy,
+{
+    if let Some(gradient_idx) = gradient_idx {
+        let gradien: Array<F> = storage
+            .get_as_array_ref::<Contiguous>(gradient_idx)?
+            .into_array();
+
+        if let Some(lhs_grad) = lhs_grad {
+            let mut lhs_gradient = storage.get_as_array_ref_mut(lhs_grad)?;
+            lhs_gradient.add_assign(&gradien)?;
+        }
+
+        if let Some(rhs_grad) = rhs_grad {
+            let mut lhs_gradient = storage.get_as_array_ref_mut(rhs_grad)?;
+            lhs_gradient.add_assign(&gradien)?;
+        }
+    }
+    Ok(())
+}

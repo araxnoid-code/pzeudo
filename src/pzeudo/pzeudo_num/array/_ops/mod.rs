@@ -15,3 +15,6 @@ pub use dot_product::*;
 
 mod unary;
 pub use unary::*;
+
+mod assign;
+pub use assign::*;

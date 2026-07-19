@@ -126,4 +126,33 @@ impl<F> ArrayStorage<F> {
             }
         }
     }
+
+    pub fn get_as_array_ref_mut(
+        &mut self,
+        idx: usize,
+    ) -> Result<ArrayRefMut<'_, F, Contiguous>, PzeudoErr> {
+        let element = self
+            .storage
+            .get_mut(idx)
+            .ok_or(PzeudoErr::StorageGetAsArrayRefMutErr(format!(
+                "ArrayStorage::get_as_array_ref_mut. index {idx} points to an invalid location on storage."
+            )))?
+            .as_mut()
+            .ok_or(PzeudoErr::StorageGetAsArrayRefMutErr(format!(
+                "ArrayStorage::get_as_array_ref_mut. index {idx} points to elements that have the value None in storage."
+            )))?;
+
+        match element {
+            ElementType::Contiguous(array) => Ok(ArrayRefMut {
+                data: &mut array.data,
+                offset: array.offset,
+                shape: &array.shape,
+                stride: &array.stride,
+                _array_type: Default::default(),
+            }),
+            ElementType::View(_, _) => Err(PzeudoErr::StorageGetAsArrayRefMutErr(format!(
+                "ArrayStorage::get_as_array_ref_mut. The index {idx} points to the View element, the View element cannot be changed (mut)"
+            ))),
+        }
+    }
 }

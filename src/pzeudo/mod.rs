@@ -9,3 +9,6 @@ pub use prelude::*;
 
 mod error;
 pub use error::*;
+
+mod pzeudo_module;
+pub use pzeudo_module::*;

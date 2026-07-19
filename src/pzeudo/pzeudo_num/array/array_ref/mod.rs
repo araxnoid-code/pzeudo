@@ -4,8 +4,8 @@ pub use array_ref::*;
 mod _impl;
 pub use _impl::*;
 
-mod contiguous;
-pub use contiguous::*;
+mod array_ref_mut;
+pub use array_ref_mut::*;
 
-mod view;
-pub use view::*;
+mod array_ref_type;
+pub use array_ref_type::*;

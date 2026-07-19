@@ -1,6 +1,6 @@
-use std::ops::Div;
+use std::ops::{AddAssign, Div, Neg};
 
-use num_traits::Zero;
+use num_traits::{Float, One, Zero, one};
 
 use crate::prelude::*;
 
@@ -43,3 +43,41 @@ pub trait TensorDivOps<F, T>: TensorTrait<F, T> {
 }
 
 impl<F, T> TensorDivOps<F, T> for Tensor<F, T> {}
+
+fn div_backward<F, T>(
+    gradient_idx: Option<usize>,
+    lhs: usize,
+    rhs: usize,
+    lhs_grad: Option<usize>,
+    rhs_grad: Option<usize>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    F: Clone + AddAssign + Copy + Div<Output = F> + One + Neg<Output = F> + Float,
+{
+    // f(lhs, rhs) = lhs / rhs
+    if let Some(gradient_idx) = gradient_idx {
+        let gradien = storage.get_as_array_ref::<Contiguous>(gradient_idx)?;
+
+        if let Some(lhs_grad) = lhs_grad {
+            // df(lhs, rhs)/dlhs = 1/rhs * gradient
+            let rhs_value: ArrayRef<'_, F, View> = storage.get_as_array_ref(rhs)?;
+            let grad = rhs_value.scalar_div(one())?.mul(&gradien)?;
+
+            let mut lhs_grad = storage.get_as_array_ref_mut(lhs_grad)?;
+            lhs_grad.add_assign(&grad)?;
+        }
+
+        let gradien = storage.get_as_array_ref::<Contiguous>(gradient_idx)?;
+        if let Some(rhs_grad) = rhs_grad {
+            // df(lhs, rhs)/drhs = -lhs/rhs^2 * gradient
+            let rhs_value: ArrayRef<'_, F, View> = storage.get_as_array_ref(rhs)?;
+            let lhs_value: ArrayRef<'_, F, View> = storage.get_as_array_ref(lhs)?;
+            let grad = (lhs_value.neg()? / rhs_value.powi(2)?).mul(&gradien)?;
+
+            let mut lhs_gradient = storage.get_as_array_ref_mut(rhs_grad)?;
+            lhs_gradient.add_assign(&grad)?;
+        }
+    }
+    Ok(())
+}

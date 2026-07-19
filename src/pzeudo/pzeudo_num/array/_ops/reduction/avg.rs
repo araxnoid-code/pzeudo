@@ -1,8 +1,6 @@
+use crate::prelude::*;
+use num_traits::{NumCast, One, Zero};
 use std::ops::{AddAssign, Div, MulAssign};
-
-use num_traits::{NumCast, One, Zero, one};
-
-use crate::{Array, OpsSum, PzeudoErr};
 
 pub trait OpsAvg<F>: OpsSum<F> {
     fn avg(&self) -> Result<Array<F>, PzeudoErr>

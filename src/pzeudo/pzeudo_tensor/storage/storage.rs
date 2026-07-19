@@ -1,5 +1,3 @@
-use std::array;
-
 use crate::prelude::*;
 
 pub struct ArrayStorage<F> {

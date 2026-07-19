@@ -1,8 +1,6 @@
-use std::{fmt::Display, ops::AddAssign, vec};
-
+use crate::prelude::*;
 use num_traits::{Zero, zero};
-
-use crate::{Array, ArrayTrait, PzeudoErr, shape_to_stride};
+use std::{ops::AddAssign, vec};
 
 pub trait OpsSum<F>: ArrayTrait<F> {
     fn sum(&self) -> Result<Array<F>, PzeudoErr>

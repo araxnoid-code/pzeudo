@@ -11,4 +11,3 @@ mod mul;
 pub use mul::*;
 
 mod _impl;
-pub use _impl::*;

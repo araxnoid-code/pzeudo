@@ -1,10 +1,6 @@
-use std::ops::{Div, Mul, Sub};
+use std::ops::Sub;
 
-use crate::{
-    Array, ArrayTrait,
-    PzeudoErr::{self, DivErr, MulErr, SubErr},
-    shape_to_stride,
-};
+use crate::prelude::{PzeudoErr::SubErr, *};
 
 pub trait OpsSub<F>: ArrayTrait<F> {
     fn sub<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>

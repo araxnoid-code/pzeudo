@@ -18,3 +18,6 @@ pub use unary::*;
 
 mod assign;
 pub use assign::*;
+
+mod flatten;
+pub use flatten::*;

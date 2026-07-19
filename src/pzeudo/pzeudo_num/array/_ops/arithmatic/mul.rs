@@ -1,9 +1,8 @@
-use std::ops::{Div, Mul};
+use std::ops::Mul;
 
 use crate::{
-    Array, ArrayTrait,
-    PzeudoErr::{self, DivErr, MulErr},
-    shape_to_stride,
+    PzeudoErr::MulErr,
+    prelude::{PzeudoErr, *},
 };
 
 pub trait OpsMul<F>: ArrayTrait<F> {

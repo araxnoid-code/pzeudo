@@ -44,7 +44,7 @@ pub trait TensorSubOps<F, T>: TensorTrait<F, T> {
 
 impl<F, T> TensorSubOps<F, T> for Tensor<F, T> {}
 
-fn sub_backward<F, T>(
+pub fn sub_backward<F>(
     gradient_idx: Option<usize>,
     lhs_grad: Option<usize>,
     rhs_grad: Option<usize>,

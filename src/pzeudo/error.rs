@@ -47,4 +47,7 @@ pub enum PzeudoErr {
     StorageGetAsArrayRefErr(String),
     StorageGetAsArrayRefMutErr(String),
     StorageRemoveErr(String),
+
+    // backward
+    BackwardErr(String),
 }

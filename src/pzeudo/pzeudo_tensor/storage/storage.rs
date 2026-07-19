@@ -78,6 +78,21 @@ impl<F> ArrayStorage<F> {
         Ok(data)
     }
 
+    pub fn get_element_mut(&mut self, idx: usize) -> Result<&mut ElementType<F>, PzeudoErr> {
+        let data = self
+            .storage
+            .get_mut(idx)
+            .ok_or(PzeudoErr::StorageGetErr(format!(
+                "ArrayStorage::get. index {idx} points to an invalid location on storage."
+            )))?
+            .as_mut()
+            .ok_or(PzeudoErr::StorageGetErr(format!(
+                "ArrayStorage::get. index {idx} points to elements that have the value None in storage."
+            )))?;
+
+        Ok(data)
+    }
+
     pub fn get_as_array_ref<T>(&self, idx: usize) -> Result<ArrayRef<'_, F, T>, PzeudoErr> {
         let element = self
             .storage

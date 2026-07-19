@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display};
 use crate::Array;
 
 impl<F> Array<F> {
-    pub fn to_string(&self) -> String
+    pub fn _to_string(&self) -> String
     where
         F: Debug,
     {
@@ -49,6 +49,6 @@ where
     F: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&Array::to_string(self))
+        f.write_str(&Array::_to_string(self))
     }
 }

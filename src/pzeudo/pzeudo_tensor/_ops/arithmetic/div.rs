@@ -44,7 +44,7 @@ pub trait TensorDivOps<F, T>: TensorTrait<F, T> {
 
 impl<F, T> TensorDivOps<F, T> for Tensor<F, T> {}
 
-fn div_backward<F, T>(
+pub fn div_backward<F>(
     gradient_idx: Option<usize>,
     lhs: usize,
     rhs: usize,

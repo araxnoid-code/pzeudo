@@ -42,7 +42,7 @@ pub trait TensorAddOps<F, T>: TensorTrait<F, T> {
 
 impl<F, T> TensorAddOps<F, T> for Tensor<F, T> {}
 
-fn add_backward<F>(
+pub fn add_backward<F>(
     gradient_idx: Option<usize>,
     lhs_grad: Option<usize>,
     rhs_grad: Option<usize>,

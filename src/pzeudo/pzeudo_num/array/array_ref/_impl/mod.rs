@@ -3,3 +3,5 @@ pub use array_impl::*;
 
 mod ops;
 pub use ops::*;
+
+mod display;

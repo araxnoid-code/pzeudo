@@ -44,7 +44,7 @@ pub trait TensorMulOps<F, T>: TensorTrait<F, T> {
 
 impl<F, T> TensorMulOps<F, T> for Tensor<F, T> {}
 
-fn mul_backward<F, T>(
+pub fn mul_backward<F>(
     gradient_idx: Option<usize>,
     lhs: usize,
     rhs: usize,

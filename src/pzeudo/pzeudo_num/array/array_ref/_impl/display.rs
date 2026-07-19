@@ -1,10 +1,10 @@
+use crate::prelude::*;
 use std::fmt::{Debug, Display};
 
-use crate::prelude::*;
-
-impl<F> ArrayView<'_, F>
+impl<F, T> ArrayRef<'_, F, T>
 where
     F: Copy + Debug,
+    for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
 {
     pub fn _to_string(&self) -> Result<String, PzeudoErr> {
         let mut string = String::new();
@@ -14,14 +14,15 @@ where
     }
 }
 
-fn rec_helper<F>(
-    arr: &ArrayView<'_, F>,
+fn rec_helper<F, T>(
+    arr: &ArrayRef<'_, F, T>,
     level: usize,
     count: &mut usize,
     string: &mut String,
 ) -> Result<(), PzeudoErr>
 where
     F: Debug + Copy,
+    for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
 {
     let shape = &arr.shape;
 
@@ -67,11 +68,12 @@ where
     Ok(())
 }
 
-impl<F> Display for ArrayView<'_, F>
+impl<F, T> Display for ArrayRef<'_, F, T>
 where
-    F: Debug + Copy,
+    F: Copy + Debug,
+    for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&ArrayView::_to_string(self).unwrap())
+        f.write_str(&format!("{}", self._to_string().unwrap()))
     }
 }

@@ -1,2 +1,1 @@
-mod arithmetic;
 mod dot_product;

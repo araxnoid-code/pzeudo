@@ -1,4 +1,6 @@
-use crate::{Array, ArrayTrait, PzeudoErr, shape_to_stride};
+use std::vec;
+
+use crate::prelude::*;
 
 pub trait OpsMatmul2DF32: ArrayTrait<f32> {
     fn matmul_2d<Rhs>(&self, rhs: &Rhs) -> Result<Array<f32>, PzeudoErr>

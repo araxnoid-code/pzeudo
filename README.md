@@ -12,6 +12,7 @@ still far from stable, but will continue to be developed.
   - ArrayRef is a form of array that is only used for wrapping data and metadata, in contrast to ArrayRef which has its own metadata, ArrayRef metadata is borrowed from other array metadata.
   - ArrayRefMut is a mutable form of Array, allowing mutability for using OpsAssign.
 - Creating Tensor
+  - ArrayStorage.
   - Contiguous and View.
   - The main tensor methods that will be created include:
     - arithmetic

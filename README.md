@@ -7,95 +7,38 @@ can be used to create AI models, that's all.
 ## Stable?
 still far from stable, but will continue to be developed.
 
-## Version 0.0.1-dev.4
-- Focus on developing an array (named pzeudo_num) that will be used in deep learning. Deep learning itself hasn't been created yet.
-- pzeudo_num development.
-  - Array (Core)
-    - `Metadata`
-    - `ArrayTrait`
-      - `ArrayTrait::index`
-      - `ArrayTrait::linear_index`
-  - operation(ops)
-    - Arithmetic
-      - `OpsAdd`
-        - `OpsAdd::add`
-        - `OpsAdd::add_scalar`
-        - `OpsAdd::scalar_add`
-      - `OpsSub`
-        - `OpsSub::sub`
-        - `OpsSub::sub_scalar`
-        - `OpsSub::scalar_sub`
-      - `OpsMul`
-        - `OpsMul::mul`
-        - `OpsMul::mul_scalar`
-        - `OpsMul::scalar_mul`
-      - `OpsDiv`
-        - `OpsDiv::div`
-        - `OpsDiv::div_scalar`
-        - `OpsDiv::scalar_div`
-    - Dot Product
-      - `OpsDotProduct`
-        - `OpsDotProduct::dot`
-      - `OpsDotProductF32`
-        - `OpsDotProductF32::f32`
-      - `OpsDotProductF64`
-        - `OpsDotProductF64::f64`
-    - Matmul
-      - Matmul 2D
-        - `OpsMatmul2DF32`
-          - `OpsMatmul2DF32::matmul_2d`
-        - `OpsMatmul2DF64`
-          - `OpsMatmul2DF64::matmul_2d`
-      - Matmul ND
-        - `OpsMatmulNDF32`
-          - `OpsMatmulNDF32::matmul_nd`
-        - `OpsMatmulNDF64`
-          - `OpsMatmulNDF64::matmul_nd`
-    - Reduction
-      - `OpsAvg`
-        - `OpsAvg::avg`
-        - `OpsAvg::avg_axis`
-      - `OpSum`
-        - `OpSum::sum`
-        - `OpSum::sum_axis`
-    - Unary
-      - `OpsUnary`
-        - `OpsUnary::exp`
-        - `OpsUnary::ln`
-        - `OpsUnary::log2`
-        - `OpsUnary::log10`
-        - `OpsUnary::powi`
-        - `OpsUnary::powf`
-    - View Method
-      - Broadcast
-        - `able_broadcast`
-        - `get_broadcast_dim`
-        - `OpsBroadcast`
-          - `OpsBroadcast::broadcast`
-      - Slicing
-        - `SliceRange`
-        - `r`
-        - `SlicingRangeTrait`
-        - `OpsSlicing`
-          - `OpsSlicing::slicing`
-      - permute
-        - `OpsPermute`
-          - `OpsPermute::permute`
-          - `OpsPermute::t`
-  - Array (contiguous)
-    - array will store data linearly using vector.
-    - Initialization
-      - `Array::new`
-      - `Array::from_vector`
-      - `Array::from_vector_with_shape`
-  - ArrayView (view)
-    - In reading data, array view uses shape, stride and offset.
-  - _test
-    - Arithmetic
-      - add
+## what's new in 0.0.1-dev.5
+- Added new array types, namely ArrayRef and ArrayRefMut
+  - ArrayRef is a form of array that is only used for wrapping data and metadata, in contrast to ArrayRef which has its own metadata, ArrayRef metadata is borrowed from other array metadata.
+  - ArrayRefMut is a mutable form of Array, allowing mutability for using OpsAssign.
+- Creating Tensor
+  - Contiguous and View.
+  - The main tensor methods that will be created include:
+    - arithmetic
       - sub
-      - mul
       - div
+      - mul
+      - add
+- Create forward and backward flows.
+  - forward
+  - backward
+    - RecordLabel, development of a recorder that functions to record or store every operation carried out.
+- method addition to array.
+  - The main methods that will be added include:
+    - assign
+    - add_assign
+    - sub_assign
+    - mul_assign
+    - div_assign
+    - sqrt
+    - reshape
+    - to_shape
+    - flatten
+    - zeros
+    - ones
 
-## Next Version Plan (0.0.1-dev.5)
-[0.0.1-dev.5_plan.md](./0.0.1-dev.5_plan.md)
+see more details: [0.0.1-dev.5_plan.md](./0.0.1-dev.5_plan.md)
+
+
+## Next Version Plan (0.0.1-dev.6)
+*coming soon*

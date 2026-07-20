@@ -41,11 +41,11 @@ pub trait OpsMatmul2DF32: ArrayTrait<f32> {
                 lhs_meta.data.as_ptr().add(lhs_meta.offset),
                 lhs_meta.stride[0] as isize,
                 lhs_meta.stride[1] as isize,
-                rhs_meta.data.as_ptr(),
+                rhs_meta.data.as_ptr().add(rhs_meta.offset),
                 rhs_meta.stride[0] as isize,
                 rhs_meta.stride[1] as isize,
                 0.,
-                result.as_mut_ptr().add(rhs_meta.offset),
+                result.as_mut_ptr(),
                 output_stride[0] as isize,
                 output_stride[1] as isize,
             );

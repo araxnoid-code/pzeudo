@@ -29,7 +29,7 @@ dependencies = [
 
 [[package]]
 name = "pzeudo"
-version = "0.0.1-dev.5"
+version = "0.0.1-dev.6"
 dependencies = [
  "matrixmultiply",
  "num-traits",

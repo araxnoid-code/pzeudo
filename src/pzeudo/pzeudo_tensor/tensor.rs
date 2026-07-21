@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use num_traits::{Float, One};
-use std::{cell::RefCell, marker::PhantomData, ops::AddAssign, rc::Rc};
+use std::{cell::RefCell, iter::Sum, marker::PhantomData, ops::AddAssign, rc::Rc};
 
 pub struct Tensor<F, T> {
     pub(crate) array_idx: usize,
@@ -13,7 +13,9 @@ pub struct Tensor<F, T> {
 impl<F, T> Tensor<F, T> {
     pub fn backward(&self) -> Result<(), PzeudoErr>
     where
-        F: Clone + One + AddAssign + Float,
+        for<'a> F: Clone + One + AddAssign + Float + Sum<&'a F>,
+        for<'a> ArrayRef<'a, F, Contiguous>: OpsBroadcast<F>,
+        for<'a> ArrayRef<'a, F, View>: OpsBroadcast<F>,
     {
         let mut storage = self.storage.borrow_mut();
         if let Some(grad_idx) = self.grad_idx {

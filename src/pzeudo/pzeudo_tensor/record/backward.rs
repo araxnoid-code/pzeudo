@@ -1,4 +1,7 @@
-use std::ops::{AddAssign, Neg};
+use std::{
+    iter::Sum,
+    ops::{AddAssign, Neg},
+};
 
 use num_traits::Float;
 
@@ -10,12 +13,14 @@ pub trait BackwardTrait<F> {
 
 impl<F> BackwardTrait<F> for RecordLabel
 where
-    F: AddAssign + Copy + Neg<Output = F> + Float,
+    for<'a> F: AddAssign + Copy + Neg<Output = F> + Float + Sum<&'a F>,
+    for<'a> ArrayRef<'a, F, Contiguous>: OpsBroadcast<F>,
+    for<'a> ArrayRef<'a, F, View>: OpsBroadcast<F>,
 {
     fn backward(&self, storage: &mut ArrayStorage<F>) -> Result<(), PzeudoErr> {
         match self {
             Self::Add(lhs, rhs, grad) => {
-                add_backward(*grad, lhs.1, rhs.1, storage)?;
+                add_backward(*grad, lhs.1, lhs.2.as_ref(), rhs.1, rhs.2.as_ref(), storage)?;
             }
             Self::Sub(lhs, rhs, grad) => {
                 sub_backward(*grad, lhs.1, rhs.1, storage)?;

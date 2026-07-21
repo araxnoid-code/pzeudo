@@ -9,8 +9,8 @@ pub trait TensorSubOps<F, T>: TensorTrait<F, T> {
     where
         F: Copy + Sub<Output = F> + Zero + Clone,
         Rhs: TensorTrait<F, J>,
-        for<'a> ArrayRef<'a, F, T>: OpsSub<F>,
-        for<'a> ArrayRef<'a, F, J>: OpsSub<F>,
+        for<'a> ArrayRef<'a, F, T>: OpsSub<F> + OpsBroadcast<F>,
+        for<'a> ArrayRef<'a, F, J>: OpsSub<F> + OpsBroadcast<F>,
     {
         let mut storage = self.get_storage().borrow_mut();
 
@@ -18,14 +18,15 @@ pub trait TensorSubOps<F, T>: TensorTrait<F, T> {
         let rhs_array: ArrayRef<'_, F, J> = storage.get_as_array_ref(rhs.get_array_idx())?;
 
         let array = OpsSub::sub(&lhs_array, &rhs_array)?;
-        let grad = Array::<F>::zeros(&array.shape);
+        let (lhs_broadcast, rhs_broadcast) = broadcast_detech(lhs_array.shape, rhs_array.shape);
 
+        let grad = Array::<F>::zeros(&array.shape);
         let array_idx = storage.push(ElementType::Contiguous(array))?;
         let grad_idx = Some(storage.push(ElementType::Contiguous(grad))?);
 
         let record_label = RecordLabel::Sub(
-            (self.get_array_idx(), self.get_grad_idx()),
-            (rhs.get_array_idx(), rhs.get_grad_idx()),
+            (self.get_array_idx(), self.get_grad_idx(), lhs_broadcast),
+            (rhs.get_array_idx(), rhs.get_grad_idx(), rhs_broadcast),
             grad_idx,
         );
         self.get_record().borrow_mut().push(record_label);

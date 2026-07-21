@@ -11,7 +11,6 @@ pub trait OpsAdd<F>: ArrayTrait<F> {
         let lhs_metadata = self.get_metadata();
         let rhs_metadata = rhs.get_metadata();
 
-        // AutoBroadcastUpdate
         let (lhs_broadcasted, rhs_broadcasted, len, shape) = if lhs_metadata.shape
             == rhs_metadata.shape
         {
@@ -57,7 +56,6 @@ pub trait OpsAdd<F>: ArrayTrait<F> {
             };
             output.push(lhs_value + rhs_value);
         }
-        // AutoBroadcastUpdate
 
         let array = Array::new(output, 0, shape_to_stride(&shape), shape);
         Ok(array)

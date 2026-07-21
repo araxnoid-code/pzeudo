@@ -18,7 +18,7 @@ where
 impl<F> OpsSub<F> for ArrayView<'_, F> where F: Copy {}
 impl<Rhs, F> Sub<Rhs> for ArrayView<'_, F>
 where
-    Rhs: ArrayTrait<F>,
+    Rhs: ArrayTrait<F> + OpsBroadcast<F>,
     F: Sub<Output = F> + Copy,
 {
     type Output = Array<F>;
@@ -31,7 +31,7 @@ where
 impl<F> OpsDiv<F> for ArrayView<'_, F> where F: Copy {}
 impl<Rhs, F> Div<Rhs> for ArrayView<'_, F>
 where
-    Rhs: ArrayTrait<F>,
+    Rhs: ArrayTrait<F> + OpsBroadcast<F>,
     F: Div<Output = F> + Copy,
 {
     type Output = Array<F>;
@@ -44,7 +44,7 @@ where
 impl<F> OpsMul<F> for ArrayView<'_, F> where F: Copy {}
 impl<Rhs, F> Mul<Rhs> for ArrayView<'_, F>
 where
-    Rhs: ArrayTrait<F>,
+    Rhs: ArrayTrait<F> + OpsBroadcast<F>,
     F: Mul<Output = F> + Copy,
 {
     type Output = Array<F>;

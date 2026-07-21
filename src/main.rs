@@ -1,23 +1,44 @@
-use pzeudo::{Array, ArrayTrait, OpsAdd, OpsMatmul2DF32, OpsPermute, OpsSlicing, OpsToShape, r};
-use std::{assert_eq, println, vec};
+use pzeudo::{
+    Array, ArrayStorage, ArrayTrait, OpsAdd, OpsMatmul2DF32, OpsPermute, OpsSlicing, OpsToShape,
+    Tensor, TensorAddOps, TensorTrait, View, r,
+};
+use std::{assert_eq, cell::RefCell, println, rc::Rc, vec};
 
 fn main() {
-    let shape = [2, 3, 4];
+    let storage = Rc::new(RefCell::new(ArrayStorage::new(None)));
+    let record = Rc::new(RefCell::new(Vec::new()));
+
+    let shape = [4, 2, 3];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
-    println!("{}", array_a);
+    let tensor_a =
+        Tensor::from_vector_with_shape(&vec_a, &shape, storage.clone(), record.clone()).unwrap();
 
-    let shape = [1, 3, 1];
+    let shape = [1, 2, 1];
     let vec_b = (0..shape.iter().product::<usize>())
-        .map(|idx| idx as f32 + 0.10)
+        .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
-    println!("{}", array_b);
+    let tensor_b =
+        Tensor::from_vector_with_shape(&vec_b, &shape, storage.clone(), record.clone()).unwrap();
 
-    let check = vec_a.iter().map(|x| x + 0.10).collect::<Vec<f32>>();
-    let result = array_a.add(&array_b).unwrap();
-    // assert_eq!(check)
-    println!("{}", result);
+    let result = tensor_a.add(&tensor_b).unwrap();
+
+    result.backward().unwrap();
+
+    println!(
+        "{}",
+        storage
+            .borrow()
+            .get_as_array_ref::<View>(tensor_a.get_grad_idx().unwrap())
+            .unwrap()
+    );
+
+    println!(
+        "{}",
+        storage
+            .borrow()
+            .get_as_array_ref::<View>(tensor_b.get_grad_idx().unwrap())
+            .unwrap()
+    )
 }

@@ -9,3 +9,4 @@ path = "./src/pzeudo/mod.rs"
 [dependencies]
 matrixmultiply = "0.3.10"
 num-traits = "0.2.19"
+rand = "0.10.2"

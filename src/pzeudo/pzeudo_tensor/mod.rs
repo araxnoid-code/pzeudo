@@ -19,3 +19,6 @@ pub use _ops::*;
 
 mod tensor_trait;
 pub use tensor_trait::*;
+
+mod method;
+pub use method::*;

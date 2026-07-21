@@ -22,6 +22,13 @@ impl<F, T> Tensor<F, T> {
                     let ones = Array::<F>::ones(&array.shape);
                     *array = ones;
                 }
+                ElementType::UpdateableTensor(p_idx) => {
+                    let p_idx = *p_idx;
+                    let permanent = storage.get_mut_update_able_storage();
+                    let array = permanent.get_mut(p_idx).unwrap();
+                    let ones = Array::<F>::ones(&array.array.shape);
+                    array.grad = ones;
+                }
                 ElementType::View(_, _) => {
                     return Err(PzeudoErr::BackwardErr(format!(
                         "Tensor::BackwardErr. The gradient index on a tensor has a value of {grad_idx} which points to an element of the View data type. The gradient of a tensor must be contiguous."

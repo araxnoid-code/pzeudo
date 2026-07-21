@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, marker::PhantomData, rc::Rc};
 
 use num_traits::Zero;
 
@@ -60,6 +60,30 @@ impl<F> Tensor<F, Contiguous> {
         };
 
         Ok(tensor)
+    }
+
+    pub fn from_array(
+        array: Array<F>,
+        storage: Rc<RefCell<ArrayStorage<F>>>,
+        record: Rc<RefCell<Vec<RecordLabel>>>,
+    ) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+    where
+        F: Clone + Zero,
+    {
+        let mut storage_borrow_mut = storage.borrow_mut();
+
+        let gradient = Array::<F>::zeros(&array.shape);
+        let array_idx = storage_borrow_mut.push(ElementType::Contiguous(array))?;
+        let grad_idx = Some(storage_borrow_mut.push(ElementType::Contiguous(gradient))?);
+        drop(storage_borrow_mut);
+
+        Ok(Tensor {
+            array_idx,
+            grad_idx,
+            record: record,
+            storage: storage,
+            _array_type: PhantomData::default(),
+        })
     }
 
     pub fn view(&self) -> Result<Tensor<F, View>, PzeudoErr>

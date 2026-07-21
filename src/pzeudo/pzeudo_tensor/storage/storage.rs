@@ -244,3 +244,28 @@ impl<F> ArrayStorage<F> {
         }
     }
 }
+
+pub trait StorageF32F64 {
+    fn to_mut_f32(&mut self) -> Option<&mut ArrayStorage<f32>>;
+    fn to_mut_f64(&mut self) -> Option<&mut ArrayStorage<f64>>;
+}
+
+impl StorageF32F64 for ArrayStorage<f32> {
+    fn to_mut_f32(&mut self) -> Option<&mut ArrayStorage<f32>> {
+        Some(self)
+    }
+
+    fn to_mut_f64(&mut self) -> Option<&mut ArrayStorage<f64>> {
+        None
+    }
+}
+
+impl StorageF32F64 for ArrayStorage<f64> {
+    fn to_mut_f32(&mut self) -> Option<&mut ArrayStorage<f32>> {
+        None
+    }
+
+    fn to_mut_f64(&mut self) -> Option<&mut ArrayStorage<f64>> {
+        Some(self)
+    }
+}

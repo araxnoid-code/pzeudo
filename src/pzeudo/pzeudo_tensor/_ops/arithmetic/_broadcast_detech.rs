@@ -1,6 +1,6 @@
 use crate::get_broadcast_dim;
 
-pub fn broadcast_detech(
+pub fn broadcast_detect(
     shape_a: &[usize],
     shape_b: &[usize],
 ) -> (Option<Vec<usize>>, Option<Vec<usize>>) {

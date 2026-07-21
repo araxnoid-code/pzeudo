@@ -20,4 +20,15 @@ pub enum RecordLabel {
         (usize, Option<usize>, Option<Vec<usize>>), // Rhs(arr, grad)
         Option<usize>,                              // Current Grad
     ),
+    // Matmul
+    Matmul2dF32(
+        (usize, Option<usize>),
+        (usize, Option<usize>),
+        Option<usize>,
+    ),
+    Matmul2dF64(
+        (usize, Option<usize>),
+        (usize, Option<usize>),
+        Option<usize>,
+    ),
 }

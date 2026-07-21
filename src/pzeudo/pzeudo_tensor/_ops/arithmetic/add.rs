@@ -3,7 +3,6 @@ use num_traits::Zero;
 use std::{
     iter::Sum,
     ops::{Add, AddAssign},
-    println,
 };
 
 pub trait TensorAddOps<F, T>: TensorTrait<F, T> {
@@ -20,7 +19,7 @@ pub trait TensorAddOps<F, T>: TensorTrait<F, T> {
         let rhs_array: ArrayRef<'_, F, J> = storage.get_as_array_ref(rhs.get_array_idx())?;
 
         let array = OpsAdd::add(&lhs_array, &rhs_array)?;
-        let (lhs_broadcast, rhs_broadcast) = broadcast_detech(lhs_array.shape, rhs_array.shape);
+        let (lhs_broadcast, rhs_broadcast) = broadcast_detect(lhs_array.shape, rhs_array.shape);
 
         let grad = Array::<F>::zeros(&array.shape);
         let array_idx = storage.push(ElementType::Contiguous(array))?;

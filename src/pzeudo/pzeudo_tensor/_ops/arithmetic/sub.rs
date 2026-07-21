@@ -1,4 +1,7 @@
-use std::ops::{AddAssign, Neg, Sub};
+use std::{
+    iter::Sum,
+    ops::{AddAssign, Neg, Sub},
+};
 
 use num_traits::Zero;
 
@@ -18,7 +21,7 @@ pub trait TensorSubOps<F, T>: TensorTrait<F, T> {
         let rhs_array: ArrayRef<'_, F, J> = storage.get_as_array_ref(rhs.get_array_idx())?;
 
         let array = OpsSub::sub(&lhs_array, &rhs_array)?;
-        let (lhs_broadcast, rhs_broadcast) = broadcast_detech(lhs_array.shape, rhs_array.shape);
+        let (lhs_broadcast, rhs_broadcast) = broadcast_detect(lhs_array.shape, rhs_array.shape);
 
         let grad = Array::<F>::zeros(&array.shape);
         let array_idx = storage.push(ElementType::Contiguous(array))?;
@@ -48,31 +51,46 @@ impl<F, T> TensorSubOps<F, T> for Tensor<F, T> {}
 pub fn sub_backward<F>(
     gradient_idx: Option<usize>,
     lhs_grad: Option<usize>,
+    lhs_broadcast_dim: Option<&Vec<usize>>,
     rhs_grad: Option<usize>,
+    rhs_broadcast_dim: Option<&Vec<usize>>,
     storage: &mut ArrayStorage<F>,
 ) -> Result<(), PzeudoErr>
 where
-    F: Clone + AddAssign + Copy + Neg<Output = F>,
+    for<'a> F: Clone + AddAssign + Copy + Neg<Output = F> + Sum<&'a F> + Clone + Zero,
 {
     // f(lhs, rhs) = lhs - rhs
     if let Some(gradient_idx) = gradient_idx {
-        let gradien = storage
+        let gradient = storage
             .get_as_array_ref::<Contiguous>(gradient_idx)?
             .into_array();
 
         if let Some(lhs_grad) = lhs_grad {
             // df(lhs, rhs)/dlhs = 1 * gradient
-            let mut lhs_grad = storage.get_as_array_ref_mut(lhs_grad)?;
-            lhs_grad.add_assign(&gradien)?;
+            let mut lhs_gradient = storage.get_as_array_ref_mut(lhs_grad)?;
+            match lhs_broadcast_dim {
+                Some(dim) => {
+                    let grad = gradient.sum_axis(dim, true)?;
+                    let to_shape = grad.to_shape(lhs_gradient.shape)?;
+                    lhs_gradient.add_assign(&to_shape)?
+                }
+                None => lhs_gradient.add_assign(&gradient)?,
+            };
         }
 
-        // let gradien = storage.get_as_array_ref::<Contiguous>(gradient_idx)?;
         if let Some(rhs_grad) = rhs_grad {
             // df(lhs, rhs)/drhs = -1 * gradient
-            let grad = gradien.neg()?;
+            let grad = gradient.neg()?;
 
-            let mut lhs_gradient = storage.get_as_array_ref_mut(rhs_grad)?;
-            lhs_gradient.add_assign(&grad)?;
+            let mut rhs_gradient = storage.get_as_array_ref_mut(rhs_grad)?;
+            match rhs_broadcast_dim {
+                Some(dim) => {
+                    let grad = grad.sum_axis(dim, true)?;
+                    let to_shape = grad.to_shape(rhs_gradient.shape)?;
+                    rhs_gradient.add_assign(&to_shape)?
+                }
+                None => rhs_gradient.add_assign(&grad)?,
+            };
         }
     }
     Ok(())

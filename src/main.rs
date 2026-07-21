@@ -8,21 +8,24 @@ fn main() {
     let storage = Rc::new(RefCell::new(ArrayStorage::new(None)));
     let record = Rc::new(RefCell::new(Vec::new()));
 
-    let shape = [4, 2, 3];
+    let shape = [2, 3];
     let vec_a = (0..shape.iter().product::<usize>())
-        .map(|idx| idx as f32)
+        .map(|idx| idx as f32 + 1.)
         .collect::<Vec<f32>>();
     let tensor_a =
         Tensor::from_vector_with_shape(&vec_a, &shape, storage.clone(), record.clone()).unwrap();
+    println!("{}", tensor_a);
 
-    let shape = [1, 2, 1];
+    let shape = [3, 2];
     let vec_b = (0..shape.iter().product::<usize>())
-        .map(|idx| idx as f32)
+        .map(|idx| idx as f32 + 7.)
         .collect::<Vec<f32>>();
     let tensor_b =
         Tensor::from_vector_with_shape(&vec_b, &shape, storage.clone(), record.clone()).unwrap();
+    println!("{}", tensor_b);
 
-    let result = tensor_a.add(&tensor_b).unwrap();
+    let result = tensor_a.matmul_2d(&tensor_b).unwrap();
+    println!("{}", result);
 
     result.backward().unwrap();
 
@@ -40,5 +43,5 @@ fn main() {
             .borrow()
             .get_as_array_ref::<View>(tensor_b.get_grad_idx().unwrap())
             .unwrap()
-    )
+    );
 }

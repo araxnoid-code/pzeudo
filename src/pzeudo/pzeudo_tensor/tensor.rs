@@ -13,6 +13,7 @@ pub struct Tensor<F, T> {
 impl<F, T> Tensor<F, T> {
     pub fn backward(&self) -> Result<(), PzeudoErr>
     where
+        ArrayStorage<F>: StorageF32F64,
         for<'a> F: Clone + One + AddAssign + Float + Sum<&'a F>,
         for<'a> ArrayRef<'a, F, Contiguous>: OpsBroadcast<F>,
         for<'a> ArrayRef<'a, F, View>: OpsBroadcast<F>,

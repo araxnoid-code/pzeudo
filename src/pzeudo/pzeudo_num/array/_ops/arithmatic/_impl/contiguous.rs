@@ -5,7 +5,7 @@ impl<F> OpsAdd<F> for Array<F> where F: Copy {}
 impl<F> OpsAdd<F> for &Array<F> where F: Copy {}
 impl<Rhs, F> Add<Rhs> for Array<F>
 where
-    Rhs: ArrayTrait<F>,
+    Rhs: ArrayTrait<F> + OpsBroadcast<F>,
     F: Add<Output = F> + Copy,
 {
     type Output = Array<F>;

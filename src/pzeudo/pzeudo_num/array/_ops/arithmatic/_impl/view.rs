@@ -1,11 +1,11 @@
 use std::ops::{Add, Div, Mul, Sub};
 
-use crate::{Array, ArrayTrait, ArrayView, OpsAdd, OpsDiv, OpsMul, OpsSub};
+use crate::prelude::*;
 
 impl<F> OpsAdd<F> for ArrayView<'_, F> where F: Copy {}
 impl<Rhs, F> Add<Rhs> for ArrayView<'_, F>
 where
-    Rhs: ArrayTrait<F>,
+    Rhs: ArrayTrait<F> + OpsBroadcast<F>,
     F: Add<Output = F> + Copy,
 {
     type Output = Array<F>;

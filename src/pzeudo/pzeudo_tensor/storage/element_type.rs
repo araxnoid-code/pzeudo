@@ -1,5 +1,3 @@
-use std::{cell::RefCell, rc::Rc};
-
 use crate::{Array, TensorMetadata};
 
 pub enum ElementType<F> {

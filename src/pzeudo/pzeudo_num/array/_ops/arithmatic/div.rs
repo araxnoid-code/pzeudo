@@ -1,10 +1,6 @@
 use std::ops::Div;
 
-use crate::{
-    Array, ArrayTrait,
-    PzeudoErr::{self, DivErr},
-    shape_to_stride,
-};
+use crate::prelude::{PzeudoErr::DivErr, *};
 
 pub trait OpsDiv<F>: ArrayTrait<F> {
     fn div<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>

@@ -4,30 +4,62 @@ use std::ops::Add;
 pub trait OpsAdd<F>: ArrayTrait<F> {
     fn add<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>
     where
+        Self: OpsBroadcast<F>,
         F: Copy + Add<Output = F>,
-        Rhs: ArrayTrait<F>,
+        Rhs: ArrayTrait<F> + OpsBroadcast<F>,
     {
         let lhs_metadata = self.get_metadata();
         let rhs_metadata = rhs.get_metadata();
 
-        if lhs_metadata.shape != rhs_metadata.shape {
+        // AutoBroadcastUpdate
+        let (lhs_broadcasted, rhs_broadcasted, len, shape) = if lhs_metadata.shape
+            == rhs_metadata.shape
+        {
+            (
+                None,
+                None,
+                lhs_metadata.shape.iter().product::<usize>(),
+                lhs_metadata.shape.to_vec(),
+            )
+        } else if able_broadcast(lhs_metadata.shape, rhs_metadata.shape).is_ok() {
+            (
+                Some(self.broadcast(rhs_metadata.shape)?),
+                None,
+                rhs_metadata.shape.iter().product::<usize>(),
+                rhs_metadata.shape.to_vec(),
+            )
+        } else if able_broadcast(rhs_metadata.shape, lhs_metadata.shape).is_ok() {
+            (
+                None,
+                Some(rhs.broadcast(lhs_metadata.shape)?),
+                lhs_metadata.shape.iter().product::<usize>(),
+                lhs_metadata.shape.to_vec(),
+            )
+        } else {
             return Err(AddErr(format!(
-                "AddErr. add\ncannot add arrays of shape {:?} and {:?} because they have different shapes",
+                "OpsAdd::add. cannot add arrays of shape {:?} and {:?} because they have different shapes",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
-        }
+        };
 
-        let len = lhs_metadata.shape.iter().product::<usize>();
         let mut output = Vec::with_capacity(len);
         for i in 0..len {
-            let lhs_value = self.linear_index(i)?;
-            let rhs_value = rhs.linear_index(i)?;
+            let lhs_value = if let Some(lhs) = &lhs_broadcasted {
+                lhs.linear_index(i)?
+            } else {
+                self.linear_index(i)?
+            };
+
+            let rhs_value = if let Some(rhs) = &rhs_broadcasted {
+                rhs.linear_index(i)?
+            } else {
+                rhs.linear_index(i)?
+            };
             output.push(lhs_value + rhs_value);
         }
+        // AutoBroadcastUpdate
 
-        let shape = lhs_metadata.shape.to_vec();
         let array = Array::new(output, 0, shape_to_stride(&shape), shape);
-
         Ok(array)
     }
 

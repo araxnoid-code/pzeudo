@@ -7,8 +7,8 @@ pub trait TensorAddOps<F, T>: TensorTrait<F, T> {
     where
         F: Copy + Add<Output = F> + Zero + Clone,
         Rhs: TensorTrait<F, J>,
-        for<'a> ArrayRef<'a, F, T>: OpsAdd<F>,
-        for<'a> ArrayRef<'a, F, J>: OpsAdd<F>,
+        for<'a> ArrayRef<'a, F, T>: OpsAdd<F> + OpsBroadcast<F>,
+        for<'a> ArrayRef<'a, F, J>: OpsAdd<F> + OpsBroadcast<F>,
     {
         let mut storage = self.get_storage().borrow_mut();
 

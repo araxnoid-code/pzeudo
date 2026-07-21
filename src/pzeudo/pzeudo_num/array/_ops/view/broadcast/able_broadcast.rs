@@ -1,6 +1,10 @@
 use crate::PzeudoErr::{self, BroadcastErr};
 
 pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoErr> {
+    if shape == to {
+        return Ok(());
+    }
+
     if shape.len() > to.len() {
         return Err(BroadcastErr(format!(
             "BroadcastErr. able_broadcast. The shape {:?} cannot be broadcast to shape {:?} because the target shape is smaller.",

@@ -63,7 +63,7 @@ impl<F> Tensor<F, Contiguous> {
         Ok(tensor)
     }
 
-    pub fn update_able_from_vector_with_shape(
+    pub fn permanent_from_vector_with_shape(
         vec: &[F],
         shape: &[usize],
         storage: Rc<RefCell<ArrayStorage<F>>>,
@@ -76,7 +76,7 @@ impl<F> Tensor<F, Contiguous> {
 
         let array = Array::from_vector_with_shape(vec, shape)?;
         let gradient: Array<F> = Array::zeros(shape);
-        let update_able_idx = borrow_storage.push_update_able_tensor(array, gradient)?;
+        let update_able_idx = borrow_storage.push_permanent_tensor(array, gradient)?;
 
         drop(borrow_storage);
 

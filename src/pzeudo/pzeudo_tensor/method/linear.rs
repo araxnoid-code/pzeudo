@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use num_traits::{Zero, zero};
+use num_traits::Zero;
 use rand::{
     distr::{Distribution, StandardUniform},
     random,
@@ -25,14 +25,14 @@ impl<F> Linear<F> {
     {
         let len = in_features * out_features;
         let weight_vector = (0..len).map(|_| random::<F>()).collect::<Vec<F>>();
-        let weight = Tensor::update_able_from_vector_with_shape(
+        let weight = Tensor::permanent_from_vector_with_shape(
             &weight_vector,
             &[in_features, out_features],
             module.storage.clone(),
             module.record.clone(),
         )?;
 
-        let bias: Tensor<F, Contiguous> = Tensor::update_able_from_vector_with_shape(
+        let bias: Tensor<F, Contiguous> = Tensor::permanent_from_vector_with_shape(
             &vec![F::zero(); out_features],
             &[out_features],
             module.storage.clone(),
@@ -70,6 +70,32 @@ impl Linear<f32> {
     }
 
     pub fn get_bias(&self) -> &Tensor<f32, Contiguous> {
+        &self.bias
+    }
+}
+
+impl Linear<f64> {
+    pub fn forward<J>(&self, input: &Tensor<f64, J>) -> Result<Tensor<f64, Contiguous>, PzeudoErr>
+    where
+        for<'a> ArrayRef<'a, f64, J>: ArrayTrait<f64> + OpsAdd<f64> + OpsBroadcast<f64>,
+        for<'a> ArrayRef<'a, f64, Contiguous>: ArrayTrait<f64> + OpsAdd<f64> + OpsBroadcast<f64>,
+    {
+        Ok(input.matmul_2d(&self.weight)?.add(&self.bias)?)
+    }
+
+    pub fn get_in_features(&self) -> usize {
+        self.in_features
+    }
+
+    pub fn get_out_features(&self) -> usize {
+        self.out_features
+    }
+
+    pub fn get_weight(&self) -> &Tensor<f64, Contiguous> {
+        &self.weight
+    }
+
+    pub fn get_bias(&self) -> &Tensor<f64, Contiguous> {
         &self.bias
     }
 }

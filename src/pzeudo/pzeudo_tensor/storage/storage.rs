@@ -1,9 +1,9 @@
 use std::format;
 
-use crate::{prelude::*, pzeudo_tensor::storage::storage_contiguous_type_check};
+use crate::{prelude::*, pzeudo_tensor::storage::helper::storage_contiguous_type_check};
 
 pub struct ArrayStorage<F> {
-    update_able_tensor_storage: Vec<UpdateAbleTensor<F>>,
+    permanent_storage: Vec<UpdateAbleTensor<F>>,
     storage: Vec<Option<ElementType<F>>>,
     empty_idx: Vec<usize>,
 }
@@ -12,7 +12,7 @@ impl<F> ArrayStorage<F> {
     pub fn new(capacity: Option<usize>) -> ArrayStorage<F> {
         let len = capacity.unwrap_or(1);
         Self {
-            update_able_tensor_storage: Vec::new(),
+            permanent_storage: Vec::new(),
             storage: Vec::with_capacity(len),
             empty_idx: Vec::new(),
         }
@@ -26,12 +26,12 @@ impl<F> ArrayStorage<F> {
         &mut self.storage
     }
 
-    pub fn get_update_able_storage(&self) -> &Vec<UpdateAbleTensor<F>> {
-        &self.update_able_tensor_storage
+    pub fn get_permanent_storage(&self) -> &Vec<UpdateAbleTensor<F>> {
+        &self.permanent_storage
     }
 
-    pub fn get_mut_update_able_storage(&mut self) -> &mut Vec<UpdateAbleTensor<F>> {
-        &mut self.update_able_tensor_storage
+    pub fn get_mut_permanent_storage(&mut self) -> &mut Vec<UpdateAbleTensor<F>> {
+        &mut self.permanent_storage
     }
 
     pub fn get_empty_idx(&self) -> &Vec<usize> {
@@ -42,15 +42,15 @@ impl<F> ArrayStorage<F> {
         &mut self.empty_idx
     }
 
-    pub fn push_update_able_tensor(
+    pub fn push_permanent_tensor(
         &mut self,
         array: Array<F>,
         grad: Array<F>,
     ) -> Result<usize, PzeudoErr> {
-        let idx = self.update_able_tensor_storage.len();
-        self.update_able_tensor_storage
+        let idx = self.permanent_storage.len();
+        self.permanent_storage
             .push(UpdateAbleTensor { array, grad });
-        self.push(ElementType::UpdateableTensor(idx))
+        self.push(ElementType::PermanentTensor(idx))
     }
 
     pub fn push(&mut self, element: ElementType<F>) -> Result<usize, PzeudoErr> {
@@ -146,16 +146,16 @@ impl<F> ArrayStorage<F> {
                 })
             }
 
-            ElementType::UpdateableTensor(p_idx) => {
+            ElementType::PermanentTensor(p_idx) => {
                 let permanent_array = match arr_contiguous_type {
-                ContiguousType::Arr => &self.update_able_tensor_storage.get(*p_idx).ok_or(
+                ContiguousType::Arr => &self.permanent_storage.get(*p_idx).ok_or(
                     PzeudoErr::StorageGetAsArrayRefMutErr(format!(
-                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to permanent_storage index {p_idx}, but index {p_idx} points to an invalid location in permanent_storage."
                     )),
                 )?.array,
-                ContiguousType::Grad =>&self.update_able_tensor_storage.get(*p_idx).ok_or(
+                ContiguousType::Grad =>&self.permanent_storage.get(*p_idx).ok_or(
                     PzeudoErr::StorageGetAsArrayRefMutErr(format!(
-                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to permanent_storage index {p_idx}, but index {p_idx} points to an invalid location in permanent_storage."
                     )),
                 )?.grad
                 };
@@ -185,16 +185,16 @@ impl<F> ArrayStorage<F> {
                         "ArrayStorage::get_as_array_ref. index {idx} points to the View element that has index {array_idx} which points to the element that has value View Also, View pointing to View is prohibited"
                     ))),
 
-                    ElementType::UpdateableTensor(p_idx) => {
+                    ElementType::PermanentTensor(p_idx) => {
                         let permanent_array = match arr_contiguous_type {
-                        ContiguousType::Arr => &self.update_able_tensor_storage.get(*p_idx).ok_or(
+                        ContiguousType::Arr => &self.permanent_storage.get(*p_idx).ok_or(
                             PzeudoErr::StorageGetAsArrayRefMutErr(format!(
-                                "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                                "ArrayStorage::get_as_array_ref_mut. index {idx} points to permanent_storage index {p_idx}, but index {p_idx} points to an invalid location in permanent_storage."
                             )),
                         )?.array,
-                        ContiguousType::Grad => &self.update_able_tensor_storage.get(*p_idx).ok_or(
+                        ContiguousType::Grad => &self.permanent_storage.get(*p_idx).ok_or(
                             PzeudoErr::StorageGetAsArrayRefMutErr(format!(
-                                "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                                "ArrayStorage::get_as_array_ref_mut. index {idx} points to permanent_storage index {p_idx}, but index {p_idx} points to an invalid location in permanent_storage."
                             )),
                         )?.grad
                         };
@@ -258,16 +258,16 @@ impl<F> ArrayStorage<F> {
                 })
             }
 
-            ElementType::UpdateableTensor(p_idx) => {
+            ElementType::PermanentTensor(p_idx) => {
                 let permanent_array = match arr_contiguous_type {
-                ContiguousType::Arr => &mut self.update_able_tensor_storage.get_mut(*p_idx).ok_or(
+                ContiguousType::Arr => &mut self.permanent_storage.get_mut(*p_idx).ok_or(
                     PzeudoErr::StorageGetAsArrayRefMutErr(format!(
-                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to permanent_storage index {p_idx}, but index {p_idx} points to an invalid location in permanent_storage."
                     )),
                 )?.array,
-                ContiguousType::Grad =>&mut self.update_able_tensor_storage.get_mut(*p_idx).ok_or(
+                ContiguousType::Grad =>&mut self.permanent_storage.get_mut(*p_idx).ok_or(
                     PzeudoErr::StorageGetAsArrayRefMutErr(format!(
-                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to permanent_storage index {p_idx}, but index {p_idx} points to an invalid location in permanent_storage."
                     )),
                 )?.grad
                 };
@@ -285,6 +285,11 @@ impl<F> ArrayStorage<F> {
                 "ArrayStorage::get_as_array_ref_mut. The index {idx} points to the View element, the View element cannot be changed (mut)"
             ))),
         }
+    }
+
+    pub fn clear_storage(&mut self) {
+        self.storage.clear();
+        self.empty_idx.clear();
     }
 }
 

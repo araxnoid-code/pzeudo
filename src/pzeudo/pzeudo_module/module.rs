@@ -14,4 +14,8 @@ impl<F> Module<F> {
     pub fn get_record(&self) -> &Rc<RefCell<Vec<RecordLabel>>> {
         &self.record
     }
+
+    pub fn clear_storage(&self) {
+        self.storage.borrow_mut().clear_storage();
+    }
 }

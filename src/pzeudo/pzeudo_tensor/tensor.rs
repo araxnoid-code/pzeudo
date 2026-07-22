@@ -31,9 +31,9 @@ impl<F, T> Tensor<F, T> {
                     let ones = Array::<F>::ones(&array.shape);
                     *array = ones;
                 }
-                ElementType::UpdateableTensor(p_idx) => {
+                ElementType::PermanentTensor(p_idx) => {
                     let p_idx = *p_idx;
-                    let permanent = storage.get_mut_update_able_storage();
+                    let permanent = storage.get_mut_permanent_storage();
                     let array = permanent.get_mut(p_idx).unwrap();
                     let ones = Array::<F>::ones(&array.array.shape);
                     array.grad = ones;

@@ -20,4 +20,20 @@ impl<F> Module<F> {
     {
         Tensor::from_vector_with_shape(vec, shape, self.storage.clone(), self.record.clone())
     }
+
+    pub fn permanent_tensor_from_vector_with_shape(
+        &self,
+        vec: &[F],
+        shape: &[usize],
+    ) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+    where
+        F: Clone + Zero,
+    {
+        Tensor::permanent_from_vector_with_shape(
+            vec,
+            shape,
+            self.storage.clone(),
+            self.record.clone(),
+        )
+    }
 }

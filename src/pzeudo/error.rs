@@ -52,4 +52,7 @@ pub enum PzeudoErr {
 
     // backward
     BackwardErr(String),
+
+    // module
+    EpochErr(String),
 }

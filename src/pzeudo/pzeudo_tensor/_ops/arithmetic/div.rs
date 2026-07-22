@@ -7,25 +7,26 @@ use num_traits::{Float, One, Zero, one};
 
 use crate::prelude::*;
 
-pub trait TensorDivOps<F, T>: TensorTrait<F, T> {
-    fn div<Rhs, J>(&self, rhs: &Rhs) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+impl<F, T> Tensor<F, T> {
+    pub fn div<J>(&self, rhs: &Tensor<F, J>) -> Result<Tensor<F, Contiguous>, PzeudoErr>
     where
         F: Copy + Div<Output = F> + Zero + Clone,
-        Rhs: TensorTrait<F, J>,
         for<'a> ArrayRef<'a, F, T>: OpsDiv<F> + OpsBroadcast<F>,
         for<'a> ArrayRef<'a, F, J>: OpsDiv<F> + OpsBroadcast<F>,
     {
         let mut storage = self.get_storage().borrow_mut();
 
-        let lhs_array: ArrayRef<'_, F, T> = storage.get_as_array_ref(self.get_array_idx())?;
-        let rhs_array: ArrayRef<'_, F, J> = storage.get_as_array_ref(rhs.get_array_idx())?;
+        let lhs_array: ArrayRef<'_, F, T> =
+            storage.get_as_array_ref(self.get_array_idx(), ContiguousType::Arr)?;
+        let rhs_array: ArrayRef<'_, F, J> =
+            storage.get_as_array_ref(rhs.get_array_idx(), ContiguousType::Arr)?;
 
         let array = OpsDiv::div(&lhs_array, &rhs_array)?;
         let (lhs_broadcast, rhs_broadcast) = broadcast_detect(lhs_array.shape, rhs_array.shape);
 
         let grad = Array::<F>::zeros(&array.shape);
-        let array_idx = storage.push(ElementType::Contiguous(array))?;
-        let grad_idx = Some(storage.push(ElementType::Contiguous(grad))?);
+        let array_idx = storage.push(ElementType::Contiguous(array, ContiguousType::Arr))?;
+        let grad_idx = Some(storage.push(ElementType::Contiguous(grad, ContiguousType::Grad))?);
 
         let record_label = RecordLabel::Div(
             (self.get_array_idx(), self.get_grad_idx(), lhs_broadcast),
@@ -46,7 +47,7 @@ pub trait TensorDivOps<F, T>: TensorTrait<F, T> {
     }
 }
 
-impl<F, T> TensorDivOps<F, T> for Tensor<F, T> {}
+// impl<F, T> TensorDivOps<F, T> for Tensor<F, T> where Tensor<F, T>: TensorTrait<F, T> {}
 
 pub fn div_backward<F>(
     gradient_idx: Option<usize>,
@@ -73,14 +74,15 @@ where
 {
     // f(lhs, rhs) = lhs / rhs
     if let Some(gradient_idx) = gradient_idx {
-        let gradient = storage.get_as_array_ref::<Contiguous>(gradient_idx)?;
+        let gradient = storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Arr)?;
 
         if let Some(lhs_grad) = lhs_grad {
             // df(lhs, rhs)/dlhs = 1/rhs * gradient
-            let rhs_value: ArrayRef<'_, F, View> = storage.get_as_array_ref(rhs)?;
+            let rhs_value: ArrayRef<'_, F, View> =
+                storage.get_as_array_ref(rhs, ContiguousType::Arr)?;
             let grad = rhs_value.scalar_div(one())?.mul(&gradient)?;
 
-            let mut lhs_gradient = storage.get_as_array_ref_mut(lhs_grad)?;
+            let mut lhs_gradient = storage.get_as_array_ref_mut(lhs_grad, ContiguousType::Grad)?;
             match lhs_broadcast_dim {
                 Some(dim) => {
                     let gradient = grad.sum_axis(dim, true)?;
@@ -91,14 +93,16 @@ where
             }
         }
 
-        let gradien = storage.get_as_array_ref::<Contiguous>(gradient_idx)?;
+        let gradien = storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
         if let Some(rhs_grad) = rhs_grad {
             // df(lhs, rhs)/drhs = -lhs/rhs^2 * gradient
-            let rhs_value: ArrayRef<'_, F, View> = storage.get_as_array_ref(rhs)?;
-            let lhs_value: ArrayRef<'_, F, View> = storage.get_as_array_ref(lhs)?;
+            let rhs_value: ArrayRef<'_, F, View> =
+                storage.get_as_array_ref(rhs, ContiguousType::Arr)?;
+            let lhs_value: ArrayRef<'_, F, View> =
+                storage.get_as_array_ref(lhs, ContiguousType::Arr)?;
             let grad = (lhs_value.neg()? / rhs_value.powi(2)?).mul(&gradien)?;
 
-            let mut rhs_gradient = storage.get_as_array_ref_mut(rhs_grad)?;
+            let mut rhs_gradient = storage.get_as_array_ref_mut(rhs_grad, ContiguousType::Grad)?;
 
             match rhs_broadcast_dim {
                 Some(dim) => {

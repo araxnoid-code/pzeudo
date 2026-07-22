@@ -2,7 +2,7 @@ use std::{
     format,
     iter::Sum,
     ops::{AddAssign, Neg},
-    panic,
+    panic, println,
 };
 
 use num_traits::Float;
@@ -61,7 +61,7 @@ where
                     *grad,
                     storage
                         .to_mut_f32()
-                        .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Tidak dapat melakukan backward pada matmul_2d bertipe f32 dikarenakan storage tidak bertipe f32")))?,
+                        .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Cannot perform backward on matmul_2d of type f32 because storage is not of type f32")))?,
                 )?;
             }
             RecordLabel::Matmul2dF64(lhs, rhs, grad) => {
@@ -73,7 +73,7 @@ where
                     *grad,
                     storage
                         .to_mut_f64()
-                        .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Tidak dapat melakukan backward pada matmul_2d bertipe f64 dikarenakan storage tidak bertipe f64")))?,
+                        .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Cannot perform backward on matmul_2d of type f64 because the storage is not of type f64")))?,
                 )?;
             }
         }

@@ -21,7 +21,13 @@ impl<F, T> Tensor<F, T> {
         let mut storage = self.storage.borrow_mut();
         if let Some(grad_idx) = self.grad_idx {
             match storage.get_element_mut(grad_idx)? {
-                ElementType::Contiguous(array) => {
+                ElementType::Contiguous(array, contiguous_type) => {
+                    if let ContiguousType::Arr = contiguous_type {
+                        return Err(PzeudoErr::BackwardErr(format!(
+                            "Tensor::BackwardErr. The gradient index on the tensor points to {grad_idx} which is a contiguous element of type Contiguous::Arr, the gradient index must point to Contiguous::Grad"
+                        )));
+                    }
+
                     let ones = Array::<F>::ones(&array.shape);
                     *array = ones;
                 }

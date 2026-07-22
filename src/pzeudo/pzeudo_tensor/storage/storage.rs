@@ -1,6 +1,6 @@
 use std::format;
 
-use crate::prelude::*;
+use crate::{prelude::*, pzeudo_tensor::storage::storage_contiguous_type_check};
 
 pub struct ArrayStorage<F> {
     update_able_tensor_storage: Vec<UpdateAbleTensor<F>>,
@@ -114,7 +114,11 @@ impl<F> ArrayStorage<F> {
         Ok(data)
     }
 
-    pub fn get_as_array_ref<T>(&self, idx: usize) -> Result<ArrayRef<'_, F, T>, PzeudoErr> {
+    pub fn get_as_array_ref<T>(
+        &self,
+        idx: usize,
+        arr_contiguous_type: ContiguousType,
+    ) -> Result<ArrayRef<'_, F, T>, PzeudoErr> {
         let element = self
             .storage
             .get(idx)
@@ -127,22 +131,34 @@ impl<F> ArrayStorage<F> {
             )))?;
 
         match element {
-            ElementType::Contiguous(array) => Ok(ArrayRef {
-                data: &array.data,
-                offset: array.offset,
-                shape: &array.shape,
-                stride: &array.stride,
-                _array_type: Default::default(),
-            }),
+            ElementType::Contiguous(array, contiguous_type) => {
+                storage_contiguous_type_check(&arr_contiguous_type, contiguous_type)
+                    .map_err(|_| PzeudoErr::StorageGetAsArrayRefErr(format!(
+                        "ArrayStorage::get_as_array_ref. Cannot retrieve array at element with index {idx} because the type being searched is {arr_contiguous_type:?} but the element is of type {contiguous_type:?}."
+                    )))?;
+
+                Ok(ArrayRef {
+                    data: &array.data,
+                    offset: array.offset,
+                    shape: &array.shape,
+                    stride: &array.stride,
+                    _array_type: Default::default(),
+                })
+            }
 
             ElementType::UpdateableTensor(p_idx) => {
-                let permanent_array = &self.update_able_tensor_storage
-                    .get(*p_idx)
-                    .ok_or(
-                        PzeudoErr::StorageGetAsArrayRefErr(
-                            format!(
-                                "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
-                            )))?.array;
+                let permanent_array = match arr_contiguous_type {
+                ContiguousType::Arr => &self.update_able_tensor_storage.get(*p_idx).ok_or(
+                    PzeudoErr::StorageGetAsArrayRefMutErr(format!(
+                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                    )),
+                )?.array,
+                ContiguousType::Grad =>&self.update_able_tensor_storage.get(*p_idx).ok_or(
+                    PzeudoErr::StorageGetAsArrayRefMutErr(format!(
+                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                    )),
+                )?.grad
+                };
                 Ok(ArrayRef {
                     data: &permanent_array.data,
                     offset: permanent_array.offset,
@@ -170,13 +186,18 @@ impl<F> ArrayStorage<F> {
                     ))),
 
                     ElementType::UpdateableTensor(p_idx) => {
-                        let permanent_array = &self.update_able_tensor_storage
-                            .get(*p_idx)
-                            .ok_or(
-                                PzeudoErr::StorageGetAsArrayRefErr(
-                                    format!(
-                                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
-                                    )))?.array;
+                        let permanent_array = match arr_contiguous_type {
+                        ContiguousType::Arr => &self.update_able_tensor_storage.get(*p_idx).ok_or(
+                            PzeudoErr::StorageGetAsArrayRefMutErr(format!(
+                                "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                            )),
+                        )?.array,
+                        ContiguousType::Grad => &self.update_able_tensor_storage.get(*p_idx).ok_or(
+                            PzeudoErr::StorageGetAsArrayRefMutErr(format!(
+                                "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                            )),
+                        )?.grad
+                        };
                         Ok(ArrayRef {
                             data: &permanent_array.data,
                             offset: metadata.offset,
@@ -186,13 +207,20 @@ impl<F> ArrayStorage<F> {
                         })
                     }
 
-                    ElementType::Contiguous(array) => Ok(ArrayRef {
-                        data: &array.data,
-                        offset: metadata.offset,
-                        shape: &metadata.shape,
-                        stride: &metadata.stride,
-                        _array_type: Default::default(),
-                    }),
+                    ElementType::Contiguous(array, contiguous_type) => {
+                        storage_contiguous_type_check(&arr_contiguous_type, contiguous_type)
+                            .map_err(|_| PzeudoErr::StorageGetAsArrayRefErr(format!(
+                                "ArrayStorage::get_as_array_ref. Cannot retrieve array at element with index {idx} because the type being searched is {arr_contiguous_type:?} but the element is of type {contiguous_type:?}."
+                            )))?;
+
+                        Ok(ArrayRef {
+                            data: &array.data,
+                            offset: metadata.offset,
+                            shape: &metadata.shape,
+                            stride: &metadata.stride,
+                            _array_type: Default::default(),
+                        })
+                    }
                 }
             }
         }
@@ -201,6 +229,7 @@ impl<F> ArrayStorage<F> {
     pub fn get_as_array_ref_mut(
         &mut self,
         idx: usize,
+        arr_contiguous_type: ContiguousType,
     ) -> Result<ArrayRefMut<'_, F, Contiguous>, PzeudoErr> {
         let element = self
             .storage
@@ -214,20 +243,34 @@ impl<F> ArrayStorage<F> {
             )))?;
 
         match element {
-            ElementType::Contiguous(array) => Ok(ArrayRefMut {
-                data: &mut array.data,
-                offset: array.offset,
-                shape: &array.shape,
-                stride: &array.stride,
-                _array_type: Default::default(),
-            }),
+            ElementType::Contiguous(array, contiguous_type) => {
+                storage_contiguous_type_check(&arr_contiguous_type, contiguous_type)
+                    .map_err(|_| PzeudoErr::StorageGetAsArrayRefMutErr(format!(
+                        "ArrayStorage::get_as_array_ref_mut. Cannot retrieve array at element with index {idx} because the type being searched is {arr_contiguous_type:?} but the element is of type {contiguous_type:?}."
+                    )))?;
+
+                Ok(ArrayRefMut {
+                    data: &mut array.data,
+                    offset: array.offset,
+                    shape: &array.shape,
+                    stride: &array.stride,
+                    _array_type: Default::default(),
+                })
+            }
 
             ElementType::UpdateableTensor(p_idx) => {
-                let permanent_array = &mut self.update_able_tensor_storage.get_mut(*p_idx).ok_or(
+                let permanent_array = match arr_contiguous_type {
+                ContiguousType::Arr => &mut self.update_able_tensor_storage.get_mut(*p_idx).ok_or(
                     PzeudoErr::StorageGetAsArrayRefMutErr(format!(
                         "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
                     )),
-                )?.array;
+                )?.array,
+                ContiguousType::Grad =>&mut self.update_able_tensor_storage.get_mut(*p_idx).ok_or(
+                    PzeudoErr::StorageGetAsArrayRefMutErr(format!(
+                        "ArrayStorage::get_as_array_ref_mut. index {idx} points to update_able_tensor_storage index {p_idx}, but index {p_idx} points to an invalid location in update_able_tensor_storage."
+                    )),
+                )?.grad
+                };
 
                 Ok(ArrayRefMut {
                     data: &mut permanent_array.data,

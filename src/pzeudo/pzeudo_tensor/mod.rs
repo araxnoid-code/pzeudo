@@ -22,3 +22,9 @@ pub use tensor_trait::*;
 
 mod method;
 pub use method::*;
+
+mod loss;
+pub use loss::*;
+
+mod optimazer;
+pub use optimazer::*;

@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use num_traits::{Float, One};
-use std::{cell::RefCell, format, iter::Sum, marker::PhantomData, ops::AddAssign, panic, rc::Rc};
+use std::{cell::RefCell, format, iter::Sum, marker::PhantomData, ops::AddAssign, rc::Rc};
 
 pub struct Tensor<F, T> {
     pub(crate) array_idx: StorageType,
@@ -22,20 +22,19 @@ impl<F, T> Tensor<F, T> {
         if let Some(grad_idx) = self.grad_idx {
             match storage.get_element_mut(grad_idx)? {
                 GetElementMutOutput::Permanent(permanent) => {
-                    let ones = Array::<F>::ones(&permanent.grad.shape);
-                    permanent.grad = ones;
+                    permanent.grad.to_one();
                 }
 
                 GetElementMutOutput::Storage(element) => match element {
                     ElementType::View(_, _) => {
                         return Err(PzeudoErr::BackwardErr(format!(
-                            "Tensor::BackwardErr. The gradient index on a tensor has a value of {grad_idx:?} which points to an element of the View data type. The gradient of a tensor must be contiguous."
+                            "Tensor::backward. The gradient index on a tensor has a value of {grad_idx:?} which points to an element of the View data type. The gradient of a tensor must be contiguous."
                         )));
                     }
                     ElementType::Contiguous(array, contiguous_type) => {
                         if let ContiguousType::Arr = contiguous_type {
                             return Err(PzeudoErr::BackwardErr(format!(
-                                "Tensor::BackwardErr. The gradient index on the tensor points to {grad_idx:?} which is a contiguous element of type Contiguous::Arr, the gradient index must point to Contiguous::Grad"
+                                "Tensor::backward. The gradient index on the tensor points to {grad_idx:?} which is a contiguous element of type Contiguous::Arr, the gradient index must point to Contiguous::Grad"
                             )));
                         }
                         let ones = Array::<F>::ones(&array.shape);

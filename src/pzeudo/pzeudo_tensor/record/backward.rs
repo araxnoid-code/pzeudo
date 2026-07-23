@@ -75,6 +75,9 @@ where
                         .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Cannot perform backward on matmul_2d of type f64 because the storage is not of type f64")))?,
                 )?;
             }
+            RecordLabel::LossMse(output_idx, prediction_grad_idx, grad) => {
+                mse_backward(*grad, *output_idx, *prediction_grad_idx, storage)?;
+            }
         }
         Ok(())
     }

@@ -20,6 +20,7 @@ impl<F, T> Tensor<F, T> {
             storage.get_as_array_ref(rhs.array_idx, ContiguousType::Arr)?;
 
         let array = OpsAdd::add(&lhs_array, &rhs_array)?;
+
         let (lhs_broadcast, rhs_broadcast) = broadcast_detect(lhs_array.shape, rhs_array.shape);
 
         let grad = Array::<F>::zeros(&array.shape);
@@ -75,15 +76,17 @@ where
 
         if let Some(rhs_grad) = rhs_grad {
             let mut rhs_gradient = storage.get_as_array_ref_mut(rhs_grad, ContiguousType::Grad)?;
+
             match rhs_broadcast_dim {
                 Some(dim) => {
                     let gradient = gradient.sum_axis(dim, true)?;
                     let to_shape = gradient.to_shape(rhs_gradient.shape)?;
-                    rhs_gradient.add_assign(&to_shape)?
+                    rhs_gradient.add_assign(&to_shape)?;
                 }
                 None => rhs_gradient.add_assign(&gradient)?,
             }
         }
     }
+
     Ok(())
 }

@@ -2,7 +2,6 @@ use std::{
     format,
     iter::Sum,
     ops::{AddAssign, Neg},
-    panic, println,
 };
 
 use num_traits::Float;

@@ -50,12 +50,12 @@ impl<F, T> Tensor<F, T> {
 // impl<F, T> TensorDivOps<F, T> for Tensor<F, T> where Tensor<F, T>: TensorTrait<F, T> {}
 
 pub fn div_backward<F>(
-    gradient_idx: Option<usize>,
-    lhs: usize,
-    rhs: usize,
-    lhs_grad: Option<usize>,
+    gradient_idx: Option<StorageType>,
+    lhs: StorageType,
+    rhs: StorageType,
+    lhs_grad: Option<StorageType>,
     lhs_broadcast_dim: Option<&Vec<usize>>,
-    rhs_grad: Option<usize>,
+    rhs_grad: Option<StorageType>,
     rhs_broadcast_dim: Option<&Vec<usize>>,
     storage: &mut ArrayStorage<F>,
 ) -> Result<(), PzeudoErr>

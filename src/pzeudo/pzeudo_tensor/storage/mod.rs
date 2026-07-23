@@ -1,10 +1,10 @@
 mod storage;
 pub use storage::*;
 
-mod element_type;
-pub use element_type::*;
+mod _type;
+pub use _type::*;
 
-mod update_able_tensor;
-pub use update_able_tensor::*;
+mod permanent;
+pub use permanent::*;
 
 mod helper;

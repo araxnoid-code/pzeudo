@@ -48,10 +48,10 @@ impl<F, T> Tensor<F, T> {
 }
 
 pub fn sub_backward<F>(
-    gradient_idx: Option<usize>,
-    lhs_grad: Option<usize>,
+    gradient_idx: Option<StorageType>,
+    lhs_grad: Option<StorageType>,
     lhs_broadcast_dim: Option<&Vec<usize>>,
-    rhs_grad: Option<usize>,
+    rhs_grad: Option<StorageType>,
     rhs_broadcast_dim: Option<&Vec<usize>>,
     storage: &mut ArrayStorage<F>,
 ) -> Result<(), PzeudoErr>

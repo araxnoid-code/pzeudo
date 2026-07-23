@@ -1,34 +1,36 @@
+use crate::StorageType;
+
 pub enum RecordLabel {
     // Arithmetic
     Add(
-        (usize, Option<usize>, Option<Vec<usize>>), // Lhs(arr, Grad)
-        (usize, Option<usize>, Option<Vec<usize>>), // Rhs(arr, grad)
-        Option<usize>,                              // Current Grad
+        (StorageType, Option<StorageType>, Option<Vec<usize>>), // Lhs(arr, Grad)
+        (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)
+        Option<StorageType>,                                    // Current Grad
     ),
     Div(
-        (usize, Option<usize>, Option<Vec<usize>>), // Lhs(arr, Grad)
-        (usize, Option<usize>, Option<Vec<usize>>), // Rhs(arr, grad)
-        Option<usize>,                              // Current Grad
+        (StorageType, Option<StorageType>, Option<Vec<usize>>), // Lhs(arr, Grad)
+        (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)
+        Option<StorageType>,                                    // Current Grad
     ),
     Mul(
-        (usize, Option<usize>, Option<Vec<usize>>), // Lhs(arr, Grad)
-        (usize, Option<usize>, Option<Vec<usize>>), // Rhs(arr, grad)
-        Option<usize>,                              // Current Grad
+        (StorageType, Option<StorageType>, Option<Vec<usize>>), // Lhs(arr, Grad)
+        (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)
+        Option<StorageType>,                                    // Current Grad
     ),
     Sub(
-        (usize, Option<usize>, Option<Vec<usize>>), // Lhs(arr, Grad)
-        (usize, Option<usize>, Option<Vec<usize>>), // Rhs(arr, grad)
-        Option<usize>,                              // Current Grad
+        (StorageType, Option<StorageType>, Option<Vec<usize>>), // Lhs(arr, Grad)
+        (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)
+        Option<StorageType>,                                    // Current Grad
     ),
     // Matmul
     Matmul2dF32(
-        (usize, Option<usize>),
-        (usize, Option<usize>),
-        Option<usize>,
+        (StorageType, Option<StorageType>),
+        (StorageType, Option<StorageType>),
+        Option<StorageType>,
     ),
     Matmul2dF64(
-        (usize, Option<usize>),
-        (usize, Option<usize>),
-        Option<usize>,
+        (StorageType, Option<StorageType>),
+        (StorageType, Option<StorageType>),
+        Option<StorageType>,
     ),
 }

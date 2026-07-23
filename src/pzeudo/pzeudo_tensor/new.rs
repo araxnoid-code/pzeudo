@@ -76,7 +76,7 @@ impl<F> Tensor<F, Contiguous> {
 
         let array = Array::from_vector_with_shape(vec, shape)?;
         let gradient: Array<F> = Array::zeros(shape);
-        let update_able_idx = borrow_storage.push_permanent_tensor(array, gradient)?;
+        let update_able_idx = borrow_storage.push_permanent_tensor(array, gradient);
 
         drop(borrow_storage);
 

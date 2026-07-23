@@ -79,11 +79,11 @@ impl<T> Tensor<f64, T> {
 }
 
 pub fn matmul_2d_f32_backward(
-    lhs_idx: usize,
-    lhs_gradient_idx: Option<usize>,
-    rhs_idx: usize,
-    rhs_gradient_idx: Option<usize>,
-    gradient_idx: Option<usize>,
+    lhs_idx: StorageType,
+    lhs_gradient_idx: Option<StorageType>,
+    rhs_idx: StorageType,
+    rhs_gradient_idx: Option<StorageType>,
+    gradient_idx: Option<StorageType>,
     storage: &mut ArrayStorage<f32>,
 ) -> Result<(), PzeudoErr> {
     if let Some(gradient_idx) = gradient_idx {
@@ -114,11 +114,11 @@ pub fn matmul_2d_f32_backward(
 }
 
 pub fn matmul_2d_f64_backward(
-    lhs_idx: usize,
-    lhs_gradient_idx: Option<usize>,
-    rhs_idx: usize,
-    rhs_gradient_idx: Option<usize>,
-    gradient_idx: Option<usize>,
+    lhs_idx: StorageType,
+    lhs_gradient_idx: Option<StorageType>,
+    rhs_idx: StorageType,
+    rhs_gradient_idx: Option<StorageType>,
+    gradient_idx: Option<StorageType>,
     storage: &mut ArrayStorage<f64>,
 ) -> Result<(), PzeudoErr> {
     if let Some(gradient_idx) = gradient_idx {

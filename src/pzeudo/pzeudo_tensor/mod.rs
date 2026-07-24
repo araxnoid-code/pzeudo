@@ -28,3 +28,6 @@ pub use loss::*;
 
 mod optimazer;
 pub use optimazer::*;
+
+#[cfg(test)]
+mod _test;

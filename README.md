@@ -7,7 +7,7 @@ can be used to create AI models, that's all.
 ## Stable?
 still far from stable, but will continue to be developed.
 ## what's new in 0.0.1-dev.6
-Update 0.0.1-dev.6 berfokus pada pengembangan alur backpropogation dan pembuatan model deep learning. Perubahan yang terjadi antara lain:
+Update 0.0.1-dev.6 focuses on developing the backpropagation pipeline and building deep learning models. Changes include:
 
 
 #### fix bugs

@@ -22,7 +22,7 @@ impl<F, T> Tensor<F, T> {
         if let Some(grad_idx) = self.grad_idx {
             match storage.get_element_mut(grad_idx)? {
                 GetElementMutOutput::Permanent(permanent) => {
-                    permanent.grad.to_one();
+                    permanent.grad.to_ones();
                 }
 
                 GetElementMutOutput::Storage(element) => match element {

@@ -8,7 +8,7 @@ pub struct Array<F> {
 }
 
 impl<F> Array<F> {
-    pub fn to_zero(&mut self)
+    pub fn to_zeros(&mut self)
     where
         F: Zero,
     {
@@ -17,7 +17,7 @@ impl<F> Array<F> {
         }
     }
 
-    pub fn to_one(&mut self)
+    pub fn to_ones(&mut self)
     where
         F: One,
     {

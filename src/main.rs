@@ -8,7 +8,7 @@ struct Model<F> {
 }
 
 fn main() {
-    let module = Module::<f32>::new();
+    let module = Module::<f64>::new();
     let model = Model {
         linear_1: module.new_linear(1, 4).unwrap(),
         linear_2: module.new_linear(4, 1).unwrap(),
@@ -18,8 +18,8 @@ fn main() {
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
         .iter()
-        .map(|x| (*x as f32 + 1.) * 0.001)
-        .collect::<Vec<f32>>();
+        .map(|x| (*x as f64 + 1.) * 0.001)
+        .collect::<Vec<f64>>();
     let dataset = module
         .permanent_tensor_from_vector_with_shape(&vector, &shape)
         .unwrap();
@@ -27,8 +27,8 @@ fn main() {
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
         .iter()
-        .map(|x| (*x as f32 + 10.))
-        .collect::<Vec<f32>>();
+        .map(|x| (*x as f64 + 10.))
+        .collect::<Vec<f64>>();
     let actual = module
         .permanent_tensor_from_vector_with_shape(&vector, &shape)
         .unwrap();

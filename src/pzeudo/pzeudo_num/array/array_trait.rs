@@ -1,3 +1,5 @@
+use std::vec;
+
 use crate::prelude::*;
 
 pub trait ArrayTrait<F> {

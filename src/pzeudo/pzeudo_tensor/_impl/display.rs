@@ -8,7 +8,9 @@ where
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let storage = self.storage.borrow();
-        let array: ArrayRef<'_, F, T> = storage.get_as_array_ref(self.array_idx).unwrap();
+        let array: ArrayRef<'_, F, T> = storage
+            .get_as_array_ref(self.array_idx, ContiguousType::Arr)
+            .unwrap();
 
         f.write_str(&format!("{}", array))
     }

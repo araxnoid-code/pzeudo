@@ -1,6 +1,12 @@
+use std::vec;
+
 use crate::PzeudoErr::{self, BroadcastErr};
 
 pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoErr> {
+    if shape == to {
+        return Ok(());
+    }
+
     if shape.len() > to.len() {
         return Err(BroadcastErr(format!(
             "BroadcastErr. able_broadcast. The shape {:?} cannot be broadcast to shape {:?} because the target shape is smaller.",
@@ -48,7 +54,8 @@ pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<Vec<usize>, Pz
     }
 
     let d = to.len() - shape.len();
-    let mut dim = (0..d).map(|idx| idx).collect::<Vec<usize>>();
+
+    let mut dim = vec![];
     for (idx, to_dim) in to.iter().enumerate().rev() {
         let index = idx - d;
         let shape_dim = shape[index];
@@ -65,6 +72,9 @@ pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<Vec<usize>, Pz
             break;
         }
     }
+
+    let out = (0..d).rev().map(|idx| idx).collect::<Vec<usize>>();
+    dim.extend_from_slice(&out);
 
     Ok(dim)
 }

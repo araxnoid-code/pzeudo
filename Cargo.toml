@@ -1,6 +1,6 @@
 [package]
 name = "pzeudo"
-version = "0.0.1-dev.5"
+version = "0.0.1-dev.6"
 edition = "2024"
 
 [lib]
@@ -9,3 +9,4 @@ path = "./src/pzeudo/mod.rs"
 [dependencies]
 matrixmultiply = "0.3.10"
 num-traits = "0.2.19"
+rand = "0.10.2"

@@ -1,4 +1,4 @@
-use std::{arch::x86_64::_mm_maskz_srai_epi32, assert_eq, panic};
+use std::assert_eq;
 
 use crate::prelude::*;
 
@@ -348,4 +348,85 @@ fn matmul_nd_test_2_f64() {
             }
         }
     }
+}
+
+#[test]
+fn matmul_nd_test_3_f32() {
+    let shape = [16, 16, 8, 12, 12, 6];
+    let vec_a = (0..shape.iter().product::<usize>())
+        .map(|idx| idx as f32)
+        .collect::<Vec<f32>>();
+    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+
+    let shape = [16, 16, 8, 12, 6, 12];
+    let vec_b = (0..shape.iter().product::<usize>())
+        .map(|idx| idx as f32)
+        .collect::<Vec<f32>>();
+    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+
+    // VIEW
+    let array_a_index = array_a
+        .index(&[8]) // [16, 8, 12, 12, 6];
+        .unwrap();
+    let array_a_slicing = array_a_index
+        .slicing(&[r(4..8), r(1..)]) // [4, 7, 12, 12, 6]
+        .unwrap();
+    let array_a_permute = array_a_slicing
+        .permute(&[4, 1, 3, 2, 0]) // [6, 7, 12, 12, 4]
+        .unwrap();
+
+    let array_b_slicing = array_b.slicing(&[r(2..8), r(3..9), r(..)]).unwrap();
+    let array_b_permute = array_b_slicing.permute(&[1, 0, 2, 3, 5, 4]).unwrap();
+    let array_b_index = array_b_permute.index(&[5]).unwrap();
+    let array_b_slicing_2 = array_b_index
+        .slicing(&[r(..), r(1..), r(..), r(6..10)])
+        .unwrap();
+
+    let result = array_a_permute.matmul_nd(&array_b_slicing_2).unwrap();
+
+    // CHECK
+    let array_a_contiguous = array_a_permute.into_array().unwrap();
+    let array_b_contiguous = array_b_slicing_2.into_array().unwrap();
+    let check = array_a_contiguous.matmul_nd(&array_b_contiguous).unwrap();
+    assert_eq!(check.data, result.data);
+}
+
+#[test]
+fn matmul_nd_test_3_f64() {
+    let shape = [16, 16, 8, 12, 12, 6];
+    let vec_a = (0..shape.iter().product::<usize>())
+        .map(|idx| idx as f64)
+        .collect::<Vec<f64>>();
+    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+
+    let shape = [16, 16, 8, 12, 6, 12];
+    let vec_b = (0..shape.iter().product::<usize>())
+        .map(|idx| idx as f64)
+        .collect::<Vec<f64>>();
+    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+
+    // VIEW
+    let array_a_index = array_a
+        .index(&[8]) // [16, 8, 12, 12, 6];
+        .unwrap();
+    let array_a_slicing = array_a_index
+        .slicing(&[r(4..8), r(1..)]) // [4, 7, 12, 12, 6]
+        .unwrap();
+    let array_a_permute = array_a_slicing
+        .permute(&[4, 1, 3, 2, 0]) // [6, 7, 12, 12, 4]
+        .unwrap();
+
+    let array_b_slicing = array_b.slicing(&[r(2..8), r(3..9), r(..)]).unwrap();
+    let array_b_permute = array_b_slicing.permute(&[1, 0, 2, 3, 5, 4]).unwrap();
+    let array_b_index = array_b_permute.index(&[5]).unwrap();
+    let array_b_slicing_2 = array_b_index
+        .slicing(&[r(..), r(1..), r(..), r(6..10)])
+        .unwrap();
+    let result = array_a_permute.matmul_nd(&array_b_slicing_2).unwrap();
+
+    // CHECK
+    let array_a_contiguous = array_a_permute.into_array().unwrap();
+    let array_b_contiguous = array_b_slicing_2.into_array().unwrap();
+    let check = array_a_contiguous.matmul_nd(&array_b_contiguous).unwrap();
+    assert_eq!(check.data, result.data);
 }

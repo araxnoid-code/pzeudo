@@ -75,6 +75,33 @@ where
                         .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Cannot perform backward on matmul_2d of type f64 because the storage is not of type f64")))?,
                 )?;
             }
+
+            RecordLabel::MatmulNdF32(lhs, rhs, grad) => {
+                matmul_nd_f32_backward(
+                    lhs.0,
+                    lhs.1,
+                    rhs.0,
+                    rhs.1,
+                    *grad,
+                    storage
+                        .to_mut_f32()
+                        .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Cannot perform backward on matmul_2d of type f64 because the storage is not of type f64")))?,
+                )?;
+            }
+
+            RecordLabel::MatmulNdF64(lhs, rhs, grad) => {
+                matmul_nd_f64_backward(
+                    lhs.0,
+                    lhs.1,
+                    rhs.0,
+                    rhs.1,
+                    *grad,
+                    storage
+                        .to_mut_f64()
+                        .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Cannot perform backward on matmul_2d of type f64 because the storage is not of type f64")))?,
+                )?;
+            }
+
             RecordLabel::LossMse(output_idx, prediction_grad_idx, grad) => {
                 mse_backward(*grad, *output_idx, *prediction_grad_idx, storage)?;
             }

@@ -1,35 +1,56 @@
 use std::println;
 
-use pzeudo::{Array, ArrayTrait, OpsMatmul2DF32, OpsMatmul2DF64, OpsMatmulNDF32, OpsMatmulNDF64};
+use pzeudo::{
+    Array, ArrayTrait, Contiguous, Module, OpsMatmul2DF32, OpsMatmul2DF64, OpsMatmulNDF32,
+    OpsMatmulNDF64, OpsPermute, OpsSlicing, TensorTrait, r,
+};
 
 fn main() {
-    let shape = [3, 3, 3, 3];
+    let module = Module::new();
+
+    let shape = [2, 3, 4, 5];
     let vec_a = (0..shape.iter().product::<usize>())
-        .map(|idx| idx as f64)
-        .collect::<Vec<f64>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
-    println!("array a");
-    println!("{}", array_a);
+        .map(|idx| idx as f32)
+        .collect::<Vec<f32>>();
+    let array_a = module
+        .tensor_from_vector_with_shape(&vec_a, &shape)
+        .unwrap();
 
-    let shape = [3, 3, 3, 3];
+    let shape = [2, 3, 5, 6];
     let vec_b = (0..shape.iter().product::<usize>())
-        .map(|idx| idx as f64)
-        .collect::<Vec<f64>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
-    println!("array b");
-    println!("{}", array_b);
+        .map(|idx| idx as f32 + 100.)
+        .collect::<Vec<f32>>();
+    let array_b = module
+        .tensor_from_vector_with_shape(&vec_b, &shape)
+        .unwrap();
 
-    let result = array_a.matmul_nd(&array_b).unwrap();
-    println!("result");
-    println!("{}", result);
+    let tensor_c = array_a.matmul_nd(&array_b).unwrap();
+    tensor_c.backward().unwrap();
 
-    println!("check");
+    let storeage = module.get_storage().borrow();
+    let tensor_c_result = module
+        .get_storage()
+        .borrow()
+        .get_as_array_ref::<Contiguous>(
+            array_a.get_grad_idx().unwrap(),
+            pzeudo::ContiguousType::Grad,
+        )
+        .unwrap();
 
-    for i in 0..3 {
-        for j in 0..3 {
-            let index_array_a = array_a.index(&[i, j]).unwrap();
-            let index_array_b = array_b.index(&[i, j]).unwrap();
-            println!("{}", index_array_a.matmul_2d(&index_array_b).unwrap());
-        }
-    }
+    let shape = [2, 3, 4, 6];
+    let ones = Array::<f32>::ones(&shape);
+
+    let array_b = storeage
+        .get_as_array_ref::<Contiguous>(array_b.get_array_idx(), pzeudo::ContiguousType::Arr)
+        .unwrap();
+
+    let permute = array_b.permute(&[0, 1, 3, 2]).unwrap();
+    let check = ones.matmul_nd(&permute).unwrap();
+
+    let array_a = storeage
+        .get_as_array_ref::<Contiguous>(array_a.get_array_idx(), pzeudo::ContiguousType::Arr)
+        .unwrap();
+
+    let permute = array_a.permute(&[0, 1, 3, 2]).unwrap();
+    let check = permute.matmul_nd(&ones).unwrap();
 }

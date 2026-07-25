@@ -101,6 +101,7 @@ pub fn matmul_2d_f32_backward(
 
         let gradient: ArrayRef<'_, f32, Contiguous> =
             storage.get_as_array_ref(gradient_idx, ContiguousType::Grad)?;
+
         if let Some(rhs_grad_idx) = rhs_gradient_idx {
             let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
             let gradient = lhs_value.t().matmul_2d(&gradient)?;

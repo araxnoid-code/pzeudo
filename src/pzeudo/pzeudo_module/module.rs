@@ -1,7 +1,7 @@
 use num_traits::Zero;
 
 use crate::prelude::*;
-use std::{cell::RefCell, ops::MulAssign, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 pub struct Module<F> {
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,

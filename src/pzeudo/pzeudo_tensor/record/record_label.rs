@@ -35,6 +35,17 @@ pub enum RecordLabel {
         (StorageType, Option<StorageType>), // Rhs(arr, grad)
         Option<StorageType>,                // own grad
     ),
+    MatmulNdF32(
+        (StorageType, Option<StorageType>), // Lhs(arr, grad)
+        (StorageType, Option<StorageType>), // Rhs(arr, grad)
+        Option<StorageType>,                // own grad
+    ),
+    MatmulNdF64(
+        (StorageType, Option<StorageType>), // Lhs(arr, grad)
+        (StorageType, Option<StorageType>), // Rhs(arr, grad)
+        Option<StorageType>,                // own grad
+    ),
+
     // LOSS
     LossMse(StorageType, Option<StorageType>, Option<StorageType>), // (Output, Prediction grad, Own Grad)
 }
@@ -49,6 +60,8 @@ impl Debug for RecordLabel {
             Self::LossMse(_, _, _) => f.write_str("Loss Mse record"),
             Self::Matmul2dF32(_, _, _) => f.write_str("Matmul 2d f32 record"),
             Self::Matmul2dF64(_, _, _) => f.write_str("Matmul 2d f64 record"),
+            Self::MatmulNdF32(_, _, _) => f.write_str("Matmul nd f32 record"),
+            RecordLabel::MatmulNdF64(_, _, _) => f.write_str("Matmul nd f64 record"),
         }
     }
 }

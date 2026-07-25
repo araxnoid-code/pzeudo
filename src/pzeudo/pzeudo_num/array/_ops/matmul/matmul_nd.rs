@@ -19,6 +19,16 @@ pub trait OpsMatmulNDF32: OpsMatmul2DF32 {
             )));
         }
 
+        if lhs_metadata.shape.len() == 2 && rhs_metadata.shape.len() == 2 {
+            // Pass to Matmul 2d
+            return Ok(self.matmul_2d(rhs)?);
+        } else if lhs_metadata.shape.len() == 1 || rhs_metadata.shape.len() == 1 {
+            return Err(MatmulNDErr(format!(
+                "MatmulNDErr. OpsMatmulNDF32::matmul_nd. Arrays that have shape {:?} and arrays that have shape {:?} cannot do matmul_nd because they have dimension 1.",
+                lhs_metadata.shape, rhs_metadata.shape
+            )));
+        }
+
         let lhs_shape = lhs_metadata.shape;
         let rhs_shape = rhs_metadata.shape;
         let dim = lhs_shape.len();
@@ -45,34 +55,26 @@ pub trait OpsMatmulNDF32: OpsMatmul2DF32 {
         let matrix_count = lhs_shape[..dim - 2].iter().product::<usize>();
         for i in 0..matrix_count {
             let mut lhs_new_offset = lhs_metadata.offset;
-            let stride_out = shape_to_stride(&lhs_shape[..dim - 3]);
-            for ((shape, stride), stride_out) in lhs_shape[..dim - 3]
+            let stride_out = shape_to_stride(&lhs_shape[..dim - 2]);
+            for ((shape, stride), stride_out) in lhs_shape[..dim - 2]
                 .iter()
-                .zip(lhs_metadata.stride[..dim - 3].iter())
+                .zip(lhs_metadata.stride[..dim - 2].iter())
                 .zip(stride_out.iter())
             {
-                let permute = if *stride == 0 {
-                    0
-                } else {
-                    (i / stride_out) % shape
-                };
+                let permute = (i / stride_out) % shape;
                 lhs_new_offset += permute * stride;
             }
             let lhs_new_shape = &lhs_metadata.shape[dim - 2..];
             let lhs_new_stride = &lhs_metadata.stride[dim - 2..];
 
             let mut rhs_new_offset = rhs_metadata.offset;
-            let stride_out = shape_to_stride(&rhs_shape[..dim - 3]);
-            for ((shape, stride), stride_out) in rhs_shape[..dim - 3]
+            let stride_out = shape_to_stride(&rhs_shape[..dim - 2]);
+            for ((shape, stride), stride_out) in rhs_shape[..dim - 2]
                 .iter()
-                .zip(rhs_metadata.stride[..dim - 3].iter())
+                .zip(rhs_metadata.stride[..dim - 2].iter())
                 .zip(stride_out.iter())
             {
-                let permute = if *stride == 0 {
-                    0
-                } else {
-                    (i / stride_out) % shape
-                };
+                let permute = (i / stride_out) % shape;
                 rhs_new_offset += permute * stride;
             }
 
@@ -132,6 +134,16 @@ pub trait OpsMatmulNDF64: OpsMatmul2DF64 {
             )));
         }
 
+        if lhs_metadata.shape.len() == 2 && rhs_metadata.shape.len() == 2 {
+            // Pass to Matmul 2d
+            return Ok(self.matmul_2d(rhs)?);
+        } else if lhs_metadata.shape.len() == 1 || rhs_metadata.shape.len() == 1 {
+            return Err(MatmulNDErr(format!(
+                "MatmulNDErr. OpsMatmulNDF32::matmul_nd. Arrays that have shape {:?} and arrays that have shape {:?} cannot do matmul_nd because they have dimension 1.",
+                lhs_metadata.shape, rhs_metadata.shape
+            )));
+        }
+
         let lhs_shape = lhs_metadata.shape;
         let rhs_shape = rhs_metadata.shape;
         let dim = lhs_shape.len();
@@ -158,15 +170,13 @@ pub trait OpsMatmulNDF64: OpsMatmul2DF64 {
         let matrix_count = lhs_shape[..dim - 2].iter().product::<usize>();
         for i in 0..matrix_count {
             let mut lhs_new_offset = lhs_metadata.offset;
-            for (shape, stride) in lhs_shape[..dim - 3]
+            let stride_out = shape_to_stride(&lhs_shape[..dim - 2]);
+            for ((shape, stride), stride_out) in lhs_shape[..dim - 2]
                 .iter()
-                .zip(lhs_metadata.stride[..dim - 3].iter())
+                .zip(lhs_metadata.stride[..dim - 2].iter())
+                .zip(stride_out.iter())
             {
-                let permute = if *stride == 0 {
-                    0
-                } else {
-                    (i / stride) % shape
-                };
+                let permute = (i / stride_out) % shape;
                 lhs_new_offset += permute * stride;
             }
 
@@ -174,15 +184,13 @@ pub trait OpsMatmulNDF64: OpsMatmul2DF64 {
             let lhs_new_stride = &lhs_metadata.stride[dim - 2..];
 
             let mut rhs_new_offset = rhs_metadata.offset;
-            for (shape, stride) in rhs_shape[..dim - 3]
+            let stride_out = shape_to_stride(&rhs_shape[..dim - 2]);
+            for ((shape, stride), stride_out) in rhs_shape[..dim - 2]
                 .iter()
-                .zip(rhs_metadata.stride[..dim - 3].iter())
+                .zip(rhs_metadata.stride[..dim - 2].iter())
+                .zip(stride_out.iter())
             {
-                let permute = if *stride == 0 {
-                    0
-                } else {
-                    (i / stride) % shape
-                };
+                let permute = (i / stride_out) % shape;
                 rhs_new_offset += permute * stride;
             }
 

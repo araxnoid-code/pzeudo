@@ -23,7 +23,7 @@ impl<F> Sgd<F> {
     where
         F: Mul<Output = F> + Copy + SubAssign,
     {
-        for permanent in self.storage.borrow_mut().get_mut_permanent_storage() {
+        for permanent in self.storage.borrow_mut().get_permanent_storage_mut() {
             permanent
                 .array
                 .sub_assign(&permanent.grad.mul_scalar(self.lr)?)?;

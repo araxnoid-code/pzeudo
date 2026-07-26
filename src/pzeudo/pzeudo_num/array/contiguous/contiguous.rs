@@ -1,10 +1,10 @@
 use num_traits::{One, Zero};
 
 pub struct Array<F> {
-    pub(crate) data: Vec<F>,
-    pub(crate) offset: usize,
-    pub(crate) stride: Vec<usize>,
-    pub(crate) shape: Vec<usize>,
+    pub(crate) data: Vec<F>,       // 24
+    pub(crate) stride: Vec<usize>, // 24
+    pub(crate) shape: Vec<usize>,  // 24
+    pub(crate) offset: usize,      // 8
 }
 
 impl<F> Array<F> {

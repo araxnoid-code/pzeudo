@@ -1,11 +1,13 @@
 use crate::{Array, PermanentTensor, TensorMetadata};
 
+// 1
 #[derive(Debug)]
 pub enum ContiguousType {
     Arr,
     Grad,
 }
 
+// 16
 #[derive(Clone, Copy, Debug)]
 pub enum StorageType {
     Permanent(usize),

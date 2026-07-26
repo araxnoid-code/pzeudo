@@ -25,7 +25,7 @@ impl<F> Module<F> {
     where
         F: Zero,
     {
-        for permanent in self.storage.borrow_mut().get_mut_permanent_storage() {
+        for permanent in self.storage.borrow_mut().get_permanent_storage_mut() {
             permanent.grad.to_zeros();
         }
     }

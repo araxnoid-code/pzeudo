@@ -1,13 +1,13 @@
 use crate::prelude::*;
 use num_traits::{Float, One};
-use std::{cell::RefCell, format, iter::Sum, marker::PhantomData, ops::AddAssign, rc::Rc};
+use std::{cell::RefCell, iter::Sum, marker::PhantomData, ops::AddAssign, rc::Rc};
 
 pub struct Tensor<F, T> {
-    pub(crate) array_idx: StorageType,
-    pub(crate) grad_idx: Option<StorageType>,
-    pub(crate) record: Rc<RefCell<Vec<RecordLabel>>>,
-    pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
-    pub(crate) _array_type: PhantomData<T>,
+    pub(crate) record: Rc<RefCell<Vec<RecordLabel>>>, // 8
+    pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>, // 8
+    pub(crate) array_idx: StorageType,                // 16
+    pub(crate) grad_idx: Option<StorageType>,         // 16
+    pub(crate) _array_type: PhantomData<T>,           // 0
 }
 
 impl<F, T> Tensor<F, T> {
@@ -20,28 +20,8 @@ impl<F, T> Tensor<F, T> {
     {
         let mut storage = self.storage.borrow_mut();
         if let Some(grad_idx) = self.grad_idx {
-            match storage.get_element_mut(grad_idx)? {
-                GetElementMutOutput::Permanent(permanent) => {
-                    permanent.grad.to_ones();
-                }
-
-                GetElementMutOutput::Storage(element) => match element {
-                    ElementType::View(_, _) => {
-                        return Err(PzeudoErr::BackwardErr(format!(
-                            "Tensor::backward. The gradient index on a tensor has a value of {grad_idx:?} which points to an element of the View data type. The gradient of a tensor must be contiguous."
-                        )));
-                    }
-                    ElementType::Contiguous(array, contiguous_type) => {
-                        if let ContiguousType::Arr = contiguous_type {
-                            return Err(PzeudoErr::BackwardErr(format!(
-                                "Tensor::backward. The gradient index on the tensor points to {grad_idx:?} which is a contiguous element of type Contiguous::Arr, the gradient index must point to Contiguous::Grad"
-                            )));
-                        }
-                        let ones = Array::<F>::ones(&array.shape);
-                        *array = ones;
-                    }
-                },
-            }
+            let grad = storage.get_grad_element_mut(grad_idx)?;
+            grad.to_ones();
         }
 
         let mut record = self.record.borrow_mut();

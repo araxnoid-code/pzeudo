@@ -7,4 +7,6 @@ pub use _type::*;
 mod permanent;
 pub use permanent::*;
 
+mod compunent;
+
 mod helper;

@@ -4,6 +4,7 @@ use std::{
     format,
     iter::Sum,
     ops::{Add, AddAssign, Div, Neg, Sub},
+    vec,
 };
 
 pub fn mse<F, T, J>(
@@ -46,13 +47,13 @@ where
     let record_label = RecordLabel::LossMse(array_idx, pred.get_grad_idx(), grad_idx);
     pred.record.borrow_mut().push(record_label);
 
-    Ok(Tensor {
+    Ok(Tensor::new(
         array_idx,
         grad_idx,
-        record: pred.record.clone(),
-        storage: pred.storage.clone(),
-        _array_type: Default::default(),
-    })
+        vec![1],
+        pred.record.clone(),
+        pred.storage.clone(),
+    ))
 }
 
 pub fn mse_backward<F>(

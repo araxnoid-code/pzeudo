@@ -22,9 +22,10 @@ impl<F, T> Tensor<F, T> {
             storage.get_as_array_ref(rhs.get_array_idx(), ContiguousType::Arr)?;
 
         let array = OpsMul::mul(&lhs_array, &rhs_array)?;
+        let shape = array.shape.to_vec();
         let (lhs_broadcast, rhs_broadcast) = broadcast_detect(lhs_array.shape, rhs_array.shape);
 
-        let grad = Array::<F>::zeros(&array.shape);
+        let grad = Array::<F>::zeros(&shape);
         let array_idx = storage.push(ElementType::Arr(array))?;
         let grad_idx = Some(storage.push(ElementType::Grad(grad))?);
 
@@ -35,15 +36,13 @@ impl<F, T> Tensor<F, T> {
         );
         self.get_record().borrow_mut().push(record_label);
 
-        let tensor = Tensor {
+        Ok(Tensor::new(
             array_idx,
             grad_idx,
-            record: self.get_record().clone(),
-            storage: self.get_storage().clone(),
-            _array_type: Default::default(),
-        };
-
-        Ok(tensor)
+            shape,
+            self.record.clone(),
+            self.storage.clone(),
+        ))
     }
 }
 

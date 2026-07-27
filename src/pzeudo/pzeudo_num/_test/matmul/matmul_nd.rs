@@ -369,17 +369,17 @@ fn matmul_nd_test_3_f32() {
         .index(&[8]) // [16, 8, 12, 12, 6];
         .unwrap();
     let array_a_slicing = array_a_index
-        .slicing(&[r(4..8), r(1..)]) // [4, 7, 12, 12, 6]
+        .slice(&[r(4..8), r(1..)]) // [4, 7, 12, 12, 6]
         .unwrap();
     let array_a_permute = array_a_slicing
         .permute(&[4, 1, 3, 2, 0]) // [6, 7, 12, 12, 4]
         .unwrap();
 
-    let array_b_slicing = array_b.slicing(&[r(2..8), r(3..9), r(..)]).unwrap();
+    let array_b_slicing = array_b.slice(&[r(2..8), r(3..9), r(..)]).unwrap();
     let array_b_permute = array_b_slicing.permute(&[1, 0, 2, 3, 5, 4]).unwrap();
     let array_b_index = array_b_permute.index(&[5]).unwrap();
     let array_b_slicing_2 = array_b_index
-        .slicing(&[r(..), r(1..), r(..), r(6..10)])
+        .slice(&[r(..), r(1..), r(..), r(6..10)])
         .unwrap();
 
     let result = array_a_permute.matmul_nd(&array_b_slicing_2).unwrap();
@@ -410,17 +410,17 @@ fn matmul_nd_test_3_f64() {
         .index(&[8]) // [16, 8, 12, 12, 6];
         .unwrap();
     let array_a_slicing = array_a_index
-        .slicing(&[r(4..8), r(1..)]) // [4, 7, 12, 12, 6]
+        .slice(&[r(4..8), r(1..)]) // [4, 7, 12, 12, 6]
         .unwrap();
     let array_a_permute = array_a_slicing
         .permute(&[4, 1, 3, 2, 0]) // [6, 7, 12, 12, 4]
         .unwrap();
 
-    let array_b_slicing = array_b.slicing(&[r(2..8), r(3..9), r(..)]).unwrap();
+    let array_b_slicing = array_b.slice(&[r(2..8), r(3..9), r(..)]).unwrap();
     let array_b_permute = array_b_slicing.permute(&[1, 0, 2, 3, 5, 4]).unwrap();
     let array_b_index = array_b_permute.index(&[5]).unwrap();
     let array_b_slicing_2 = array_b_index
-        .slicing(&[r(..), r(1..), r(..), r(6..10)])
+        .slice(&[r(..), r(1..), r(..), r(6..10)])
         .unwrap();
     let result = array_a_permute.matmul_nd(&array_b_slicing_2).unwrap();
 

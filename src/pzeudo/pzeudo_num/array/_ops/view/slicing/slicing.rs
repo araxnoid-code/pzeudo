@@ -1,7 +1,7 @@
 use crate::{ArrayTrait, ArrayView, PzeudoErr, SliceRange};
 
-pub trait OpsSlicing<F>: ArrayTrait<F> {
-    fn slicing(&self, range: &[SliceRange]) -> Result<ArrayView<'_, F>, PzeudoErr> {
+pub trait OpsSlice<F>: ArrayTrait<F> {
+    fn slice(&self, range: &[SliceRange]) -> Result<ArrayView<'_, F>, PzeudoErr> {
         let arr_metadata = self.get_metadata();
 
         if arr_metadata.shape.len() < range.len() {

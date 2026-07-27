@@ -15,7 +15,8 @@ impl<T> Tensor<f32, T> {
             borrow_mut_storage.get_as_array_ref::<J>(rhs.get_array_idx(), ContiguousType::Arr)?;
 
         let result = OpsMatmulNDF32::matmul_nd(&lhs_array, &rhs_array)?;
-        let grad = Array::<f32>::zeros(&result.shape);
+        let shape = result.shape.to_vec();
+        let grad = Array::<f32>::zeros(&shape);
 
         let array_idx = borrow_mut_storage.push(ElementType::Arr(result))?;
         let grad_idx = Some(borrow_mut_storage.push(ElementType::Grad(grad))?);
@@ -27,13 +28,13 @@ impl<T> Tensor<f32, T> {
         );
         self.get_record().borrow_mut().push(record_label);
 
-        Ok(Tensor {
+        Ok(Tensor::new(
             array_idx,
             grad_idx,
-            record: self.get_record().clone(),
-            storage: self.get_storage().clone(),
-            _array_type: Default::default(),
-        })
+            shape,
+            self.record.clone(),
+            self.storage.clone(),
+        ))
     }
 }
 
@@ -52,7 +53,8 @@ impl<T> Tensor<f64, T> {
             borrow_mut_storage.get_as_array_ref::<J>(rhs.get_array_idx(), ContiguousType::Arr)?;
 
         let result = OpsMatmulNDF64::matmul_nd(&lhs_array, &rhs_array)?;
-        let grad = Array::<f64>::zeros(&result.shape);
+        let shape = result.shape.to_vec();
+        let grad = Array::<f64>::zeros(&shape);
 
         let array_idx = borrow_mut_storage.push(ElementType::Arr(result))?;
         let grad_idx = Some(borrow_mut_storage.push(ElementType::Grad(grad))?);
@@ -64,13 +66,13 @@ impl<T> Tensor<f64, T> {
         );
         self.get_record().borrow_mut().push(record_label);
 
-        Ok(Tensor {
+        Ok(Tensor::new(
             array_idx,
             grad_idx,
-            record: self.get_record().clone(),
-            storage: self.get_storage().clone(),
-            _array_type: Default::default(),
-        })
+            shape,
+            self.record.clone(),
+            self.storage.clone(),
+        ))
     }
 }
 

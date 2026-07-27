@@ -1,6 +1,6 @@
 use crate::prelude::*;
 
-impl<F, T> OpsSlicing<F> for ArrayRef<'_, F, T>
+impl<F, T> OpsSlice<F> for ArrayRef<'_, F, T>
 where
     F: Copy,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,

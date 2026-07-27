@@ -65,6 +65,9 @@ pub enum PzeudoErr {
     // module
     EpochErr(String),
 
+    // Method
+    LinearForward(String),
+
     // Loss
     LossMseErr(String),
     LossMseBackwardErr(String),

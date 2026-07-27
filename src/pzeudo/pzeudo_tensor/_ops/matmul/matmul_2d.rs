@@ -13,7 +13,8 @@ impl<T> Tensor<f32, T> {
             borrow_mut_storage.get_as_array_ref(rhs.array_idx, ContiguousType::Arr)?;
 
         let result = lhs_array.matmul_2d(&rhs_array)?;
-        let grad = Array::<f32>::zeros(&result.shape);
+        let shape = result.shape.to_vec();
+        let grad = Array::<f32>::zeros(&shape);
         let array_idx = borrow_mut_storage.push(ElementType::Arr(result))?;
         let grad_idx = Some(borrow_mut_storage.push(ElementType::Grad(grad))?);
 
@@ -25,13 +26,13 @@ impl<T> Tensor<f32, T> {
         self.record.borrow_mut().push(record_label);
 
         drop(borrow_mut_storage);
-        let tensor: Tensor<f32, Contiguous> = Tensor {
+        let tensor = Tensor::new(
             array_idx,
             grad_idx,
-            record: self.record.clone(),
-            storage: self.storage.clone(),
-            _array_type: Default::default(),
-        };
+            shape,
+            self.record.clone(),
+            self.storage.clone(),
+        );
 
         Ok(tensor)
     }
@@ -50,7 +51,8 @@ impl<T> Tensor<f64, T> {
             borrow_mut_storage.get_as_array_ref(rhs.get_array_idx(), ContiguousType::Arr)?;
 
         let result = lhs_array.matmul_2d(&rhs_array)?;
-        let grad = Array::<f64>::zeros(&result.shape);
+        let shape = result.shape.to_vec();
+        let grad = Array::<f64>::zeros(&shape);
         let array_idx = borrow_mut_storage.push(ElementType::Arr(result))?;
         let grad_idx = Some(borrow_mut_storage.push(ElementType::Grad(grad))?);
 
@@ -62,13 +64,13 @@ impl<T> Tensor<f64, T> {
         self.record.borrow_mut().push(record_label);
 
         drop(borrow_mut_storage);
-        let tensor: Tensor<f64, Contiguous> = Tensor {
+        let tensor = Tensor::new(
             array_idx,
             grad_idx,
-            record: self.record.clone(),
-            storage: self.storage.clone(),
-            _array_type: Default::default(),
-        };
+            shape,
+            self.record.clone(),
+            self.storage.clone(),
+        );
 
         Ok(tensor)
     }

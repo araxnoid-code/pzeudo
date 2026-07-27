@@ -25,8 +25,8 @@ impl<F, T> Tensor<F, T> {
         let (lhs_broadcast, rhs_broadcast) = broadcast_detect(lhs_array.shape, rhs_array.shape);
 
         let grad = Array::<F>::zeros(&array.shape);
-        let array_idx = storage.push(ElementType::Contiguous(array, ContiguousType::Arr))?;
-        let grad_idx = Some(storage.push(ElementType::Contiguous(grad, ContiguousType::Grad))?);
+        let array_idx = storage.push(ElementType::Arr(array))?;
+        let grad_idx = Some(storage.push(ElementType::Grad(grad))?);
 
         let record_label = RecordLabel::Sub(
             (self.get_array_idx(), self.get_grad_idx(), lhs_broadcast),
@@ -66,7 +66,8 @@ where
 
         if let Some(lhs_grad) = lhs_grad {
             // df(lhs, rhs)/dlhs = 1 * gradient
-            let mut lhs_gradient = storage.get_as_array_ref_mut(lhs_grad, ContiguousType::Grad)?;
+            let mut lhs_gradient =
+                storage.get_as_array_ref_mut::<View>(lhs_grad, ContiguousType::Grad)?;
             match lhs_broadcast_dim {
                 Some(dim) => {
                     let grad = gradient.sum_axis(dim, true)?;
@@ -81,7 +82,8 @@ where
             // df(lhs, rhs)/drhs = -1 * gradient
             let grad = gradient.neg()?;
 
-            let mut rhs_gradient = storage.get_as_array_ref_mut(rhs_grad, ContiguousType::Grad)?;
+            let mut rhs_gradient =
+                storage.get_as_array_ref_mut::<View>(rhs_grad, ContiguousType::Grad)?;
             match rhs_broadcast_dim {
                 Some(dim) => {
                     let grad = grad.sum_axis(dim, true)?;

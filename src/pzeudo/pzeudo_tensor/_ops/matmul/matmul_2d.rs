@@ -14,10 +14,8 @@ impl<T> Tensor<f32, T> {
 
         let result = lhs_array.matmul_2d(&rhs_array)?;
         let grad = Array::<f32>::zeros(&result.shape);
-        let array_idx =
-            borrow_mut_storage.push(ElementType::Contiguous(result, ContiguousType::Arr))?;
-        let grad_idx =
-            Some(borrow_mut_storage.push(ElementType::Contiguous(grad, ContiguousType::Grad))?);
+        let array_idx = borrow_mut_storage.push(ElementType::Arr(result))?;
+        let grad_idx = Some(borrow_mut_storage.push(ElementType::Grad(grad))?);
 
         let record_label = RecordLabel::Matmul2dF32(
             (self.array_idx, self.grad_idx),
@@ -53,10 +51,8 @@ impl<T> Tensor<f64, T> {
 
         let result = lhs_array.matmul_2d(&rhs_array)?;
         let grad = Array::<f64>::zeros(&result.shape);
-        let array_idx =
-            borrow_mut_storage.push(ElementType::Contiguous(result, ContiguousType::Arr))?;
-        let grad_idx =
-            Some(borrow_mut_storage.push(ElementType::Contiguous(grad, ContiguousType::Grad))?);
+        let array_idx = borrow_mut_storage.push(ElementType::Arr(result))?;
+        let grad_idx = Some(borrow_mut_storage.push(ElementType::Grad(grad))?);
 
         let record_label = RecordLabel::Matmul2dF64(
             (self.array_idx, self.grad_idx),
@@ -87,15 +83,15 @@ pub fn matmul_2d_f32_backward(
     storage: &mut ArrayStorage<f32>,
 ) -> Result<(), PzeudoErr> {
     if let Some(gradient_idx) = gradient_idx {
-        let gradient: ArrayRef<'_, f32, Contiguous> =
-            storage.get_as_array_ref(gradient_idx, ContiguousType::Grad)?;
+        let gradient =
+            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = lhs_gradient_idx {
             let rhs_value = storage.get_as_array_ref::<View>(rhs_idx, ContiguousType::Arr)?;
             let gradient = gradient.matmul_2d(&rhs_value.t())?;
 
             let mut lhs_gradient =
-                storage.get_as_array_ref_mut(lhs_grad_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
             lhs_gradient.add_assign(&gradient)?;
         }
 
@@ -107,7 +103,7 @@ pub fn matmul_2d_f32_backward(
             let gradient = lhs_value.t().matmul_2d(&gradient)?;
 
             let mut rhs_gradient =
-                storage.get_as_array_ref_mut(rhs_grad_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(rhs_grad_idx, ContiguousType::Grad)?;
             rhs_gradient.add_assign(&gradient)?;
         }
     }
@@ -123,15 +119,15 @@ pub fn matmul_2d_f64_backward(
     storage: &mut ArrayStorage<f64>,
 ) -> Result<(), PzeudoErr> {
     if let Some(gradient_idx) = gradient_idx {
-        let gradient: ArrayRef<'_, f64, Contiguous> =
-            storage.get_as_array_ref(gradient_idx, ContiguousType::Grad)?;
+        let gradient =
+            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = lhs_gradient_idx {
             let rhs_value = storage.get_as_array_ref::<View>(rhs_idx, ContiguousType::Arr)?;
             let gradient = gradient.matmul_2d(&rhs_value.t())?;
 
             let mut lhs_gradient =
-                storage.get_as_array_ref_mut(lhs_grad_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
             lhs_gradient.add_assign(&gradient)?;
         }
 
@@ -142,7 +138,7 @@ pub fn matmul_2d_f64_backward(
             let gradient = lhs_value.t().matmul_2d(&gradient)?;
 
             let mut rhs_gradient =
-                storage.get_as_array_ref_mut(rhs_grad_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(rhs_grad_idx, ContiguousType::Grad)?;
             rhs_gradient.add_assign(&gradient)?;
         }
     }

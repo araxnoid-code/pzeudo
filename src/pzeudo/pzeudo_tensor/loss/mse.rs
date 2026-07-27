@@ -40,8 +40,8 @@ where
 
     let gradient = Array::<F>::zeros(&array.shape);
 
-    let array_idx = storage.push(ElementType::Contiguous(array, ContiguousType::Arr))?;
-    let grad_idx = Some(storage.push(ElementType::Contiguous(gradient, ContiguousType::Grad))?);
+    let array_idx = storage.push(ElementType::Arr(array))?;
+    let grad_idx = Some(storage.push(ElementType::Grad(gradient))?);
 
     let record_label = RecordLabel::LossMse(array_idx, pred.get_grad_idx(), grad_idx);
     pred.record.borrow_mut().push(record_label);
@@ -81,7 +81,7 @@ where
             let grad = output_value.mul_scalar(scalar)?.mul(&gradient)?;
 
             let mut prediction_grad =
-                storage.get_as_array_ref_mut(prediction_grad_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(prediction_grad_idx, ContiguousType::Grad)?;
 
             let grad_broadcast = grad.broadcast(prediction_grad.shape)?;
             prediction_grad.add_assign(&grad_broadcast)?;

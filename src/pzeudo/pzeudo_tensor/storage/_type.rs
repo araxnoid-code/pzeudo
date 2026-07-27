@@ -1,4 +1,6 @@
-use crate::{Array, PermanentTensor, TensorMetadata};
+use std::format;
+
+use crate::{Array, PermanentTensor, PzeudoErr, TensorMetadata};
 
 // 1
 #[derive(Debug)]
@@ -9,22 +11,30 @@ pub enum ContiguousType {
 
 // 16
 #[derive(Clone, Copy, Debug)]
-pub enum StorageType {
+pub enum ViewStorageType {
     Permanent(usize),
     Storage(usize),
 }
 
-pub enum GetElementOutput<'a, F> {
-    Permanent(&'a PermanentTensor<F>),
-    Storage(&'a ElementType<F>),
+#[derive(Clone, Copy, Debug)]
+pub enum StorageType {
+    Permanent(usize),
+    Arr(usize),
+    View(usize),
 }
 
-pub enum GetElementMutOutput<'a, F> {
-    Permanent(&'a mut PermanentTensor<F>),
-    Storage(&'a mut ElementType<F>),
+impl StorageType {
+    pub fn to_view_element_type(&self) -> Result<ViewStorageType, PzeudoErr> {
+        match self {
+            Self::View(_) => Err(PzeudoErr::CastingStorageTypeToView(format!(""))),
+            Self::Arr(arr_idx) => Ok(ViewStorageType::Storage(*arr_idx)),
+            Self::Permanent(permanent_idx) => Ok(ViewStorageType::Permanent(*permanent_idx)),
+        }
+    }
 }
 
 pub enum ElementType<F> {
-    Contiguous(Array<F>, ContiguousType),
-    View(StorageType, TensorMetadata),
+    Arr(Array<F>),
+    Grad(Array<F>),
+    View(TensorMetadata),
 }

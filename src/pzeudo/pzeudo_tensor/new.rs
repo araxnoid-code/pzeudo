@@ -13,10 +13,10 @@ impl<F> Tensor<F, Contiguous> {
     ) -> Result<Tensor<F, Contiguous>, PzeudoErr> {
         let mut storage_mut = storage.borrow_mut();
 
-        let array_idx = storage_mut.push(ElementType::Contiguous(array, ContiguousType::Arr))?;
+        let array_idx = storage_mut.push(ElementType::Arr(array))?;
         let grad_idx = gradient.map_or(Ok(None), |grad| {
             storage_mut
-                .push(ElementType::Contiguous(grad, ContiguousType::Grad))
+                .push(ElementType::Grad(grad))
                 .map(|idx| Some(idx))
         });
 
@@ -46,10 +46,9 @@ impl<F> Tensor<F, Contiguous> {
 
         let array = Array::from_vector_with_shape(vec, shape)?;
         let gradient: Array<F> = Array::zeros(shape);
-        let array_idx = borrow_storage.push(ElementType::Contiguous(array, ContiguousType::Arr))?;
+        let array_idx = borrow_storage.push(ElementType::Arr(array))?;
 
-        let grad_idx =
-            Some(borrow_storage.push(ElementType::Contiguous(gradient, ContiguousType::Grad))?);
+        let grad_idx = Some(borrow_storage.push(ElementType::Grad(gradient))?);
         drop(borrow_storage);
 
         let tensor = Tensor {
@@ -102,10 +101,8 @@ impl<F> Tensor<F, Contiguous> {
         let mut storage_borrow_mut = storage.borrow_mut();
 
         let gradient = Array::<F>::zeros(&array.shape);
-        let array_idx =
-            storage_borrow_mut.push(ElementType::Contiguous(array, ContiguousType::Arr))?;
-        let grad_idx =
-            Some(storage_borrow_mut.push(ElementType::Contiguous(gradient, ContiguousType::Grad))?);
+        let array_idx = storage_borrow_mut.push(ElementType::Arr(array))?;
+        let grad_idx = Some(storage_borrow_mut.push(ElementType::Grad(gradient))?);
         drop(storage_borrow_mut);
 
         Ok(Tensor {
@@ -125,16 +122,17 @@ impl<F> Tensor<F, Contiguous> {
         let array: ArrayRef<'_, F, Contiguous> =
             storage.get_as_array_ref(self.array_idx, ContiguousType::Arr)?;
 
-        let tensor_metadata = TensorMetadata {
-            offset: array.offset,
-            shape: array.shape.to_vec(),
-            stride: array.stride.to_vec(),
-        };
+        let tensor_metadata = TensorMetadata::new(
+            array.offset,
+            array.shape.to_vec(),
+            array.stride.to_vec(),
+            self.array_idx.to_view_element_type()?,
+        );
 
         let grad = Array::<F>::zeros(&array.shape);
-        let grad_idx = Some(storage.push(ElementType::Contiguous(grad, ContiguousType::Grad))?);
+        let grad_idx = Some(storage.push(ElementType::Grad(grad))?);
 
-        let view_idx = storage.push(ElementType::View(self.array_idx, tensor_metadata))?;
+        let view_idx = storage.push(ElementType::View(tensor_metadata))?;
 
         drop(storage);
         let view = Tensor {

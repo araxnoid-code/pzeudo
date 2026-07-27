@@ -17,10 +17,8 @@ impl<T> Tensor<f32, T> {
         let result = OpsMatmulNDF32::matmul_nd(&lhs_array, &rhs_array)?;
         let grad = Array::<f32>::zeros(&result.shape);
 
-        let array_idx =
-            borrow_mut_storage.push(ElementType::Contiguous(result, ContiguousType::Arr))?;
-        let grad_idx =
-            Some(borrow_mut_storage.push(ElementType::Contiguous(grad, ContiguousType::Grad))?);
+        let array_idx = borrow_mut_storage.push(ElementType::Arr(result))?;
+        let grad_idx = Some(borrow_mut_storage.push(ElementType::Grad(grad))?);
 
         let record_label = RecordLabel::MatmulNdF32(
             (self.get_array_idx(), self.get_grad_idx()),
@@ -56,10 +54,8 @@ impl<T> Tensor<f64, T> {
         let result = OpsMatmulNDF64::matmul_nd(&lhs_array, &rhs_array)?;
         let grad = Array::<f64>::zeros(&result.shape);
 
-        let array_idx =
-            borrow_mut_storage.push(ElementType::Contiguous(result, ContiguousType::Arr))?;
-        let grad_idx =
-            Some(borrow_mut_storage.push(ElementType::Contiguous(grad, ContiguousType::Grad))?);
+        let array_idx = borrow_mut_storage.push(ElementType::Arr(result))?;
+        let grad_idx = Some(borrow_mut_storage.push(ElementType::Grad(grad))?);
 
         let record_label = RecordLabel::MatmulNdF64(
             (self.get_array_idx(), self.get_grad_idx()),
@@ -101,7 +97,7 @@ pub fn matmul_nd_f32_backward(
             let grad = gradient.matmul_nd(&rhs_permute)?;
 
             let mut lhs_gradient =
-                storage.get_as_array_ref_mut(lhs_gradient_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(lhs_gradient_idx, ContiguousType::Grad)?;
             lhs_gradient.add_assign(&grad)?;
         }
 
@@ -118,7 +114,7 @@ pub fn matmul_nd_f32_backward(
             let grad = lhs_permute.matmul_nd(&gradient)?;
 
             let mut rhs_gradient =
-                storage.get_as_array_ref_mut(rhs_gradient_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(rhs_gradient_idx, ContiguousType::Grad)?;
             rhs_gradient.add_assign(&grad)?;
         }
     }
@@ -148,7 +144,7 @@ pub fn matmul_nd_f64_backward(
             let grad = gradient.matmul_nd(&rhs_permute)?;
 
             let mut lhs_gradient =
-                storage.get_as_array_ref_mut(lhs_gradient_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(lhs_gradient_idx, ContiguousType::Grad)?;
             lhs_gradient.add_assign(&grad)?;
         }
 
@@ -165,7 +161,7 @@ pub fn matmul_nd_f64_backward(
             let grad = lhs_permute.matmul_nd(&gradient)?;
 
             let mut rhs_gradient =
-                storage.get_as_array_ref_mut(rhs_gradient_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(rhs_gradient_idx, ContiguousType::Grad)?;
             rhs_gradient.add_assign(&grad)?;
         }
     }

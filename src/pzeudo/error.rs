@@ -43,6 +43,9 @@ pub enum PzeudoErr {
     // // DotProduct
     DotProductErr(String),
 
+    // METADATA
+    CastingStorageTypeToView(String),
+
     // Storage
     StoragePushErr(String),
     StorageGetErr(String),

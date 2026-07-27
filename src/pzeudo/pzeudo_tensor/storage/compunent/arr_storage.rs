@@ -6,7 +6,7 @@ use std::{
 use crate::prelude::*;
 
 pub struct ArrStorage<F> {
-    storage: Vec<Option<ElementType<F>>>,
+    storage: Vec<Option<Array<F>>>,
     empty_idx: Vec<usize>,
 }
 
@@ -18,7 +18,7 @@ impl<F> ArrStorage<F> {
         }
     }
 
-    pub(crate) fn push_arr(&mut self, element: ElementType<F>) -> Result<usize, PzeudoErr> {
+    pub(crate) fn push_arr(&mut self, element: Array<F>) -> Result<usize, PzeudoErr> {
         if let Some(idx) = self.empty_idx.pop() {
             if self.storage[idx].is_some() {
                 return Err(PzeudoErr::ArrStoragePushErr(format!(
@@ -33,7 +33,7 @@ impl<F> ArrStorage<F> {
         };
     }
 
-    pub(crate) fn get_arr(&self, idx: usize) -> Result<&ElementType<F>, PzeudoErr> {
+    pub(crate) fn get_arr(&self, idx: usize) -> Result<&Array<F>, PzeudoErr> {
         let array = self
             .storage
             .get(idx)
@@ -48,7 +48,7 @@ impl<F> ArrStorage<F> {
         Ok(array)
     }
 
-    pub(crate) fn get_arr_mut(&mut self, idx: usize) -> Result<&mut ElementType<F>, PzeudoErr> {
+    pub(crate) fn get_arr_mut(&mut self, idx: usize) -> Result<&mut Array<F>, PzeudoErr> {
         let array = self
             .storage
             .get_mut(idx)
@@ -65,7 +65,7 @@ impl<F> ArrStorage<F> {
 }
 
 impl<F> Deref for ArrStorage<F> {
-    type Target = Vec<Option<ElementType<F>>>;
+    type Target = Vec<Option<Array<F>>>;
     fn deref(&self) -> &Self::Target {
         &self.storage
     }

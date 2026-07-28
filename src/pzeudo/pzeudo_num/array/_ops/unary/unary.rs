@@ -51,7 +51,7 @@ pub trait OpsUnary<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn log(&self, scalar: F) -> Result<Array<F>, PzeudoErr>
+    fn log(&self, base: F) -> Result<Array<F>, PzeudoErr>
     where
         F: Float + Copy,
     {
@@ -60,7 +60,7 @@ pub trait OpsUnary<F>: ArrayTrait<F> {
         let len = metadata.shape.iter().product::<usize>();
         let mut vec = Vec::with_capacity(len);
         for idx in 0..len {
-            let value = self.linear_index(idx)?.log(scalar);
+            let value = self.linear_index(idx)?.log(base);
             vec.push(value);
         }
 

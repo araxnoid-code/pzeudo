@@ -43,6 +43,10 @@ pub enum PzeudoErr {
     // // DotProduct
     DotProductErr(String),
 
+    // UNARY
+    Log10Err(String),
+    PowiBackwardErr(String),
+
     // METADATA
     CastingStorageTypeToView(String),
 

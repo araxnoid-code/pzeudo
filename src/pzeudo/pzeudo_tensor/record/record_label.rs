@@ -1,8 +1,8 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use crate::StorageType;
 
-pub enum RecordLabel {
+pub enum RecordLabel<F> {
     // Arithmetic
     Add(
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Lhs(arr, Grad)
@@ -46,11 +46,20 @@ pub enum RecordLabel {
         Option<StorageType>,                // own grad
     ),
 
+    // Unary
+    Log((StorageType, Option<StorageType>), F, Option<StorageType>),
+    Ln((StorageType, Option<StorageType>), Option<StorageType>),
+    Powi((StorageType, Option<StorageType>), i32, Option<StorageType>),
+    Powf((StorageType, Option<StorageType>), F, Option<StorageType>),
+
     // LOSS
     LossMse(StorageType, Option<StorageType>, Option<StorageType>), // (Output, Prediction grad, Own Grad)
 }
 
-impl Debug for RecordLabel {
+impl<F> Debug for RecordLabel<F>
+where
+    F: Display,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Add(_, _, _) => f.write_str("add record"),
@@ -62,6 +71,10 @@ impl Debug for RecordLabel {
             Self::Matmul2dF64(_, _, _) => f.write_str("Matmul 2d f64 record"),
             Self::MatmulNdF32(_, _, _) => f.write_str("Matmul nd f32 record"),
             RecordLabel::MatmulNdF64(_, _, _) => f.write_str("Matmul nd f64 record"),
+            Self::Log((_, _), base, _) => f.write_str(&format!("log base {base} record")),
+            RecordLabel::Ln(_, _) => f.write_str(&format!("log natural record")),
+            Self::Powi(_, i, _) => f.write_str(&format!("powi {i} record")),
+            Self::Powf(_, float, _) => f.write_str(&format!("powf {float} record")),
         }
     }
 }

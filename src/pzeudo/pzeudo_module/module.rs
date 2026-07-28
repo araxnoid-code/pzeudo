@@ -5,7 +5,7 @@ use std::{cell::RefCell, rc::Rc};
 
 pub struct Module<F> {
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
-    pub(crate) record: Rc<RefCell<Vec<RecordLabel>>>,
+    pub(crate) record: Rc<RefCell<Vec<RecordLabel<F>>>>,
 }
 
 impl<F> Module<F> {
@@ -13,7 +13,7 @@ impl<F> Module<F> {
         &self.storage
     }
 
-    pub fn get_record(&self) -> &Rc<RefCell<Vec<RecordLabel>>> {
+    pub fn get_record(&self) -> &Rc<RefCell<Vec<RecordLabel<F>>>> {
         &self.record
     }
 

@@ -6,7 +6,7 @@ pub trait TensorTrait<F> {
     fn get_array_idx(&self) -> StorageType;
     fn get_grad_idx(&self) -> Option<StorageType>;
     fn get_storage(&self) -> &Rc<RefCell<ArrayStorage<F>>>;
-    fn get_record(&self) -> &Rc<RefCell<Vec<RecordLabel>>>;
+    fn get_record(&self) -> &Rc<RefCell<Vec<RecordLabel<F>>>>;
 }
 
 impl<F, T> TensorTrait<F> for Tensor<F, T> {
@@ -18,7 +18,7 @@ impl<F, T> TensorTrait<F> for Tensor<F, T> {
         self.grad_idx
     }
 
-    fn get_record(&self) -> &Rc<RefCell<Vec<RecordLabel>>> {
+    fn get_record(&self) -> &Rc<RefCell<Vec<RecordLabel<F>>>> {
         &self.record
     }
 

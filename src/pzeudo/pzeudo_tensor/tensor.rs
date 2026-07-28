@@ -3,7 +3,7 @@ use num_traits::{Float, One};
 use std::{cell::RefCell, iter::Sum, marker::PhantomData, ops::AddAssign, rc::Rc};
 
 pub struct Tensor<F, T> {
-    pub(crate) record: Rc<RefCell<Vec<RecordLabel>>>,
+    pub(crate) record: Rc<RefCell<Vec<RecordLabel<F>>>>,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
     pub(crate) array_idx: StorageType,
     pub(crate) grad_idx: Option<StorageType>,
@@ -12,6 +12,10 @@ pub struct Tensor<F, T> {
 }
 
 impl<F, T> Tensor<F, T> {
+    pub fn get_shape(&self) -> &[usize] {
+        &self.shape
+    }
+
     pub fn backward(&self) -> Result<(), PzeudoErr>
     where
         ArrayStorage<F>: StorageF32F64,

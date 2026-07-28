@@ -12,7 +12,7 @@ pub trait BackwardTrait<F> {
     fn backward(&self, storage: &mut ArrayStorage<F>) -> Result<(), PzeudoErr>;
 }
 
-impl<F> BackwardTrait<F> for RecordLabel
+impl<F> BackwardTrait<F> for RecordLabel<F>
 where
     ArrayStorage<F>: StorageF32F64,
     for<'a> F: AddAssign + Copy + Neg<Output = F> + Float + Sum<&'a F>,
@@ -100,6 +100,22 @@ where
                         .to_mut_f64()
                         .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Cannot perform backward on matmul_2d of type f64 because the storage is not of type f64")))?,
                 )?;
+            }
+
+            RecordLabel::Log(lhs, base, grad) => {
+                log_backward(lhs.0, lhs.1, *grad, *base, storage)?;
+            }
+
+            RecordLabel::Ln(lhs, grad) => {
+                ln_backward(lhs.0, lhs.1, *grad, storage)?;
+            }
+
+            Self::Powf(lhs, f, grad) => {
+                powf_backward(lhs.0, lhs.1, *f, *grad, storage)?;
+            }
+
+            Self::Powi(lhs, i, grad) => {
+                powi_backward(lhs.0, lhs.1, *i, *grad, storage)?;
             }
 
             RecordLabel::LossMse(output_idx, prediction_grad_idx, grad) => {

@@ -9,7 +9,7 @@ impl<F, T> Tensor<F, T> {
         array_idx: StorageType,
         grad_idx: Option<StorageType>,
         shape: Vec<usize>,
-        record: Rc<RefCell<Vec<RecordLabel>>>,
+        record: Rc<RefCell<Vec<RecordLabel<F>>>>,
         storage: Rc<RefCell<ArrayStorage<F>>>,
     ) -> Tensor<F, T> {
         Self {
@@ -28,7 +28,7 @@ impl<F> Tensor<F, Contiguous> {
         vec: &[F],
         shape: &[usize],
         storage: Rc<RefCell<ArrayStorage<F>>>,
-        record: Rc<RefCell<Vec<RecordLabel>>>,
+        record: Rc<RefCell<Vec<RecordLabel<F>>>>,
     ) -> Result<Tensor<F, Contiguous>, PzeudoErr>
     where
         F: Clone + Zero,
@@ -58,7 +58,7 @@ impl<F> Tensor<F, Contiguous> {
         vec: &[F],
         shape: &[usize],
         storage: Rc<RefCell<ArrayStorage<F>>>,
-        record: Rc<RefCell<Vec<RecordLabel>>>,
+        record: Rc<RefCell<Vec<RecordLabel<F>>>>,
     ) -> Result<Tensor<F, Contiguous>, PzeudoErr>
     where
         F: Clone + Zero,
@@ -86,7 +86,7 @@ impl<F> Tensor<F, Contiguous> {
     pub fn from_array(
         array: Array<F>,
         storage: Rc<RefCell<ArrayStorage<F>>>,
-        record: Rc<RefCell<Vec<RecordLabel>>>,
+        record: Rc<RefCell<Vec<RecordLabel<F>>>>,
     ) -> Result<Tensor<F, Contiguous>, PzeudoErr>
     where
         F: Clone + Zero,

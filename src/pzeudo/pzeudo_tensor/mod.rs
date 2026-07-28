@@ -26,8 +26,8 @@ pub use method::*;
 mod loss;
 pub use loss::*;
 
-mod optimazer;
-pub use optimazer::*;
+mod optimizer;
+pub use optimizer::*;
 
 #[cfg(test)]
 mod _test;

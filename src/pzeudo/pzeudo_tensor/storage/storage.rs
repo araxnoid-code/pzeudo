@@ -2,7 +2,7 @@ use std::format;
 
 use crate::{
     prelude::*,
-    pzeudo_tensor::storage::compunent::{ArrStorage, GradStorage, ViewStorage},
+    pzeudo_tensor::storage::component::{ArrStorage, GradStorage, ViewStorage},
 };
 
 pub struct ArrayStorage<F> {

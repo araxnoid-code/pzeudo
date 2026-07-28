@@ -9,4 +9,4 @@ pub use permanent::*;
 
 mod method;
 
-mod compunent;
+mod component;

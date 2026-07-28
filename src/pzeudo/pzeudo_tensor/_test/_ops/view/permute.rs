@@ -1,8 +1,10 @@
-use std::println;
+use std::assert_eq;
 
-use pzeudo::*;
+use crate::prelude::*;
 
-fn main() {
+#[test]
+
+fn permute_test_1() {
     let module = Module::<f32>::new();
 
     let shape = [3, 3, 2];
@@ -38,9 +40,9 @@ fn main() {
         .get_as_array_ref::<View>(tensor_a.get_grad_idx().unwrap(), ContiguousType::Grad)
         .unwrap()
         .into_array()
-        .unwrap();
-
-    println!("{}", grad_a);
+        .unwrap()
+        .data
+        .to_vec();
 
     let check_tensor = tensor_b.permute(&[0, 2, 1]).unwrap();
     let check_array = module
@@ -49,11 +51,11 @@ fn main() {
         .get_as_array_ref::<View>(check_tensor.get_array_idx(), ContiguousType::Arr)
         .unwrap()
         .into_array()
-        .unwrap();
-    // println!("{}", check_tensor);
-    println!("{}", check_array);
-    //     .data
-    //     .to_vec();
+        .unwrap()
+        .data
+        .to_vec();
 
-    // assert_eq!(check_array, grad_a);
+    assert_eq!(check_array, grad_a);
+
+    // assert_eq!()
 }

@@ -51,6 +51,8 @@ pub enum RecordLabel<F> {
     Ln((StorageType, Option<StorageType>), Option<StorageType>),
     Powi((StorageType, Option<StorageType>), i32, Option<StorageType>),
     Powf((StorageType, Option<StorageType>), F, Option<StorageType>),
+    Sqrt((StorageType, Option<StorageType>), Option<StorageType>),
+    Exp((StorageType, Option<StorageType>), Option<StorageType>),
 
     // LOSS
     LossMse(StorageType, Option<StorageType>, Option<StorageType>), // (Output, Prediction grad, Own Grad)
@@ -75,6 +77,8 @@ where
             RecordLabel::Ln(_, _) => f.write_str(&format!("log natural record")),
             Self::Powi(_, i, _) => f.write_str(&format!("powi {i} record")),
             Self::Powf(_, float, _) => f.write_str(&format!("powf {float} record")),
+            Self::Sqrt(_, _) => f.write_str(&format!("sqrt record")),
+            Self::Exp(_, _) => f.write_str(&format!("exp record")),
         }
     }
 }

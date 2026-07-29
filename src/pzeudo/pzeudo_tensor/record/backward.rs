@@ -118,6 +118,14 @@ where
                 powi_backward(lhs.0, lhs.1, *i, *grad, storage)?;
             }
 
+            Self::Sqrt(lhs, grad) => {
+                sqrt_backward(lhs.0, lhs.1, *grad, storage)?;
+            }
+
+            Self::Exp(lhs, grad) => {
+                exp_backward(lhs.0, lhs.1, *grad, storage)?;
+            }
+
             RecordLabel::LossMse(output_idx, prediction_grad_idx, grad) => {
                 mse_backward(*grad, *output_idx, *prediction_grad_idx, storage)?;
             }

@@ -145,6 +145,16 @@ where
                     storage,
                 )?;
             }
+
+            Self::CrossEntropyLoss(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
+                cross_entropy_loss_backward(
+                    *actual_idx,
+                    *prediction_idx,
+                    *prediction_grad_idx,
+                    *grad,
+                    storage,
+                );
+            }
         }
         Ok(())
     }

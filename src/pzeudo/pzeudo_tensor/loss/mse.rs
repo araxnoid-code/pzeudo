@@ -24,15 +24,15 @@ where
         storage.get_as_array_ref::<J>(actual.get_array_idx(), ContiguousType::Arr)?;
 
     if pred_array.shape != actual_array.shape {
-        return Err(PzeudoErr::LossMseErr(format!(
+        return Err(PzeudoErr::MseErr(format!(
             "mse. actual shape: {:?}, predicted shape: {:?}. The shape of both tensors must be the same",
             actual_array.shape, pred_array.shape
         )));
     }
 
-    let len = F::from(actual_array.shape.iter().product::<usize>()).ok_or(
-        PzeudoErr::LossMseErr(format!("mse. Unable to cast on length type")),
-    )?;
+    let len = F::from(actual_array.shape.iter().product::<usize>()).ok_or(PzeudoErr::MseErr(
+        format!("mse. Unable to cast on length type"),
+    ))?;
 
     let array = actual_array
         .sub(&pred_array)?
@@ -89,7 +89,7 @@ where
 
             let scalar = -(F::one() + F::one())
                 / F::from(actual_value.shape.iter().product::<usize>()).ok_or(
-                    PzeudoErr::LossMseBackwardErr(format!(
+                    PzeudoErr::MseBackwardErr(format!(
                         "mse_backward. Cannot cast on scalar length"
                     )),
                 )?;

@@ -73,8 +73,10 @@ pub enum PzeudoErr {
     LinearForward(String),
 
     // Loss
-    LossMseErr(String),
-    LossMseBackwardErr(String),
-    LossMaeErr(String),
-    LossMaeBackwardErr(String),
+    MseErr(String),
+    MseBackwardErr(String),
+    MaeErr(String),
+    MaeBackwardErr(String),
+    CrossEntropyLossErr(String),
+    CrossEntropyLossBackwardErr(String),
 }

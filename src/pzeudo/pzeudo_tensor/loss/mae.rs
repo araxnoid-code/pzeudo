@@ -1,11 +1,9 @@
+use crate::prelude::*;
+use num_traits::{Float, NumCast};
 use std::{
     iter::Sum,
     ops::{AddAssign, Sub},
 };
-
-use num_traits::{Float, NumCast};
-
-use crate::prelude::*;
 
 pub fn mae<F, T, J>(
     actual: &Tensor<F, T>,
@@ -23,15 +21,14 @@ where
         storage.get_as_array_ref::<J>(prediction.get_array_idx(), ContiguousType::Arr)?;
 
     if actual_array.shape != pred_array.shape {
-        return Err(PzeudoErr::LossMaeErr(format!(
+        return Err(PzeudoErr::MaeErr(format!(
             "mae. actual shape: {:?}, predicted shape: {:?}. The shape of both tensors must be the same",
             actual_array.shape, pred_array.shape
         )));
     }
 
-    let len = F::from(pred_array.shape.iter().product::<usize>()).ok_or(PzeudoErr::LossMaeErr(
-        format!("mae. cannot cast to data type"),
-    ))?;
+    let len = F::from(pred_array.shape.iter().product::<usize>())
+        .ok_or(PzeudoErr::MaeErr(format!("mae. cannot cast to data type")))?;
 
     let loss_array = actual_array
         .sub(&pred_array)?
@@ -80,9 +77,7 @@ where
                 storage.get_as_array_ref::<View>(prediction_idx, ContiguousType::Arr)?;
 
             let n = -F::from(actual_value.shape.iter().product::<usize>()).ok_or(
-                PzeudoErr::LossMaeBackwardErr(format!(
-                    "mae_backward. Cannot cast on scalar length"
-                )),
+                PzeudoErr::MaeBackwardErr(format!("mae_backward. Cannot cast on scalar length")),
             )?;
 
             let grad = actual_value

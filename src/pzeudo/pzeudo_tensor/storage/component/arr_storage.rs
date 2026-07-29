@@ -1,7 +1,4 @@
-use std::{
-    format,
-    ops::{Deref, DerefMut},
-};
+use std::format;
 
 use crate::prelude::*;
 
@@ -62,17 +59,22 @@ impl<F> ArrStorage<F> {
 
         Ok(array)
     }
-}
 
-impl<F> Deref for ArrStorage<F> {
-    type Target = Vec<Option<Array<F>>>;
-    fn deref(&self) -> &Self::Target {
-        &self.storage
+    pub fn clear(&mut self) {
+        self.storage.clear();
+        self.empty_idx.clear();
     }
 }
 
-impl<F> DerefMut for ArrStorage<F> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.storage
-    }
-}
+// impl<F> Deref for ArrStorage<F> {
+//     type Target = Vec<Option<Array<F>>>;
+//     fn deref(&self) -> &Self::Target {
+//         &self.storage
+//     }
+// }
+
+// impl<F> DerefMut for ArrStorage<F> {
+//     fn deref_mut(&mut self) -> &mut Self::Target {
+//         &mut self.storage
+//     }
+// }

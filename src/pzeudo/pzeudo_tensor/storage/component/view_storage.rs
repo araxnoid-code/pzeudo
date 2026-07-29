@@ -42,6 +42,11 @@ impl ViewStorage {
 
         Ok(array)
     }
+
+    pub fn clear(&mut self) {
+        self.storage.clear();
+        self.empty_idx.clear();
+    }
 }
 
 // impl<F> Deref for GradStorage<F> {

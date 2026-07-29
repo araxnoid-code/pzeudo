@@ -75,4 +75,6 @@ pub enum PzeudoErr {
     // Loss
     LossMseErr(String),
     LossMseBackwardErr(String),
+    LossMaeErr(String),
+    LossMaeBackwardErr(String),
 }

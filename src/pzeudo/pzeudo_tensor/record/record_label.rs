@@ -55,7 +55,18 @@ pub enum RecordLabel<F> {
     Exp((StorageType, Option<StorageType>), Option<StorageType>),
 
     // LOSS
-    LossMse(StorageType, Option<StorageType>, Option<StorageType>), // (Output, Prediction grad, Own Grad)
+    LossMse(
+        StorageType,
+        StorageType,
+        Option<StorageType>,
+        Option<StorageType>,
+    ), // (actual_idx, prediction_idx, Prediction grad, Own Grad)
+    LossMae(
+        StorageType,
+        StorageType,
+        Option<StorageType>,
+        Option<StorageType>,
+    ), // (actual_idx, prediction_idx, Prediction grad, Own Grad)
 }
 
 impl<F> Debug for RecordLabel<F>
@@ -68,7 +79,8 @@ where
             Self::Sub(_, _, _) => f.write_str("sub record"),
             Self::Mul(_, _, _) => f.write_str("mul record"),
             Self::Div(_, _, _) => f.write_str("div record"),
-            Self::LossMse(_, _, _) => f.write_str("Loss Mse record"),
+            Self::LossMse(_, _, _, _) => f.write_str("Loss Mse record"),
+            Self::LossMae(_, _, _, _) => f.write_str("Loss Mae record"),
             Self::Matmul2dF32(_, _, _) => f.write_str("Matmul 2d f32 record"),
             Self::Matmul2dF64(_, _, _) => f.write_str("Matmul 2d f64 record"),
             Self::MatmulNdF32(_, _, _) => f.write_str("Matmul nd f32 record"),

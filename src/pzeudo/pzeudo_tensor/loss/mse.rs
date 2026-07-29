@@ -9,16 +9,17 @@ use std::{
 
 pub fn mse<F, T, J>(
     actual: &Tensor<F, J>,
-    pred: &Tensor<F, T>,
+    prediction: &Tensor<F, T>,
 ) -> Result<Tensor<F, Contiguous>, PzeudoErr>
 where
     for<'a> F: Sub<Output = F> + Copy + Float + Zero + Clone + Sum<&'a F> + AddAssign + NumCast,
     for<'a> ArrayRef<'a, F, T>: OpsSub<F> + OpsBroadcast<F>,
     for<'a> ArrayRef<'a, F, J>: OpsSub<F> + OpsBroadcast<F>,
 {
-    let mut storage = pred.storage.borrow_mut();
+    let mut storage = prediction.storage.borrow_mut();
 
-    let pred_array = storage.get_as_array_ref::<T>(pred.get_array_idx(), ContiguousType::Arr)?;
+    let pred_array =
+        storage.get_as_array_ref::<T>(prediction.get_array_idx(), ContiguousType::Arr)?;
     let actual_array =
         storage.get_as_array_ref::<J>(actual.get_array_idx(), ContiguousType::Arr)?;
 
@@ -44,48 +45,63 @@ where
     let array_idx = storage.push(ElementType::Arr(array))?;
     let grad_idx = Some(storage.push(ElementType::Grad(gradient))?);
 
-    let record_label = RecordLabel::LossMse(array_idx, pred.get_grad_idx(), grad_idx);
-    pred.record.borrow_mut().push(record_label);
+    let record_label = RecordLabel::LossMse(
+        actual.get_array_idx(),
+        prediction.get_array_idx(),
+        prediction.get_grad_idx(),
+        grad_idx,
+    );
+    prediction.record.borrow_mut().push(record_label);
 
     Ok(Tensor::new(
         array_idx,
         grad_idx,
         vec![1],
-        pred.record.clone(),
-        pred.storage.clone(),
+        prediction.record.clone(),
+        prediction.storage.clone(),
     ))
 }
 
 pub fn mse_backward<F>(
     grad_idx: Option<StorageType>,
-    output_idx: StorageType,
+    actual_idx: StorageType,
+    prediction_idx: StorageType,
     prediction_grad_idx: Option<StorageType>,
     storage: &mut ArrayStorage<F>,
 ) -> Result<(), PzeudoErr>
 where
-    F: NumCast + One + Add<Output = F> + Div<Output = F> + Neg<Output = F> + Copy + AddAssign,
+    F: NumCast
+        + One
+        + Add<Output = F>
+        + Div<Output = F>
+        + Neg<Output = F>
+        + Copy
+        + AddAssign
+        + Sub<Output = F>,
 {
     if let Some(grad_idx) = grad_idx {
         let gradient = storage.get_as_array_ref::<Contiguous>(grad_idx, ContiguousType::Grad)?;
 
         if let Some(prediction_grad_idx) = prediction_grad_idx {
-            let output_value =
-                storage.get_as_array_ref::<Contiguous>(output_idx, ContiguousType::Arr)?;
+            let actual_value = storage.get_as_array_ref::<View>(actual_idx, ContiguousType::Arr)?;
+            let prediction_value =
+                storage.get_as_array_ref::<View>(prediction_idx, ContiguousType::Arr)?;
 
             let scalar = -(F::one() + F::one())
-                / F::from(output_value.shape.iter().product::<usize>()).ok_or(
+                / F::from(actual_value.shape.iter().product::<usize>()).ok_or(
                     PzeudoErr::LossMseBackwardErr(format!(
                         "mse_backward. Cannot cast on scalar length"
                     )),
                 )?;
 
-            let grad = output_value.mul_scalar(scalar)?.mul(&gradient)?;
+            let grad = actual_value
+                .sub(&prediction_value)?
+                .mul(&gradient.mul_scalar(scalar)?)?;
 
             let mut prediction_grad =
                 storage.get_as_array_ref_mut::<View>(prediction_grad_idx, ContiguousType::Grad)?;
 
-            let grad_broadcast = grad.broadcast(prediction_grad.shape)?;
-            prediction_grad.add_assign(&grad_broadcast)?;
+            prediction_grad.add_assign(&grad)?;
         }
     }
     Ok(())

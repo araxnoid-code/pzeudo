@@ -1,5 +1,3 @@
-use std::ops::{Deref, DerefMut};
-
 use crate::prelude::*;
 
 pub struct GradStorage<F> {
@@ -59,17 +57,22 @@ impl<F> GradStorage<F> {
 
         Ok(array)
     }
-}
 
-impl<F> Deref for GradStorage<F> {
-    type Target = Vec<Option<Array<F>>>;
-    fn deref(&self) -> &Self::Target {
-        &self.storage
+    pub fn clear(&mut self) {
+        self.storage.clear();
+        self.empty_idx.clear();
     }
 }
 
-impl<F> DerefMut for GradStorage<F> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.storage
-    }
-}
+// impl<F> Deref for GradStorage<F> {
+//     type Target = Vec<Option<Array<F>>>;
+//     fn deref(&self) -> &Self::Target {
+//         &self.storage
+//     }
+// }
+
+// impl<F> DerefMut for GradStorage<F> {
+//     fn deref_mut(&mut self) -> &mut Self::Target {
+//         &mut self.storage
+//     }
+// }

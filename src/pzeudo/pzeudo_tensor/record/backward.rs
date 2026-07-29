@@ -126,8 +126,24 @@ where
                 exp_backward(lhs.0, lhs.1, *grad, storage)?;
             }
 
-            RecordLabel::LossMse(output_idx, prediction_grad_idx, grad) => {
-                mse_backward(*grad, *output_idx, *prediction_grad_idx, storage)?;
+            RecordLabel::LossMse(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
+                mse_backward(
+                    *grad,
+                    *actual_idx,
+                    *prediction_idx,
+                    *prediction_grad_idx,
+                    storage,
+                )?;
+            }
+
+            Self::LossMae(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
+                mae_backward(
+                    *grad,
+                    *actual_idx,
+                    *prediction_idx,
+                    *prediction_grad_idx,
+                    storage,
+                )?;
             }
         }
         Ok(())

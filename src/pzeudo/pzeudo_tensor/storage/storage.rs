@@ -74,6 +74,7 @@ impl<F> ArrayStorage<F> {
     pub fn clear_storage(&mut self) {
         self.arr_storage.clear();
         self.grad_storage.clear();
+        self.view_storage.clear();
     }
 }
 

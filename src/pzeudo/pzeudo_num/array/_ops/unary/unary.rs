@@ -210,4 +210,48 @@ pub trait OpsUnary<F>: ArrayTrait<F> {
 
         Ok(array)
     }
+
+    fn abs(&self) -> Result<Array<F>, PzeudoErr>
+    where
+        F: Copy + Float,
+    {
+        let metadata = self.get_metadata();
+        let len = metadata.shape.iter().product::<usize>();
+        let mut vec = Vec::with_capacity(len);
+        for idx in 0..len {
+            let value = self.linear_index(idx)?.abs();
+            vec.push(value);
+        }
+
+        let array = Array {
+            data: vec,
+            offset: 0,
+            shape: metadata.shape.to_vec(),
+            stride: metadata.stride.to_vec(),
+        };
+
+        Ok(array)
+    }
+
+    fn signum(&self) -> Result<Array<F>, PzeudoErr>
+    where
+        F: Copy + Float,
+    {
+        let metadata = self.get_metadata();
+        let len = metadata.shape.iter().product::<usize>();
+        let mut vec = Vec::with_capacity(len);
+        for idx in 0..len {
+            let value = self.linear_index(idx)?.signum();
+            vec.push(value);
+        }
+
+        let array = Array {
+            data: vec,
+            offset: 0,
+            shape: metadata.shape.to_vec(),
+            stride: metadata.stride.to_vec(),
+        };
+
+        Ok(array)
+    }
 }

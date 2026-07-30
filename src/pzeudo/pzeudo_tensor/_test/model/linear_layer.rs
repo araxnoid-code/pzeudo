@@ -38,14 +38,15 @@ fn linear_model_test_mse_f32() {
     module
         .epoch(epoch, |epoch, module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
-            let x = model.linear_1.forward(dataset).unwrap();
-            let y = model.linear_2.forward(&x).unwrap();
-            let loss = mse(actual, &y).unwrap();
+            let x = model.linear_1.forward(dataset)?;
+            let y = model.linear_2.forward(&x)?;
+            let loss = mse(actual, &y)?;
             println!("loss: {}\n", loss);
-            loss.backward().unwrap();
+            loss.backward()?;
 
-            model.optim.optim().unwrap();
+            model.optim.optim()?;
             module.zero_grad();
+            Ok(())
         })
         .unwrap();
 }
@@ -82,14 +83,15 @@ fn linear_model_test_mse_f64() {
     module
         .epoch(epoch, |epoch, module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
-            let x = model.linear_1.forward(dataset).unwrap();
-            let y = model.linear_2.forward(&x).unwrap();
-            let loss = mse(actual, &y).unwrap();
+            let x = model.linear_1.forward(dataset)?;
+            let y = model.linear_2.forward(&x)?;
+            let loss = mse(actual, &y)?;
             println!("loss: {}\n", loss);
-            loss.backward().unwrap();
+            loss.backward()?;
 
-            model.optim.optim().unwrap();
+            model.optim.optim()?;
             module.zero_grad();
+            Ok(())
         })
         .unwrap();
 }
@@ -126,14 +128,15 @@ fn linear_model_test_mae_f32() {
     module
         .epoch(epoch, |epoch, module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
-            let x = model.linear_1.forward(dataset).unwrap();
-            let y = model.linear_2.forward(&x).unwrap();
-            let loss = mae(actual, &y).unwrap();
+            let x = model.linear_1.forward(dataset)?;
+            let y = model.linear_2.forward(&x)?;
+            let loss = mae(actual, &y)?;
             println!("loss: {}\n", loss);
-            loss.backward().unwrap();
+            loss.backward()?;
 
-            model.optim.optim().unwrap();
+            model.optim.optim()?;
             module.zero_grad();
+            Ok(())
         })
         .unwrap();
 }
@@ -170,14 +173,16 @@ fn linear_model_test_mae_f64() {
     module
         .epoch(epoch, |epoch, module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
-            let x = model.linear_1.forward(dataset).unwrap();
-            let y = model.linear_2.forward(&x).unwrap();
-            let loss = mae(actual, &y).unwrap();
+            let x = model.linear_1.forward(dataset)?;
+            let y = model.linear_2.forward(&x)?;
+            let loss = mae(actual, &y)?;
             println!("loss: {}\n", loss);
-            loss.backward().unwrap();
+            loss.backward()?;
 
-            model.optim.optim().unwrap();
+            model.optim.optim()?;
             module.zero_grad();
+
+            Ok(())
         })
         .unwrap();
 }

@@ -126,6 +126,14 @@ where
                 exp_backward(lhs.0, lhs.1, *grad, storage)?;
             }
 
+            Self::Softplus(array_idx, array_grad_idx, grad) => {
+                softplus_backward(*array_idx, *array_grad_idx, *grad, storage)?;
+            }
+
+            Self::Relu(array_idx, array_grad_idx, grad) => {
+                relu_backward(*array_idx, *array_grad_idx, *grad, storage)?;
+            }
+
             RecordLabel::LossMse(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
                 mse_backward(
                     *grad,
@@ -153,7 +161,7 @@ where
                     *prediction_grad_idx,
                     *grad,
                     storage,
-                );
+                )?;
             }
         }
         Ok(())

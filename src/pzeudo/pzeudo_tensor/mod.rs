@@ -29,5 +29,8 @@ pub use loss::*;
 mod optimizer;
 pub use optimizer::*;
 
+mod activation;
+pub use activation::*;
+
 #[cfg(test)]
 mod _test;

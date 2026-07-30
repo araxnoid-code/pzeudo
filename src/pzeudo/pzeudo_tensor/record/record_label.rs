@@ -1,6 +1,5 @@
-use std::fmt::{Debug, Display};
-
 use crate::StorageType;
+use std::fmt::{Debug, Display};
 
 pub enum RecordLabel<F> {
     // Arithmetic
@@ -54,6 +53,10 @@ pub enum RecordLabel<F> {
     Sqrt((StorageType, Option<StorageType>), Option<StorageType>),
     Exp((StorageType, Option<StorageType>), Option<StorageType>),
 
+    // Activation
+    Softplus(StorageType, Option<StorageType>, Option<StorageType>),
+    Relu(StorageType, Option<StorageType>, Option<StorageType>),
+
     // LOSS
     LossMse(
         StorageType,
@@ -87,7 +90,7 @@ where
             Self::Div(_, _, _) => f.write_str("div record"),
             Self::LossMse(_, _, _, _) => f.write_str("Loss Mse record"),
             Self::LossMae(_, _, _, _) => f.write_str("Loss Mae record"),
-            Self::CrossEntropyLoss(_, _, _) => f.write_str("Cross Entropy Loss record"),
+            Self::CrossEntropyLoss(_, _, _, _) => f.write_str("Cross Entropy Loss record"),
             Self::Matmul2dF32(_, _, _) => f.write_str("Matmul 2d f32 record"),
             Self::Matmul2dF64(_, _, _) => f.write_str("Matmul 2d f64 record"),
             Self::MatmulNdF32(_, _, _) => f.write_str("Matmul nd f32 record"),
@@ -97,7 +100,9 @@ where
             Self::Powi(_, i, _) => f.write_str(&format!("powi {i} record")),
             Self::Powf(_, float, _) => f.write_str(&format!("powf {float} record")),
             Self::Sqrt(_, _) => f.write_str(&format!("sqrt record")),
+            RecordLabel::Softplus(_, _, _) => f.write_str(&format!("softplus record")),
             Self::Exp(_, _) => f.write_str(&format!("exp record")),
+            Self::Relu(_, _, _) => f.write_str(&format!("relu record")),
         }
     }
 }

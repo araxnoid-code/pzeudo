@@ -56,6 +56,8 @@ pub enum RecordLabel<F> {
     // Activation
     Softplus(StorageType, Option<StorageType>, Option<StorageType>),
     Relu(StorageType, Option<StorageType>, Option<StorageType>),
+    Sigmoid(StorageType, Option<StorageType>, Option<StorageType>),
+    Tanh(StorageType, Option<StorageType>, Option<StorageType>),
 
     // LOSS
     LossMse(
@@ -103,6 +105,8 @@ where
             RecordLabel::Softplus(_, _, _) => f.write_str(&format!("softplus record")),
             Self::Exp(_, _) => f.write_str(&format!("exp record")),
             Self::Relu(_, _, _) => f.write_str(&format!("relu record")),
+            RecordLabel::Sigmoid(_, _, _) => f.write_str(&format!("sigmoid record")),
+            Self::Tanh(_, _, _) => f.write_str(&format!("tanh record")),
         }
     }
 }

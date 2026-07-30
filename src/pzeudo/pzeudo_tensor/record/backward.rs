@@ -134,6 +134,14 @@ where
                 relu_backward(*array_idx, *array_grad_idx, *grad, storage)?;
             }
 
+            Self::Sigmoid(output_idx, array_grad_idx, grad) => {
+                sigmoid_backward(*output_idx, *array_grad_idx, *grad, storage)?;
+            }
+
+            RecordLabel::Tanh(output_idx, array_grad_idx, grad) => {
+                tanh_backward(*output_idx, *array_grad_idx, *grad, storage)?;
+            }
+
             RecordLabel::LossMse(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
                 mse_backward(
                     *grad,

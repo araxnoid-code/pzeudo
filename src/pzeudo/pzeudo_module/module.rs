@@ -20,13 +20,4 @@ impl<F> Module<F> {
     pub fn clear_storage(&self) {
         self.storage.borrow_mut().clear_storage();
     }
-
-    pub fn zero_grad(&self)
-    where
-        F: Zero,
-    {
-        for permanent in self.storage.borrow_mut().get_permanent_storage_mut() {
-            permanent.grad.to_zeros();
-        }
-    }
 }

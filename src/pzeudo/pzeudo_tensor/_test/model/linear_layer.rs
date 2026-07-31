@@ -10,8 +10,8 @@ struct Model<F> {
 fn linear_model_test_mse_f32() {
     let module = Module::<f32>::new();
     let model = Model {
-        linear_1: module.new_linear(1, 4).unwrap(),
-        linear_2: module.new_linear(4, 1).unwrap(),
+        linear_1: Linear::new(1, 4, &module).unwrap(),
+        linear_2: Linear::new(4, 1, &module).unwrap(),
         optim: Sgd::new(0.0001, &module),
     };
 
@@ -55,8 +55,8 @@ fn linear_model_test_mse_f32() {
 fn linear_model_test_mse_f64() {
     let module = Module::<f64>::new();
     let model = Model {
-        linear_1: module.new_linear(1, 4).unwrap(),
-        linear_2: module.new_linear(4, 1).unwrap(),
+        linear_1: Linear::new(1, 4, &module).unwrap(),
+        linear_2: Linear::new(4, 1, &module).unwrap(),
         optim: Sgd::new(0.0001, &module),
     };
 
@@ -100,8 +100,8 @@ fn linear_model_test_mse_f64() {
 fn linear_model_test_mae_f32() {
     let module = Module::<f32>::new();
     let model = Model {
-        linear_1: module.new_linear(1, 4).unwrap(),
-        linear_2: module.new_linear(4, 1).unwrap(),
+        linear_1: Linear::new(1, 4, &module).unwrap(),
+        linear_2: Linear::new(4, 1, &module).unwrap(),
         optim: Sgd::new(0.0001, &module),
     };
 
@@ -145,8 +145,8 @@ fn linear_model_test_mae_f32() {
 fn linear_model_test_mae_f64() {
     let module = Module::<f64>::new();
     let model = Model {
-        linear_1: module.new_linear(1, 4).unwrap(),
-        linear_2: module.new_linear(4, 1).unwrap(),
+        linear_1: Linear::new(1, 4, &module).unwrap(),
+        linear_2: Linear::new(4, 1, &module).unwrap(),
         optim: Sgd::new(0.0001, &module),
     };
 

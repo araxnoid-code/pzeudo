@@ -4,6 +4,8 @@ use std::{
     rc::Rc,
 };
 
+use num_traits::Zero;
+
 use crate::prelude::*;
 
 pub struct Sgd<F> {
@@ -29,5 +31,14 @@ impl<F> Sgd<F> {
                 .sub_assign(&permanent.grad.mul_scalar(self.lr)?)?;
         }
         Ok(())
+    }
+
+    pub fn zero_grad(&self)
+    where
+        F: Zero,
+    {
+        for permanent in self.storage.borrow_mut().get_permanent_storage_mut() {
+            permanent.grad.to_zeros();
+        }
     }
 }

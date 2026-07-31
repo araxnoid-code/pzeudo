@@ -56,3 +56,5 @@
 
 - Module Update
   - update the function Module::epoch which will accept a function that will return Result<O, PzeudoErr>, O is a generic type.
+
+more details on: [0.0.1-dev.7_plan.md](./0.0.1-dev.7_plan.md)

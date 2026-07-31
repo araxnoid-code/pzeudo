@@ -1,8 +1,8 @@
 [package]
 name = "pzeudo"
-version = "0.0.1"
+version = "0.0.2-dev.1"
 edition = "2024"
-license = "Apache-2.0"
+license = "MIT"
 description = "a Deep Learning library"
 keywords = ["AI", "machine-learning", "deep-learning", "neural-network", "tensor"]
 

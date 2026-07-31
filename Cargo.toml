@@ -2,6 +2,9 @@
 name = "pzeudo"
 version = "0.0.1"
 edition = "2024"
+license = "Apache-2.0"
+description = "a Deep Learning library"
+keywords = ["AI", "machine-learning", "deep-learning", "neural-network", "tensor"]
 
 [lib]
 path = "./src/pzeudo/mod.rs"

@@ -1,5 +1,3 @@
-use num_traits::Zero;
-
 use crate::prelude::*;
 use std::{cell::RefCell, rc::Rc};
 

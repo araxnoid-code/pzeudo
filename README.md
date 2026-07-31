@@ -2,13 +2,17 @@
 a deep learning project.
 
 ## Version 0.0.1
-see what's new: [version.md](./version.md)
+see what's new: [version.md](https://github.com/araxnoid-code/pzeudo/blob/0.0.1/version.md)
 
 ## Installation
-`Cargo.toml`
+add the following line to your `Cargo.toml`.
 ```toml
 [dependencies]
-pzeudo = {git = "https://github.com/araxnoid-code/pzeudo"}
+pzeudo = "0.0.1"
+```
+or Run the following Cargo command in your project directory
+```sh
+cargo add pzeudo
 ```
 
 ## Code
@@ -80,4 +84,4 @@ fn main() {
 }
 ```
 
-to see the development progress: [0.0.1-dev.7_plan.md](0.0.1-dev.7_plan.md)
+to see the development progress: [0.0.1-dev.7_plan.md](https://github.com/araxnoid-code/pzeudo/blob/0.0.1/0.0.1-dev.7_plan.md)

@@ -36,7 +36,7 @@ fn linear_model_test_mse_f32() {
     let epoch = EpochBuilder::new(25, model, (dataset, actual));
 
     module
-        .epoch(epoch, |epoch, module, model, (dataset, actual)| {
+        .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
             let x = model.linear_1.forward(dataset)?;
             let y = model.linear_2.forward(&x)?;
@@ -45,7 +45,7 @@ fn linear_model_test_mse_f32() {
             loss.backward()?;
 
             model.optim.optim()?;
-            module.zero_grad();
+            model.optim.zero_grad();
             Ok(())
         })
         .unwrap();
@@ -81,7 +81,7 @@ fn linear_model_test_mse_f64() {
     let epoch = EpochBuilder::new(25, model, (dataset, actual));
 
     module
-        .epoch(epoch, |epoch, module, model, (dataset, actual)| {
+        .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
             let x = model.linear_1.forward(dataset)?;
             let y = model.linear_2.forward(&x)?;
@@ -90,7 +90,7 @@ fn linear_model_test_mse_f64() {
             loss.backward()?;
 
             model.optim.optim()?;
-            module.zero_grad();
+            model.optim.zero_grad();
             Ok(())
         })
         .unwrap();
@@ -126,7 +126,7 @@ fn linear_model_test_mae_f32() {
     let epoch = EpochBuilder::new(25, model, (dataset, actual));
 
     module
-        .epoch(epoch, |epoch, module, model, (dataset, actual)| {
+        .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
             let x = model.linear_1.forward(dataset)?;
             let y = model.linear_2.forward(&x)?;
@@ -135,7 +135,7 @@ fn linear_model_test_mae_f32() {
             loss.backward()?;
 
             model.optim.optim()?;
-            module.zero_grad();
+            model.optim.zero_grad();
             Ok(())
         })
         .unwrap();
@@ -171,7 +171,7 @@ fn linear_model_test_mae_f64() {
     let epoch = EpochBuilder::new(25, model, (dataset, actual));
 
     module
-        .epoch(epoch, |epoch, module, model, (dataset, actual)| {
+        .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
             let x = model.linear_1.forward(dataset)?;
             let y = model.linear_2.forward(&x)?;
@@ -180,7 +180,7 @@ fn linear_model_test_mae_f64() {
             loss.backward()?;
 
             model.optim.optim()?;
-            module.zero_grad();
+            model.optim.zero_grad();
 
             Ok(())
         })

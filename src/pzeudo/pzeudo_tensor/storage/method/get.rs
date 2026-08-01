@@ -27,7 +27,7 @@ impl<F> ArrayStorage<F> {
                     _array_type: Default::default(),
                 });
             }
-            StorageType::Arr(array_idx) => match contiguous_type {
+            StorageType::Arr(array_idx, grad_time) => match contiguous_type {
                 ContiguousType::Arr => {
                     let array = self.arr_storage.get_arr(array_idx)?;
                     return Ok(ArrayRef {
@@ -40,7 +40,12 @@ impl<F> ArrayStorage<F> {
                 }
 
                 ContiguousType::Grad => {
-                    let grad = self.grad_storage.get_grad(array_idx)?;
+                    let grad = self.grad_storage.get_grad(
+                        array_idx,
+                        grad_time.ok_or(PzeudoErr::StorageGetAsArrayRefErr(format!(
+                            "ArrayStorage::get_as_array_ref. Cannot access gradient using StorageGrad::get_grad method if grad_time is None"
+                        )))?
+                    )?;
                     return Ok(ArrayRef {
                         data: &grad.data,
                         offset: grad.offset,
@@ -73,7 +78,7 @@ impl<F> ArrayStorage<F> {
                             _array_type: Default::default(),
                         });
                     }
-                    ViewStorageType::Storage(storage_idx) => match contiguous_type {
+                    ViewStorageType::Storage(storage_idx, grad_time) => match contiguous_type {
                         ContiguousType::Arr => {
                             let array = self.arr_storage.get_arr(storage_idx)?;
                             return Ok(ArrayRef {
@@ -86,7 +91,12 @@ impl<F> ArrayStorage<F> {
                         }
 
                         ContiguousType::Grad => {
-                            let grad = self.grad_storage.get_grad(storage_idx)?;
+                            let grad = self.grad_storage.get_grad(
+                                storage_idx,
+                                grad_time.ok_or(PzeudoErr::StorageGetAsArrayRefErr(format!(
+                                    "ArrayStorage::get_as_array_ref. Cannot access gradient using StorageGrad::get_grad method if grad_time is None"
+                                )))?,
+                            )?;
                             return Ok(ArrayRef {
                                 data: &grad.data,
                                 offset: view.offset,
@@ -127,7 +137,7 @@ impl<F> ArrayStorage<F> {
                     _array_type: Default::default(),
                 });
             }
-            StorageType::Arr(array_idx) => match contiguous_type {
+            StorageType::Arr(array_idx, grad_time) => match contiguous_type {
                 ContiguousType::Arr => {
                     let array = self.arr_storage.get_arr_mut(array_idx)?;
                     return Ok(ArrayRefMut {
@@ -140,7 +150,12 @@ impl<F> ArrayStorage<F> {
                 }
 
                 ContiguousType::Grad => {
-                    let grad = self.grad_storage.get_grad_mut(array_idx)?;
+                    let grad = self.grad_storage.get_grad_mut(
+                        array_idx,
+                        grad_time.ok_or(PzeudoErr::StorageGetAsArrayRefErr(format!(
+                            "ArrayStorage::get_as_array_ref_mut. Cannot access gradient using StorageGrad::get_grad_mut method if grad_time is None"
+                        )))?
+                    )?;
                     return Ok(ArrayRefMut {
                         data: &mut grad.data,
                         offset: grad.offset,
@@ -173,7 +188,7 @@ impl<F> ArrayStorage<F> {
                             _array_type: Default::default(),
                         });
                     }
-                    ViewStorageType::Storage(storage_idx) => match contiguous_type {
+                    ViewStorageType::Storage(storage_idx, grad_time) => match contiguous_type {
                         ContiguousType::Arr => {
                             let array = self.arr_storage.get_arr_mut(storage_idx)?;
                             return Ok(ArrayRefMut {
@@ -186,7 +201,12 @@ impl<F> ArrayStorage<F> {
                         }
 
                         ContiguousType::Grad => {
-                            let grad = self.grad_storage.get_grad_mut(storage_idx)?;
+                            let grad = self.grad_storage.get_grad_mut(
+                                storage_idx,
+                                grad_time.ok_or(PzeudoErr::StorageGetAsArrayRefErr(format!(
+                                    "ArrayStorage::get_as_array_ref_mut. Cannot access gradient using StorageGrad::get_grad_mut method if grad_time is None"
+                                )))?
+                            )?;
                             return Ok(ArrayRefMut {
                                 data: &mut grad.data,
                                 offset: view.offset,

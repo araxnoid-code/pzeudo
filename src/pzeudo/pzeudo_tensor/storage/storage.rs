@@ -57,8 +57,13 @@ impl<F> ArrayStorage<F> {
                     )))?;
                 &mut data.grad
             }
-            StorageType::Arr(idx) => {
-                let data = self.grad_storage.get_grad_mut(idx)?;
+            StorageType::Arr(idx, grad_time) => {
+                let data = self.grad_storage.get_grad_mut(
+                    idx,
+                    grad_time.ok_or(PzeudoErr::StorageGetErr(format!(
+                        "ArrayStorage::get_grad_element_mut. Cannot access gradient using StorageGrad::get_grad_mut method if grad_time is None"
+                    )))?
+                )?;
                 data
             }
             StorageType::View(_) => {

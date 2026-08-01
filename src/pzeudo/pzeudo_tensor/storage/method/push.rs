@@ -10,14 +10,14 @@ impl<F> ArrayStorage<F> {
     pub fn push(&mut self, element: ElementType<F>) -> Result<StorageType, PzeudoErr> {
         match element {
             ElementType::Grad(array) => {
-                let idx = self.grad_storage.grad_push(array)?;
-                Ok(StorageType::Arr(idx))
+                let (idx, grad_time) = self.grad_storage.grad_push(array)?;
+                Ok(StorageType::Arr(idx, Some(grad_time)))
             }
 
             ElementType::Arr(array) => {
                 let idx = self.arr_storage.push_arr(array)?;
 
-                return Ok(StorageType::Arr(idx));
+                return Ok(StorageType::Arr(idx, None));
             }
             ElementType::View(metadata) => {
                 let idx = self.view_storage.push_metadata(metadata)?;

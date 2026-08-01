@@ -59,9 +59,12 @@ pub enum PzeudoErr {
     ArrStoragePushErr(String),
     ArrStorageGetErr(String),
     ArrStorageGetMutErr(String),
+
     GradStoragePushErr(String),
     GradStorageGetErr(String),
     GradStorageGetMutErr(String),
+    GradNoGradErr(String),
+    GradTimeErr(String),
 
     // backward
     BackwardErr(String),

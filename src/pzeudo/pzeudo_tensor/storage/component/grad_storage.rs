@@ -130,10 +130,10 @@ impl<F> GradStorage<F> {
             .storage
             .get(idx)
             .ok_or(PzeudoErr::GradStorageGetErr(format!(
-                "GradStorage::get_grad. index {idx} points to an invalid location on gradient storage.")))?
+                "GradStorage::remove_grad. index {idx} points to an invalid location on gradient storage.")))?
             .as_ref()
             .ok_or(PzeudoErr::GradStorageGetErr(format!(
-                "GradStorage::get_grad. index {idx} points to elements that have the value None in gradient storage."
+                "GradStorage::remove_grad. index {idx} points to elements that have the value None in gradient storage."
         )))?;
 
         self.status[idx] = 0;
@@ -144,15 +144,24 @@ impl<F> GradStorage<F> {
         Ok(())
     }
 
-    pub fn no_grad(&mut self, idx: usize) -> Result<(), PzeudoErr> {
+    pub fn no_grad(&mut self, idx: usize, grad_time: usize) -> Result<(), PzeudoErr> {
+        let time = self.time.get(idx).ok_or(PzeudoErr::GradStorageGetErr(format!(
+            "GradStorage::no_grad. index {idx} points to an invalid location on gradient storage(time).")))?;
+
+        if *time != grad_time {
+            return Err(PzeudoErr::GradTimeErr(format!(
+                "GradStorage::no_grad. index {idx} points to an element that has a different time value. time owned by {grad_time}, time on element {time}(time)."
+            )));
+        }
+
         self
             .storage
             .get(idx)
             .ok_or(PzeudoErr::GradStorageGetErr(format!(
-                "GradStorage::get_grad. index {idx} points to an invalid location on gradient storage.")))?
+                "GradStorage::no_grad. index {idx} points to an invalid location on gradient storage.")))?
             .as_ref()
             .ok_or(PzeudoErr::GradStorageGetErr(format!(
-                "GradStorage::get_grad. index {idx} points to elements that have the value None in gradient storage."
+                "GradStorage::no_grad. index {idx} points to elements that have the value None in gradient storage."
         )))?;
 
         self.status[idx] = 1;

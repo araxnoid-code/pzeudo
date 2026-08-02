@@ -7,6 +7,10 @@ pub enum PzeudoErr {
     ArrayNewErr(String),
     ToStringErr(String),
 
+    // Tensor
+    NoGradErr(String),
+    WithGradErr(String),
+
     // Ops
     // //  index
     LinearIndexErr(String),

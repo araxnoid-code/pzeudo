@@ -125,7 +125,35 @@ impl<F> GradStorage<F> {
         self.empty_idx.clear();
     }
 
-    pub fn remove_grad(&mut self, idx: usize) -> Result<(), PzeudoErr> {
+    pub fn check_no_grad(&self, idx: usize) -> Result<bool, PzeudoErr> {
+        let status = self.status
+            .get(idx)
+            .ok_or(PzeudoErr::GradStorageGetMutErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(status).")))?;
+
+        if *status == 0 {
+            return Err(PzeudoErr::GradStorageGetErr(format!(
+                "GradStorage::get_grad_mut. index {idx} points to elements that have the value None in gradient storage(status)."
+            )));
+        } else if *status == 1 {
+            return Ok(true);
+        } else {
+            return Ok(false);
+        }
+    }
+
+    pub fn check_time_not_match(&self, idx: usize, grad_time: usize) -> Result<bool, PzeudoErr> {
+        let time = self.time
+            .get(idx)
+            .ok_or(PzeudoErr::GradStorageGetMutErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(time).")))?;
+
+        if *time != grad_time {
+            return Ok(true);
+        }
+
+        Ok(false)
+    }
+
+    fn _remove_grad(&mut self, idx: usize) -> Result<(), PzeudoErr> {
         self
             .storage
             .get(idx)

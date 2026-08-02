@@ -2,6 +2,7 @@
 pub enum PzeudoErr {
     // tools
     ShapeToStride(String),
+    CheckNoGradOrTimeNotMatchErr(String),
 
     // Array
     ArrayNewErr(String),

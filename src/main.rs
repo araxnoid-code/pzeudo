@@ -8,11 +8,22 @@ fn main() {
         .map(|x| x as f32 * 0.1)
         .collect::<Vec<f32>>();
 
-    let mut dataset = module
-        .tensor_from_vector_with_shape::<NoGrad>(&vec, &shape)
+    let mut tensor_a = module
+        .tensor_from_vector_with_shape::<Grad>(&vec, &shape)
         .unwrap();
 
-    dataset.backward().unwrap();
+    let mut tensor_b = module
+        .tensor_from_vector_with_shape::<Grad>(&vec, &shape)
+        .unwrap();
 
-    // dataset.no_grad().unwrap();
+    let mut tensor_c = tensor_a.add(&tensor_b, Grad).unwrap();
+
+    tensor_a.no_grad().unwrap();
+    let mut tensor_z = module
+        .tensor_from_vector_with_shape::<Grad>(&vec, &shape)
+        .unwrap();
+
+    tensor_c.backward().unwrap();
+
+    // dataset.backward().unwrap();
 }

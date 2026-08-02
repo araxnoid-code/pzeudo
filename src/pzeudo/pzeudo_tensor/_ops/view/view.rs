@@ -1,8 +1,8 @@
 use crate::prelude::*;
 use num_traits::Zero;
 
-impl<F, T> Tensor<F, T> {
-    pub fn view(&self) -> Result<Tensor<F, View>, PzeudoErr>
+impl<F, T, G> Tensor<F, T, G> {
+    pub fn view(&self) -> Result<Tensor<F, View, Grad>, PzeudoErr>
     where
         F: Clone + Zero,
     {

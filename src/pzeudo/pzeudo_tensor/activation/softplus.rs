@@ -2,7 +2,7 @@ use crate::prelude::*;
 use num_traits::Float;
 use std::ops::AddAssign;
 
-pub fn softplus<F, T>(tensor: Tensor<F, T>) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+pub fn softplus<F, T, G>(tensor: Tensor<F, T, G>) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
 where
     F: Float + Copy,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,

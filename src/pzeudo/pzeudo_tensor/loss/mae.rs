@@ -5,10 +5,10 @@ use std::{
     ops::{AddAssign, Sub},
 };
 
-pub fn mae<F, T, J>(
-    actual: &Tensor<F, T>,
-    prediction: &Tensor<F, J>,
-) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+pub fn mae<F, T, J, G1, G2>(
+    actual: &Tensor<F, T, G1>,
+    prediction: &Tensor<F, J, G2>,
+) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
 where
     for<'a> ArrayRef<'a, F, J>: ArrayTrait<F>,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,

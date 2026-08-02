@@ -1,7 +1,10 @@
 use crate::prelude::*;
 
-impl<T> Tensor<f32, T> {
-    pub fn matmul_2d<J>(&self, rhs: &Tensor<f32, J>) -> Result<Tensor<f32, Contiguous>, PzeudoErr>
+impl<T, G> Tensor<f32, T, G> {
+    pub fn matmul_2d<J, RhsG>(
+        &self,
+        rhs: &Tensor<f32, J, RhsG>,
+    ) -> Result<Tensor<f32, Contiguous, RhsG>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, f32, T>: OpsMatmul2DF32,
         for<'a> ArrayRef<'a, f32, J>: OpsMatmul2DF32,
@@ -38,8 +41,11 @@ impl<T> Tensor<f32, T> {
     }
 }
 
-impl<T> Tensor<f64, T> {
-    pub fn matmul_2d<J>(&self, rhs: &Tensor<f64, J>) -> Result<Tensor<f64, Contiguous>, PzeudoErr>
+impl<T, G> Tensor<f64, T, G> {
+    pub fn matmul_2d<J, RhsG>(
+        &self,
+        rhs: &Tensor<f64, J, RhsG>,
+    ) -> Result<Tensor<f64, Contiguous, Grad>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, f64, T>: OpsMatmul2DF64,
         for<'a> ArrayRef<'a, f64, J>: OpsMatmul2DF64,

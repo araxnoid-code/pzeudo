@@ -9,7 +9,7 @@ pub trait TensorTrait<F> {
     fn get_record(&self) -> &Rc<RefCell<Vec<RecordLabel<F>>>>;
 }
 
-impl<F, T> TensorTrait<F> for Tensor<F, T> {
+impl<F, T, G> TensorTrait<F> for Tensor<F, T, G> {
     fn get_array_idx(&self) -> StorageType {
         self.array_idx
     }

@@ -2,16 +2,16 @@ use crate::prelude::*;
 use num_traits::{Float, One};
 use std::{cell::RefCell, iter::Sum, marker::PhantomData, ops::AddAssign, rc::Rc};
 
-pub struct Tensor<F, T> {
+pub struct Tensor<F, T, G> {
     pub(crate) record: Rc<RefCell<Vec<RecordLabel<F>>>>,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
     pub(crate) array_idx: StorageType,
     pub(crate) grad_idx: Option<StorageType>,
     pub(crate) shape: Vec<usize>,
-    pub(crate) _array_type: PhantomData<T>,
+    pub(crate) _array_type: PhantomData<(T, G)>,
 }
 
-impl<F, T> Tensor<F, T> {
+impl<F, T, G> Tensor<F, T, G> {
     pub fn get_shape(&self) -> &[usize] {
         &self.shape
     }

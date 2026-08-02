@@ -2,12 +2,12 @@ pub use crate::prelude::*;
 use num_traits::{Float, One, Zero};
 use std::ops::AddAssign;
 
-impl<F, T> Tensor<F, T>
+impl<F, T, G> Tensor<F, T, G>
 where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Clone + Zero + Float,
 {
-    pub fn sqrt(&self) -> Result<Tensor<F, Contiguous>, PzeudoErr> {
+    pub fn sqrt(&self) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;

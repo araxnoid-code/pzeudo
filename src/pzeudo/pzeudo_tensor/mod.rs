@@ -32,5 +32,8 @@ pub use optimizer::*;
 mod activation;
 pub use activation::*;
 
+mod grad_stat;
+pub use grad_stat::*;
+
 #[cfg(test)]
 mod _test;

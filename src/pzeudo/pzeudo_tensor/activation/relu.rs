@@ -3,7 +3,7 @@ use std::ops::AddAssign;
 use crate::prelude::*;
 use num_traits::Float;
 
-pub fn relu<F, T>(tensor: Tensor<F, T>) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+pub fn relu<F, T, G>(tensor: Tensor<F, T, G>) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
 where
     F: Float + Copy,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,

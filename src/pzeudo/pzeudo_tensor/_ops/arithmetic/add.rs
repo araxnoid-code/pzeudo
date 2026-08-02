@@ -5,8 +5,11 @@ use std::{
     ops::{Add, AddAssign},
 };
 
-impl<F, T> Tensor<F, T> {
-    pub fn add<J>(&self, rhs: &Tensor<F, J>) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+impl<F, T, G> Tensor<F, T, G> {
+    pub fn add<J, RhsG>(
+        &self,
+        rhs: &Tensor<F, J, RhsG>,
+    ) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
     where
         F: Copy + Add<Output = F> + Zero + Clone,
         for<'a> ArrayRef<'a, F, T>: OpsAdd<F> + OpsBroadcast<F>,

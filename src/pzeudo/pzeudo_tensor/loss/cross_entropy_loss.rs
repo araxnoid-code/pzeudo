@@ -7,10 +7,10 @@ use num_traits::{Float, NumCast};
 
 use crate::prelude::*;
 
-pub fn cross_entropy_loss<F, T, J>(
-    actual: Tensor<F, T>,
-    prediction: Tensor<F, J>,
-) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+pub fn cross_entropy_loss<F, T, J, G1, G2>(
+    actual: Tensor<F, T, Grad>,
+    prediction: Tensor<F, J, G2>,
+) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
 where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     for<'a> ArrayRef<'a, F, J>: ArrayTrait<F>,

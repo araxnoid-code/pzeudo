@@ -9,8 +9,8 @@ use std::vec;
 pub struct Linear<F> {
     pub(crate) in_features: usize,
     pub(crate) out_features: usize,
-    pub(crate) weight: Tensor<F, Contiguous>,
-    pub(crate) bias: Tensor<F, Contiguous>,
+    pub(crate) weight: Tensor<F, Contiguous, Grad>,
+    pub(crate) bias: Tensor<F, Contiguous, Grad>,
 }
 
 impl<F> Linear<F> {
@@ -32,7 +32,7 @@ impl<F> Linear<F> {
             module.record.clone(),
         )?;
 
-        let bias: Tensor<F, Contiguous> = Tensor::permanent_from_vector_with_shape(
+        let bias: Tensor<F, Contiguous, Grad> = Tensor::permanent_from_vector_with_shape(
             &vec![F::zero(); out_features],
             &[out_features],
             module.storage.clone(),
@@ -49,7 +49,10 @@ impl<F> Linear<F> {
 }
 
 impl Linear<f32> {
-    pub fn forward<J>(&self, input: &Tensor<f32, J>) -> Result<Tensor<f32, Contiguous>, PzeudoErr>
+    pub fn forward<J, G>(
+        &self,
+        input: &Tensor<f32, J, G>,
+    ) -> Result<Tensor<f32, Contiguous, Grad>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, f32, J>: ArrayTrait<f32> + OpsAdd<f32> + OpsBroadcast<f32>,
         for<'a> ArrayRef<'a, f32, Contiguous>: ArrayTrait<f32> + OpsAdd<f32> + OpsBroadcast<f32>,
@@ -65,17 +68,20 @@ impl Linear<f32> {
         self.out_features
     }
 
-    pub fn get_weight(&self) -> &Tensor<f32, Contiguous> {
+    pub fn get_weight(&self) -> &Tensor<f32, Contiguous, Grad> {
         &self.weight
     }
 
-    pub fn get_bias(&self) -> &Tensor<f32, Contiguous> {
+    pub fn get_bias(&self) -> &Tensor<f32, Contiguous, Grad> {
         &self.bias
     }
 }
 
 impl Linear<f64> {
-    pub fn forward<J>(&self, input: &Tensor<f64, J>) -> Result<Tensor<f64, Contiguous>, PzeudoErr>
+    pub fn forward<J, G>(
+        &self,
+        input: &Tensor<f64, J, G>,
+    ) -> Result<Tensor<f64, Contiguous, Grad>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, f64, J>: ArrayTrait<f64> + OpsAdd<f64> + OpsBroadcast<f64>,
         for<'a> ArrayRef<'a, f64, Contiguous>: ArrayTrait<f64> + OpsAdd<f64> + OpsBroadcast<f64>,
@@ -91,11 +97,11 @@ impl Linear<f64> {
         self.out_features
     }
 
-    pub fn get_weight(&self) -> &Tensor<f64, Contiguous> {
+    pub fn get_weight(&self) -> &Tensor<f64, Contiguous, Grad> {
         &self.weight
     }
 
-    pub fn get_bias(&self) -> &Tensor<f64, Contiguous> {
+    pub fn get_bias(&self) -> &Tensor<f64, Contiguous, Grad> {
         &self.bias
     }
 }

@@ -7,10 +7,10 @@ use std::{
     vec,
 };
 
-pub fn mse<F, T, J>(
-    actual: &Tensor<F, J>,
-    prediction: &Tensor<F, T>,
-) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+pub fn mse<F, T, J, G1, G2>(
+    actual: &Tensor<F, J, G1>,
+    prediction: &Tensor<F, T, G2>,
+) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
 where
     for<'a> F: Sub<Output = F> + Copy + Float + Zero + Clone + Sum<&'a F> + AddAssign + NumCast,
     for<'a> ArrayRef<'a, F, T>: OpsSub<F> + OpsBroadcast<F>,

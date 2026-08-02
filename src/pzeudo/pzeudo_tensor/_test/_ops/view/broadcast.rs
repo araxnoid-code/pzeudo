@@ -11,7 +11,7 @@ fn broadcast_test_1() {
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
     let tensor_a = module
-        .tensor_from_vector_with_shape(&vec_a, &shape)
+        .tensor_from_vector_with_shape::<Grad>(&vec_a, &shape)
         .unwrap();
 
     let broadcasted_a = tensor_a.broadcast(&[3, 3]).unwrap();
@@ -21,7 +21,7 @@ fn broadcast_test_1() {
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
     let tensor_b = module
-        .tensor_from_vector_with_shape(&vec_b, &shape)
+        .tensor_from_vector_with_shape::<Grad>(&vec_b, &shape)
         .unwrap();
 
     let tensor_c = broadcasted_a.mul(&tensor_b).unwrap();

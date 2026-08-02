@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use std::fmt::{Debug, Display};
 
-impl<F, T> Display for Tensor<F, T>
+impl<F, T, G> Display for Tensor<F, T, G>
 where
     F: Debug + Copy,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,

@@ -2,12 +2,12 @@ use crate::prelude::*;
 use num_traits::{Float, NumCast, One, Zero};
 use std::ops::AddAssign;
 
-impl<F, T> Tensor<F, T>
+impl<F, T, G> Tensor<F, T, G>
 where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Clone + Zero + Float + One,
 {
-    pub fn log2(&self) -> Result<Tensor<F, Contiguous>, PzeudoErr> {
+    pub fn log2(&self) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
@@ -34,7 +34,7 @@ where
         ))
     }
 
-    pub fn log10(&self) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+    pub fn log10(&self) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
     where
         F: NumCast,
     {
@@ -66,7 +66,7 @@ where
         ))
     }
 
-    pub fn ln(&self) -> Result<Tensor<F, Contiguous>, PzeudoErr> {
+    pub fn ln(&self) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
@@ -89,7 +89,7 @@ where
         ))
     }
 
-    pub fn log(&self, base: F) -> Result<Tensor<F, Contiguous>, PzeudoErr> {
+    pub fn log(&self, base: F) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;

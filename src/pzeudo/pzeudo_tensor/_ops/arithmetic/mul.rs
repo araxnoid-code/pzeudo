@@ -7,8 +7,11 @@ use num_traits::Zero;
 
 use crate::prelude::*;
 
-impl<F, T> Tensor<F, T> {
-    pub fn mul<J>(&self, rhs: &Tensor<F, J>) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+impl<F, T, G> Tensor<F, T, G> {
+    pub fn mul<J, RhsG>(
+        &self,
+        rhs: &Tensor<F, J, RhsG>,
+    ) -> Result<Tensor<F, Contiguous, RhsG>, PzeudoErr>
     where
         F: Copy + Mul<Output = F> + Zero + Clone,
         for<'a> ArrayRef<'a, F, T>: OpsMul<F> + OpsBroadcast<F>,

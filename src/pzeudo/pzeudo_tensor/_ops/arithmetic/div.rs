@@ -7,8 +7,11 @@ use num_traits::{Float, One, Zero, one};
 
 use crate::prelude::*;
 
-impl<F, T> Tensor<F, T> {
-    pub fn div<J>(&self, rhs: &Tensor<F, J>) -> Result<Tensor<F, Contiguous>, PzeudoErr>
+impl<F, T, G> Tensor<F, T, G> {
+    pub fn div<J, RhsG>(
+        &self,
+        rhs: &Tensor<F, J, RhsG>,
+    ) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
     where
         F: Copy + Div<Output = F> + Zero + Clone,
         for<'a> ArrayRef<'a, F, T>: OpsDiv<F> + OpsBroadcast<F>,

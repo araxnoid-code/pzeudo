@@ -4,12 +4,12 @@ use num_traits::{Float, NumCast, One, Zero};
 
 use crate::prelude::*;
 
-impl<F, T> Tensor<F, T>
+impl<F, T, G> Tensor<F, T, G>
 where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Clone + Zero + Float,
 {
-    pub fn powi(&self, i: i32) -> Result<Tensor<F, Contiguous>, PzeudoErr> {
+    pub fn powi(&self, i: i32) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
@@ -33,7 +33,7 @@ where
         ))
     }
 
-    pub fn powf(&self, f: F) -> Result<Tensor<F, Contiguous>, PzeudoErr> {
+    pub fn powf(&self, f: F) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;

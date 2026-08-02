@@ -1,4 +1,4 @@
-## Change Log
+## ChangeLog
 ### Version 0.0.1-dev.6
 ##### fix bugs
 - Fixed a bug in Array::matmul_2d due to an offset error.

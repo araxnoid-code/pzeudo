@@ -1,17 +1,17 @@
-use crate::{prelude::*, pzeudo_tensor::storage};
+use crate::prelude::*;
 use num_traits::Zero;
 
 pub struct Grad;
 pub struct NoGrad;
 
-pub trait GradStatTrait<F> {
+pub trait RequiresGradTrait<F> {
     fn zeros_grad(
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
     ) -> Result<Option<StorageType>, PzeudoErr>;
 }
 
-impl<F> GradStatTrait<F> for Grad
+impl<F> RequiresGradTrait<F> for Grad
 where
     F: Clone + Zero,
 {
@@ -25,7 +25,7 @@ where
     }
 }
 
-impl<F> GradStatTrait<F> for NoGrad
+impl<F> RequiresGradTrait<F> for NoGrad
 where
     F: Clone + Zero,
 {

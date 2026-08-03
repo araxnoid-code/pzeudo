@@ -19,8 +19,9 @@ pub fn check_no_grad_or_time_not_match<F>(
                 )))?,
             )?);
     } else {
-        return Err(PzeudoErr::CheckNoGradOrTimeNotMatchErr(format!(
-            "check_no_grad_or_time_not_match. no_grad cannot be done on permanent or view"
-        )));
+        Ok(false)
+        // return Err(PzeudoErr::CheckNoGradOrTimeNotMatchErr(format!(
+        //     "check_no_grad_or_time_not_match. no_grad cannot be done on permanent or view"
+        // )));
     }
 }

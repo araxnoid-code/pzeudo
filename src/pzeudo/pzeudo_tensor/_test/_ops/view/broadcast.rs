@@ -24,7 +24,7 @@ fn broadcast_test_1() {
         .tensor_from_vector_with_shape::<Grad>(&vec_b, &shape)
         .unwrap();
 
-    let tensor_c = broadcasted_a.mul(&tensor_b).unwrap();
+    let tensor_c = broadcasted_a.mul(&tensor_b, Grad).unwrap();
 
     tensor_c.backward().unwrap();
 

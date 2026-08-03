@@ -9,10 +9,10 @@ impl<F, T, G> Tensor<F, T, G> {
     pub fn add<J, RhsGrad, OutGrad>(
         &self,
         rhs: &Tensor<F, J, RhsGrad>,
-        grad: OutGrad,
+        _requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
-        OutGrad: GradStatTrait<F>,
+        OutGrad: RequiresGradTrait<F>,
         F: Copy + Add<Output = F> + Zero + Clone,
         for<'a> ArrayRef<'a, F, T>: OpsAdd<F> + OpsBroadcast<F>,
         for<'a> ArrayRef<'a, F, J>: OpsAdd<F> + OpsBroadcast<F>,
@@ -29,9 +29,8 @@ impl<F, T, G> Tensor<F, T, G> {
 
         let (lhs_broadcast, rhs_broadcast) = broadcast_detect(lhs_array.shape, rhs_array.shape);
 
-        let grad = Array::<F>::zeros(&shape);
         let array_idx = storage.push(ElementType::Arr(array))?;
-        let grad_idx = Some(storage.push(ElementType::Grad(grad))?);
+        let grad_idx = OutGrad::zeros_grad(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Add(
             (self.array_idx, self.grad_idx, lhs_broadcast),

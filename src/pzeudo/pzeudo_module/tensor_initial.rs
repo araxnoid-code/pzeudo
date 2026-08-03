@@ -19,7 +19,7 @@ impl<F> Module<F> {
         shape: &[usize],
     ) -> Result<Tensor<F, Contiguous, G>, PzeudoErr>
     where
-        G: GradStatTrait<F>,
+        G: RequiresGradTrait<F>,
         F: Clone + Zero,
     {
         Tensor::from_vector_with_shape(vec, shape, self.storage.clone(), self.record.clone())

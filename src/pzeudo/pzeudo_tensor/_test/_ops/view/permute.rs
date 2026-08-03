@@ -29,7 +29,7 @@ fn permute_test_1() {
         .unwrap();
     println!("tensor b\n{}", tensor_b);
 
-    let tensor_c = permute_a.mul(&tensor_b).unwrap();
+    let tensor_c = permute_a.mul(&tensor_b, Grad).unwrap();
     println!("tensor c\n{}", tensor_c);
 
     tensor_c.backward().unwrap();

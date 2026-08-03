@@ -57,7 +57,7 @@ impl Linear<f32> {
         for<'a> ArrayRef<'a, f32, J>: ArrayTrait<f32> + OpsAdd<f32> + OpsBroadcast<f32>,
         for<'a> ArrayRef<'a, f32, Contiguous>: ArrayTrait<f32> + OpsAdd<f32> + OpsBroadcast<f32>,
     {
-        Ok(input.matmul_2d(&self.weight)?.add(&self.bias, Grad)?)
+        Ok(input.matmul_2d(&self.weight, Grad)?.add(&self.bias, Grad)?)
     }
 
     pub fn get_in_features(&self) -> usize {
@@ -86,7 +86,7 @@ impl Linear<f64> {
         for<'a> ArrayRef<'a, f64, J>: ArrayTrait<f64> + OpsAdd<f64> + OpsBroadcast<f64>,
         for<'a> ArrayRef<'a, f64, Contiguous>: ArrayTrait<f64> + OpsAdd<f64> + OpsBroadcast<f64>,
     {
-        Ok(input.matmul_2d(&self.weight)?.add(&self.bias, Grad)?)
+        Ok(input.matmul_2d(&self.weight, Grad)?.add(&self.bias, Grad)?)
     }
 
     pub fn get_in_features(&self) -> usize {

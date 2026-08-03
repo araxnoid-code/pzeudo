@@ -22,7 +22,7 @@ fn tensor_matmul_nd_f32_test() {
         .tensor_from_vector_with_shape::<Grad>(&vec_b, &shape)
         .unwrap();
 
-    let tensor_c = array_a.matmul_nd(&array_b).unwrap();
+    let tensor_c = array_a.matmul_nd(&array_b, Grad).unwrap();
     tensor_c.backward().unwrap();
 
     let storeage = module.get_storage().borrow();
@@ -76,7 +76,7 @@ fn tensor_matmul_nd_f64_test() {
         .tensor_from_vector_with_shape::<Grad>(&vec_b, &shape)
         .unwrap();
 
-    let tensor_c = array_a.matmul_nd(&array_b).unwrap();
+    let tensor_c = array_a.matmul_nd(&array_b, Grad).unwrap();
     tensor_c.backward().unwrap();
 
     let storeage = module.get_storage().borrow();

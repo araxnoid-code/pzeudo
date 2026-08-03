@@ -11,8 +11,8 @@ impl<F, T, G> Tensor<F, T, G> {
     pub fn mul<J, RhsGrad, OutGrad>(
         &self,
         rhs: &Tensor<F, J, RhsGrad>,
-        _requires_grad: OutGrad,
-    ) -> Result<Tensor<F, Contiguous, RhsGrad>, PzeudoErr>
+        requires_grad: OutGrad,
+    ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
         OutGrad: RequiresGradTrait<F>,
         F: Copy + Mul<Output = F> + Zero + Clone,
@@ -31,7 +31,7 @@ impl<F, T, G> Tensor<F, T, G> {
         let (lhs_broadcast, rhs_broadcast) = broadcast_detect(lhs_array.shape, rhs_array.shape);
 
         let array_idx = storage.push(ElementType::Arr(array))?;
-        let grad_idx = OutGrad::zeros_grad(&shape, &mut storage)?;
+        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Mul(
             (self.get_array_idx(), self.get_grad_idx(), lhs_broadcast),

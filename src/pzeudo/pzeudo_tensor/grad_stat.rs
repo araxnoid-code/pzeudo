@@ -5,6 +5,12 @@ pub struct Grad;
 pub struct NoGrad;
 
 pub trait RequiresGradTrait<F> {
+    fn into_zeros_grad(
+        self,
+        shape: &[usize],
+        storage: &mut ArrayStorage<F>,
+    ) -> Result<Option<StorageType>, PzeudoErr>;
+
     fn zeros_grad(
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
@@ -15,6 +21,16 @@ impl<F> RequiresGradTrait<F> for Grad
 where
     F: Clone + Zero,
 {
+    fn into_zeros_grad(
+        self,
+        shape: &[usize],
+        storage: &mut ArrayStorage<F>,
+    ) -> Result<Option<StorageType>, PzeudoErr> {
+        let grad = Array::zeros(shape);
+        let grad_idx = Some(storage.push(ElementType::Grad(grad))?);
+        Ok(grad_idx)
+    }
+
     fn zeros_grad(
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
@@ -29,6 +45,14 @@ impl<F> RequiresGradTrait<F> for NoGrad
 where
     F: Clone + Zero,
 {
+    fn into_zeros_grad(
+        self,
+        _: &[usize],
+        _: &mut ArrayStorage<F>,
+    ) -> Result<Option<StorageType>, PzeudoErr> {
+        Ok(None)
+    }
+
     fn zeros_grad(_: &[usize], _: &mut ArrayStorage<F>) -> Result<Option<StorageType>, PzeudoErr> {
         Ok(None)
     }
@@ -75,7 +99,7 @@ where
             )))
         })?;
 
-        self.grad_idx = Grad::zeros_grad(&self.shape, &mut storage)?;
+        self.grad_idx = Grad.into_zeros_grad(&self.shape, &mut storage)?;
         Ok(())
     }
 }

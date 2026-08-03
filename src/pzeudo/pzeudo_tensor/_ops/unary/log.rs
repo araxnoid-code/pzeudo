@@ -7,16 +7,21 @@ where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Clone + Zero + Float + One,
 {
-    pub fn log2(&self) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
+    pub fn log2<OutGrad>(
+        &self,
+        requires_grad: OutGrad,
+    ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
+    where
+        OutGrad: RequiresGradTrait<F>,
+    {
         let mut storage = self.storage.borrow_mut();
 
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
         let arr_log = array.log2()?;
         let shape = arr_log.shape.to_vec();
-        let gradient = Array::<F>::zeros(&shape);
 
         let array_idx = storage.push(ElementType::Arr(arr_log))?;
-        let grad_idx = Some(storage.push(ElementType::Grad(gradient))?);
+        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Log(
             (self.get_array_idx(), self.get_grad_idx()),
@@ -34,8 +39,12 @@ where
         ))
     }
 
-    pub fn log10(&self) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
+    pub fn log10<OutGrad>(
+        &self,
+        requires_grad: OutGrad,
+    ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
+        OutGrad: RequiresGradTrait<F>,
         F: NumCast,
     {
         let mut storage = self.storage.borrow_mut();
@@ -43,10 +52,9 @@ where
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
         let arr_log = array.log10()?;
         let shape = arr_log.shape.to_vec();
-        let gradient = Array::<F>::zeros(&shape);
 
         let array_idx = storage.push(ElementType::Arr(arr_log))?;
-        let grad_idx = Some(storage.push(ElementType::Grad(gradient))?);
+        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Log(
             (self.get_array_idx(), self.get_grad_idx()),
@@ -66,16 +74,21 @@ where
         ))
     }
 
-    pub fn ln(&self) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
+    pub fn ln<OutGrad>(
+        &self,
+        requires_grad: OutGrad,
+    ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
+    where
+        OutGrad: RequiresGradTrait<F>,
+    {
         let mut storage = self.storage.borrow_mut();
 
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
         let arr_log = array.ln()?;
         let shape = arr_log.shape.to_vec();
-        let gradient = Array::<F>::zeros(&shape);
 
         let array_idx = storage.push(ElementType::Arr(arr_log))?;
-        let grad_idx = Some(storage.push(ElementType::Grad(gradient))?);
+        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Ln((self.get_array_idx(), self.get_grad_idx()), grad_idx);
         self.get_record().borrow_mut().push(record_label);
@@ -89,16 +102,22 @@ where
         ))
     }
 
-    pub fn log(&self, base: F) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
+    pub fn log<OutGrad>(
+        &self,
+        base: F,
+        requires_grad: OutGrad,
+    ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
+    where
+        OutGrad: RequiresGradTrait<F>,
+    {
         let mut storage = self.storage.borrow_mut();
 
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
         let arr_log = array.log(base)?;
         let shape = arr_log.shape.to_vec();
-        let gradient = Array::<F>::zeros(&shape);
 
         let array_idx = storage.push(ElementType::Arr(arr_log))?;
-        let grad_idx = Some(storage.push(ElementType::Grad(gradient))?);
+        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
 
         let record_label =
             RecordLabel::Log((self.get_array_idx(), self.get_grad_idx()), base, grad_idx);
@@ -125,16 +144,22 @@ where
     F: Float + One + AddAssign,
 {
     if let Some(gradient_idx) = gradient_idx {
+        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+            return Ok(());
+        }
+
         let gradient =
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
-            let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
-            let grad = gradient.div(&lhs_value.mul_scalar(base.ln())?)?;
+            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+                let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
+                let grad = gradient.div(&lhs_value.mul_scalar(base.ln())?)?;
 
-            let mut lhs_gradient =
-                storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-            lhs_gradient.add_assign(&grad)?;
+                let mut lhs_gradient =
+                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
+                lhs_gradient.add_assign(&grad)?;
+            }
         }
     }
     Ok(())
@@ -150,16 +175,21 @@ where
     F: Float + One + AddAssign,
 {
     if let Some(gradient_idx) = gradient_idx {
+        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+            return Ok(());
+        }
         let gradient =
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
-            let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
-            let grad = gradient.div(&lhs_value)?;
+            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+                let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
+                let grad = gradient.div(&lhs_value)?;
 
-            let mut lhs_gradient =
-                storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-            lhs_gradient.add_assign(&grad)?;
+                let mut lhs_gradient =
+                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
+                lhs_gradient.add_assign(&grad)?;
+            }
         }
     }
     Ok(())

@@ -12,7 +12,7 @@ where
         requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
-        OutGrad: RequiresGradTrait<F>,
+        OutGrad: ReqGradTrait<F>,
     {
         let mut storage = self.storage.borrow_mut();
 
@@ -44,7 +44,7 @@ where
         requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
-        OutGrad: RequiresGradTrait<F>,
+        OutGrad: ReqGradTrait<F>,
         F: NumCast,
     {
         let mut storage = self.storage.borrow_mut();
@@ -79,7 +79,7 @@ where
         requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
-        OutGrad: RequiresGradTrait<F>,
+        OutGrad: ReqGradTrait<F>,
     {
         let mut storage = self.storage.borrow_mut();
 
@@ -108,7 +108,7 @@ where
         requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
-        OutGrad: RequiresGradTrait<F>,
+        OutGrad: ReqGradTrait<F>,
     {
         let mut storage = self.storage.borrow_mut();
 

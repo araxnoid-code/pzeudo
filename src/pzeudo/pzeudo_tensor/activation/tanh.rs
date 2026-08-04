@@ -9,7 +9,7 @@ pub fn tanh<F, T, G, ReqGrad>(
     requires_grad: ReqGrad,
 ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
 where
-    ReqGrad: RequiresGradTrait<F>,
+    ReqGrad: ReqGradTrait<F>,
     F: Float + Copy,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
 {

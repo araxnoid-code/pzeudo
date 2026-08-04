@@ -25,7 +25,7 @@ impl<F, T, G> Tensor<F, T, G> {
 
 impl<F, G> Tensor<F, Contiguous, G>
 where
-    G: RequiresGradTrait<F>,
+    G: ReqGradTrait<F>,
 {
     pub fn from_vector_with_shape(
         vec: &[F],

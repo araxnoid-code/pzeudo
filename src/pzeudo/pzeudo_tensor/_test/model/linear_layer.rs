@@ -40,7 +40,7 @@ fn linear_model_test_mse_f32() {
             println!("epoch: {}", epoch);
             let x = model.linear_1.forward(dataset)?;
             let y = model.linear_2.forward(&x)?;
-            let loss = mse(actual, &y)?;
+            let loss = mse(actual, &y, Grad)?;
             println!("loss: {}\n", loss);
             loss.backward()?;
 
@@ -85,7 +85,7 @@ fn linear_model_test_mse_f64() {
             println!("epoch: {}", epoch);
             let x = model.linear_1.forward(dataset)?;
             let y = model.linear_2.forward(&x)?;
-            let loss = mse(actual, &y)?;
+            let loss = mse(actual, &y, Grad)?;
             println!("loss: {}\n", loss);
             loss.backward()?;
 
@@ -130,7 +130,7 @@ fn linear_model_test_mae_f32() {
             println!("epoch: {}", epoch);
             let x = model.linear_1.forward(dataset)?;
             let y = model.linear_2.forward(&x)?;
-            let loss = mae(actual, &y)?;
+            let loss = mae(actual, &y, Grad)?;
             println!("loss: {}\n", loss);
             loss.backward()?;
 
@@ -175,7 +175,7 @@ fn linear_model_test_mae_f64() {
             println!("epoch: {}", epoch);
             let x = model.linear_1.forward(dataset)?;
             let y = model.linear_2.forward(&x)?;
-            let loss = mae(actual, &y)?;
+            let loss = mae(actual, &y, Grad)?;
             println!("loss: {}\n", loss);
             loss.backward()?;
 

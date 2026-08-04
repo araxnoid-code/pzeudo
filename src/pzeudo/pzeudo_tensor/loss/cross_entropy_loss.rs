@@ -7,11 +7,13 @@ use num_traits::{Float, NumCast};
 
 use crate::prelude::*;
 
-pub fn cross_entropy_loss<F, T, J, G1, G2>(
-    actual: Tensor<F, T, Grad>,
-    prediction: Tensor<F, J, G2>,
-) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
+pub fn cross_entropy_loss<F, T, J, LhsGrad, RhsGrad, ReqGrad>(
+    actual: Tensor<F, T, LhsGrad>,
+    prediction: Tensor<F, J, RhsGrad>,
+    requieres_grad: ReqGrad,
+) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
 where
+    ReqGrad: ReqGradTrait<F>,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     for<'a> ArrayRef<'a, F, J>: ArrayTrait<F>,
     for<'a> F: NumCast + Copy + Add<Output = F> + Float + Sum<&'a F> + AddAssign,
@@ -43,7 +45,7 @@ where
         .neg()?;
 
     let array_idx = storage.push(ElementType::Arr(loss))?;
-    let grad_idx = Some(storage.push(ElementType::Grad(Array::<F>::zeros(&[1])))?);
+    let grad_idx = requieres_grad.into_zeros_grad(&[1], &mut storage)?;
 
     let record_label = RecordLabel::CrossEntropyLoss(
         actual.get_array_idx(),
@@ -73,27 +75,33 @@ where
     F: Copy + Div<Output = F> + Neg<Output = F> + AddAssign + Float + NumCast,
 {
     if let Some(gradient_idx) = gradient_idx {
+        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+            return Ok(());
+        }
         let gradient =
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(prediction_grad_idx) = prediction_grad_idx {
-            let actual_value = storage.get_as_array_ref::<View>(actual_idx, ContiguousType::Arr)?;
-            let prediction_value =
-                storage.get_as_array_ref::<View>(prediction_idx, ContiguousType::Arr)?;
+            if !check_no_grad_or_time_not_match(prediction_grad_idx, storage)? {
+                let actual_value =
+                    storage.get_as_array_ref::<View>(actual_idx, ContiguousType::Arr)?;
+                let prediction_value =
+                    storage.get_as_array_ref::<View>(prediction_idx, ContiguousType::Arr)?;
 
-            // -actual/prediction
-            let epsilon = F::from(1e-7).ok_or(PzeudoErr::CrossEntropyLossBackwardErr(format!(
-                "cross_entropy_loss_backward. cannot cast data type epsilon"
-            )))?;
+                // -actual/prediction
+                let epsilon = F::from(1e-7).ok_or(PzeudoErr::CrossEntropyLossBackwardErr(
+                    format!("cross_entropy_loss_backward. cannot cast data type epsilon"),
+                ))?;
 
-            let grad = actual_value
-                .div(&prediction_value.add_scalar(epsilon)?)?
-                .mul(&gradient.neg()?)?;
+                let grad = actual_value
+                    .div(&prediction_value.add_scalar(epsilon)?)?
+                    .mul(&gradient.neg()?)?;
 
-            let mut prediction_grad =
-                storage.get_as_array_ref_mut::<View>(prediction_grad_idx, ContiguousType::Grad)?;
+                let mut prediction_grad = storage
+                    .get_as_array_ref_mut::<View>(prediction_grad_idx, ContiguousType::Grad)?;
 
-            prediction_grad.add_assign(&grad)?;
+                prediction_grad.add_assign(&grad)?;
+            }
         }
     }
     Ok(())

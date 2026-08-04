@@ -4,7 +4,7 @@ use num_traits::Zero;
 pub struct Grad;
 pub struct NoGrad;
 
-pub trait RequiresGradTrait<F> {
+pub trait ReqGradTrait<F> {
     fn into_zeros_grad(
         self,
         shape: &[usize],
@@ -17,7 +17,7 @@ pub trait RequiresGradTrait<F> {
     ) -> Result<Option<StorageType>, PzeudoErr>;
 }
 
-impl<F> RequiresGradTrait<F> for Grad
+impl<F> ReqGradTrait<F> for Grad
 where
     F: Clone + Zero,
 {
@@ -41,7 +41,7 @@ where
     }
 }
 
-impl<F> RequiresGradTrait<F> for NoGrad
+impl<F> ReqGradTrait<F> for NoGrad
 where
     F: Clone + Zero,
 {

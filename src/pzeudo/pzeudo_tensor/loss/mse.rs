@@ -7,11 +7,13 @@ use std::{
     vec,
 };
 
-pub fn mse<F, T, J, G1, G2>(
-    actual: &Tensor<F, J, G1>,
-    prediction: &Tensor<F, T, G2>,
-) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
+pub fn mse<F, T, J, LhsGrad, RhsGrad, ReqGrad>(
+    actual: &Tensor<F, J, LhsGrad>,
+    prediction: &Tensor<F, T, RhsGrad>,
+    requires_grad: ReqGrad,
+) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
 where
+    ReqGrad: ReqGradTrait<F>,
     for<'a> F: Sub<Output = F> + Copy + Float + Zero + Clone + Sum<&'a F> + AddAssign + NumCast,
     for<'a> ArrayRef<'a, F, T>: OpsSub<F> + OpsBroadcast<F>,
     for<'a> ArrayRef<'a, F, J>: OpsSub<F> + OpsBroadcast<F>,
@@ -40,10 +42,8 @@ where
         .sum()?
         .div_scalar(len)?;
 
-    let gradient = Array::<F>::zeros(&array.shape);
-
     let array_idx = storage.push(ElementType::Arr(array))?;
-    let grad_idx = Some(storage.push(ElementType::Grad(gradient))?);
+    let grad_idx = requires_grad.into_zeros_grad(&[1], &mut storage)?;
 
     let record_label = RecordLabel::LossMse(
         actual.get_array_idx(),
@@ -80,9 +80,17 @@ where
         + Sub<Output = F>,
 {
     if let Some(grad_idx) = grad_idx {
+        if check_no_grad_or_time_not_match(grad_idx, storage)? {
+            return Ok(());
+        }
+
         let gradient = storage.get_as_array_ref::<Contiguous>(grad_idx, ContiguousType::Grad)?;
 
         if let Some(prediction_grad_idx) = prediction_grad_idx {
+            if check_no_grad_or_time_not_match(prediction_grad_idx, storage)? {
+                return Ok(());
+            }
+
             let actual_value = storage.get_as_array_ref::<View>(actual_idx, ContiguousType::Arr)?;
             let prediction_value =
                 storage.get_as_array_ref::<View>(prediction_idx, ContiguousType::Arr)?;

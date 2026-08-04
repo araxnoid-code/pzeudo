@@ -7,7 +7,7 @@ impl<T, G> Tensor<f32, T, G> {
         requires_grad: OutGrad,
     ) -> Result<Tensor<f32, Contiguous, OutGrad>, PzeudoErr>
     where
-        OutGrad: RequiresGradTrait<f32>,
+        OutGrad: ReqGradTrait<f32>,
         for<'a> ArrayRef<'a, f32, T>: OpsMatmul2DF32,
         for<'a> ArrayRef<'a, f32, J>: OpsMatmul2DF32,
     {
@@ -50,7 +50,7 @@ impl<T, G> Tensor<f64, T, G> {
         requires_grad: OutGrad,
     ) -> Result<Tensor<f64, Contiguous, OutGrad>, PzeudoErr>
     where
-        OutGrad: RequiresGradTrait<f64>,
+        OutGrad: ReqGradTrait<f64>,
         for<'a> ArrayRef<'a, f64, T>: OpsMatmul2DF64,
         for<'a> ArrayRef<'a, f64, J>: OpsMatmul2DF64,
     {

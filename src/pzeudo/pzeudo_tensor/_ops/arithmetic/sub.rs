@@ -14,7 +14,7 @@ impl<F, T, G> Tensor<F, T, G> {
         requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
-        OutGrad: RequiresGradTrait<F>,
+        OutGrad: ReqGradTrait<F>,
         F: Copy + Sub<Output = F> + Zero + Clone,
         for<'a> ArrayRef<'a, F, T>: OpsSub<F> + OpsBroadcast<F>,
         for<'a> ArrayRef<'a, F, J>: OpsSub<F> + OpsBroadcast<F>,

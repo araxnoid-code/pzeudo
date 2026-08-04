@@ -3,8 +3,12 @@ use std::ops::AddAssign;
 use crate::prelude::*;
 use num_traits::Float;
 
-pub fn relu<F, T, G>(tensor: Tensor<F, T, G>) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
+pub fn relu<F, T, G, ReqGrad>(
+    tensor: Tensor<F, T, G>,
+    requires_grad: ReqGrad,
+) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
 where
+    ReqGrad: RequiresGradTrait<F>,
     F: Float + Copy,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
 {
@@ -22,7 +26,7 @@ where
     let result = Array::from_vector_with_shape(&output, &shape)?;
 
     let array_idx = storage.push(ElementType::Arr(result))?;
-    let grad_idx = Some(storage.push(ElementType::Grad(Array::zeros(&shape)))?);
+    let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
     let record_label = RecordLabel::Relu(tensor.get_array_idx(), tensor.get_grad_idx(), grad_idx);
     tensor.get_record().borrow_mut().push(record_label);
 
@@ -45,30 +49,35 @@ where
     F: Float + AddAssign,
 {
     if let Some(gradient_idx) = gradient_idx {
+        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+            return Ok(());
+        }
         let gradient =
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
-        if let Some(array_grad_idx) = array_grad_idx {
-            // e^x/(e^x+1) * gradient
-            let array = storage.get_as_array_ref::<View>(array_idx, ContiguousType::Arr)?;
-            let len = array.shape.iter().product::<usize>();
-            let zero = F::zero();
+        if let Some(lhs_grad_idx) = array_grad_idx {
+            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+                // e^x/(e^x+1) * gradient
+                let array = storage.get_as_array_ref::<View>(array_idx, ContiguousType::Arr)?;
+                let len = array.shape.iter().product::<usize>();
+                let zero = F::zero();
 
-            let mut vec = Vec::with_capacity(len);
-            for i in 0..len {
-                let x = array.linear_index(i)?;
-                let v = if x > zero {
-                    gradient.linear_index(i)?
-                } else {
-                    zero
-                };
-                vec.push(v);
+                let mut vec = Vec::with_capacity(len);
+                for i in 0..len {
+                    let x = array.linear_index(i)?;
+                    let v = if x > zero {
+                        gradient.linear_index(i)?
+                    } else {
+                        zero
+                    };
+                    vec.push(v);
+                }
+                let grad = Array::from_vector_with_shape(&vec, array.shape)?;
+
+                let mut array_grad =
+                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
+                array_grad.add_assign(&grad)?;
             }
-            let grad = Array::from_vector_with_shape(&vec, array.shape)?;
-
-            let mut array_grad =
-                storage.get_as_array_ref_mut::<View>(array_grad_idx, ContiguousType::Grad)?;
-            array_grad.add_assign(&grad)?;
         }
     }
 

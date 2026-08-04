@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 impl<F, T, G> Tensor<F, T, G> {
-    pub fn broadcast(&self, broadcast: &[usize]) -> Result<Tensor<F, View, Grad>, PzeudoErr>
+    pub fn broadcast(&self, broadcast: &[usize]) -> Result<Tensor<F, View, G>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
         F: Copy,

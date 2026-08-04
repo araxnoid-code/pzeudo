@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use num_traits::{Float, One};
-use std::{cell::RefCell, iter::Sum, marker::PhantomData, ops::AddAssign, rc::Rc};
+use std::{cell::RefCell, fmt::Display, iter::Sum, marker::PhantomData, ops::AddAssign, rc::Rc};
 
 pub struct Tensor<F, T, G> {
     pub(crate) record: Rc<RefCell<Vec<RecordLabel<F>>>>,
@@ -18,6 +18,7 @@ impl<F, T, G> Tensor<F, T, G> {
 
     pub fn backward(&self) -> Result<(), PzeudoErr>
     where
+        F: Display,
         ArrayStorage<F>: StorageF32F64,
         for<'a> F: Clone + One + AddAssign + Float + Sum<&'a F>,
         for<'a> ArrayRefMut<'a, F, T>: ArrayTrait<F>,

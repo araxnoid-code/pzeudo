@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 impl<F, G> Tensor<F, Contiguous, G> {
-    pub fn to_shape(&self, shape: &[usize]) -> Result<Tensor<F, View, Grad>, PzeudoErr>
+    pub fn to_shape(&self, shape: &[usize]) -> Result<Tensor<F, View, G>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, F, Contiguous>: ArrayTrait<F>,
         F: Copy,

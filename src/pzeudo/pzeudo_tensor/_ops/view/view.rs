@@ -2,7 +2,7 @@ use crate::prelude::*;
 use num_traits::Zero;
 
 impl<F, T, G> Tensor<F, T, G> {
-    pub fn view(&self) -> Result<Tensor<F, View, Grad>, PzeudoErr>
+    pub fn view(&self) -> Result<Tensor<F, View, G>, PzeudoErr>
     where
         F: Clone + Zero,
     {

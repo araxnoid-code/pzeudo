@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 impl<F, T, G> Tensor<F, T, G> {
-    pub fn permute(&self, permute: &[usize]) -> Result<Tensor<F, View, Grad>, PzeudoErr>
+    pub fn permute(&self, permute: &[usize]) -> Result<Tensor<F, View, G>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
         F: Copy,

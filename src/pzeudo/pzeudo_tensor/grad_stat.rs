@@ -59,7 +59,7 @@ where
 }
 
 impl<F> Tensor<F, Contiguous, Grad> {
-    pub fn no_grad(&mut self) -> Result<(), PzeudoErr> {
+    pub fn no_grad(self) -> Result<Tensor<F, Contiguous, NoGrad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         let storage_type = self.grad_idx.ok_or(PzeudoErr::NoGradErr(format!(
@@ -81,8 +81,10 @@ impl<F> Tensor<F, Contiguous, Grad> {
             ),
         }?;
 
-        self.grad_idx = None;
-        Ok(())
+        drop(storage);
+        let tensor = Tensor::new(self.array_idx, None, self.shape, self.record, self.storage);
+
+        Ok(tensor)
     }
 }
 
@@ -90,7 +92,7 @@ impl<F> Tensor<F, Contiguous, NoGrad>
 where
     F: Clone + Zero,
 {
-    pub fn with_grad(&mut self) -> Result<(), PzeudoErr> {
+    pub fn with_grad(self) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         self.grad_idx.map_or(Ok(()), |_| {
@@ -99,7 +101,16 @@ where
             )))
         })?;
 
-        self.grad_idx = Grad.into_zeros_grad(&self.shape, &mut storage)?;
-        Ok(())
+        let grad_idx = Grad.into_zeros_grad(&self.shape, &mut storage)?;
+
+        drop(storage);
+        let tensor = Tensor::new(
+            self.array_idx,
+            grad_idx,
+            self.shape,
+            self.record,
+            self.storage,
+        );
+        Ok(tensor)
     }
 }

@@ -30,7 +30,7 @@ impl<F, T, G> Tensor<F, T, G> {
         })?;
 
         drop(storage);
-        let view = Tensor::new(
+        let view = Tensor::_new(
             array_idx,
             grad_idx,
             shape,

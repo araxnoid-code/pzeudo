@@ -30,7 +30,7 @@ impl<F> Array<F> {
         F: Clone,
     {
         if vector.len() != shape.iter().product::<usize>() {
-            return Err(PzeudoErr::ArrayNewErr(
+            return Err(PzeudoErr::ArrayErr(
                 "ArrayNewErr. from_vector_with_shape\ncannot create array because shape size and vector length are different".to_string(),
             ));
         }

@@ -36,7 +36,7 @@ impl<F, T, G> Tensor<F, T, G> {
             Ok(Some(storage.push(ElementType::View(grad_metadata))?))
         })?;
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,

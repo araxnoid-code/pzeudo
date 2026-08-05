@@ -40,7 +40,7 @@ impl<F, T, G> Tensor<F, T, G> {
         );
         self.get_record().borrow_mut().push(record_label);
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,

@@ -29,7 +29,7 @@ pub trait ArrayTrait<F> {
         }
 
         if idx >= data.len() {
-            return Err(PzeudoErr::LinearIndexErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "LinearIndexErr. linear_index. index points to {idx} but array only has length {:?}",
                 data.len()
             )));
@@ -41,7 +41,7 @@ pub trait ArrayTrait<F> {
     fn index(&self, index: &[usize]) -> Result<ArrayView<'_, F>, PzeudoErr> {
         let metadata = self.get_metadata();
         if index.len() > metadata.shape.len() {
-            return Err(PzeudoErr::Index(format!("")));
+            return Err(PzeudoErr::OpsErr(format!("")));
         }
 
         let new_shape = if index.len() != metadata.shape.len() {

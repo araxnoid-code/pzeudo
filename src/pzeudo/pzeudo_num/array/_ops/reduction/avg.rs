@@ -8,7 +8,7 @@ pub trait OpsAvg<F>: OpsSum<F> {
         F: AddAssign + Copy + Zero + NumCast + Div<Output = F>,
     {
         let metadata = self.get_metadata();
-        let len = F::from(metadata.shape.iter().product::<usize>()).ok_or(PzeudoErr::AvgErr(
+        let len = F::from(metadata.shape.iter().product::<usize>()).ok_or(PzeudoErr::OpsErr(
             String::from("AvgErr. OpsAvg::avg. error while casting data type"),
         ))?;
 
@@ -31,7 +31,7 @@ pub trait OpsAvg<F>: OpsSum<F> {
     {
         let metadata = self.get_metadata();
         let len = NumCast::from(axis.iter().fold(1, |acc, dim| acc * metadata.shape[*dim])).ok_or(
-            PzeudoErr::SumAxisErr(String::from(
+            PzeudoErr::OpsErr(String::from(
                 "AvgErr. OpsAvg::avg. error while casting data type",
             )),
         )?;

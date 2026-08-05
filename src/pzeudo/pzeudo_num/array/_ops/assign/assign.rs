@@ -10,7 +10,7 @@ pub trait OpsAssign<F>: ArrayAssignTrait<F> {
         let rhs_metadata = assign.get_metadata();
 
         if lhs_metadata.shape != rhs_metadata.shape {
-            return Err(PzeudoErr::AssignErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "OpsAssign::assign. cannot assign arrays of shape {:?} and {:?} because they have different shapes",
                 lhs_metadata.shape, rhs_metadata.shape
             )));

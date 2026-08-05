@@ -5,7 +5,7 @@ pub trait OpsSlice<F>: ArrayTrait<F> {
         let arr_metadata = self.get_metadata();
 
         if arr_metadata.shape.len() < range.len() {
-            return Err(PzeudoErr::SlicingErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "Slicing. OpsSlicing::slicing, An array with shape {:?} cannot perform slicing {:?} because the slicing is out of bounds",
                 arr_metadata.shape, range
             )));
@@ -18,7 +18,7 @@ pub trait OpsSlice<F>: ArrayTrait<F> {
             let end = range.end.unwrap_or(arr_metadata.shape[idx]);
 
             if start >= end {
-                return Err(PzeudoErr::SlicingErr(format!(
+                return Err(PzeudoErr::OpsErr(format!(
                     "Slicing. OpsSlicing::slicing, An array with shape {:?} cannot perform slicing {:?} because it has start >= end",
                     arr_metadata.shape, range
                 )));

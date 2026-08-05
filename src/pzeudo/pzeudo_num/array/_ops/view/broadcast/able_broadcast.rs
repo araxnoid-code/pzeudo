@@ -1,6 +1,6 @@
 use std::vec;
 
-use crate::PzeudoErr::{self, BroadcastErr};
+use crate::PzeudoErr::{self, OpsErr};
 
 pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoErr> {
     if shape == to {
@@ -8,14 +8,14 @@ pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoErr> {
     }
 
     if shape.len() > to.len() {
-        return Err(BroadcastErr(format!(
+        return Err(OpsErr(format!(
             "BroadcastErr. able_broadcast. The shape {:?} cannot be broadcast to shape {:?} because the target shape is smaller.",
             shape, to
         )));
     }
 
     if shape.len() == 0 || to.len() == 0 {
-        return Err(BroadcastErr(format!(
+        return Err(OpsErr(format!(
             "BroadcastErr. able_broadcast. It is currently not possible to broadcast with 0D"
         )));
     }
@@ -25,7 +25,7 @@ pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoErr> {
         let index = idx - d;
         let shape_dim = shape[index];
         if shape_dim != 1 && shape_dim != *to_dim {
-            return Err(PzeudoErr::BroadcastErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "BroadcastErr. able_broadcast. cannot broadcast the shape {:?} to {:?} because {:?} cannot be broadcast to {:?}",
                 shape, to, shape_dim, to_dim
             )));
@@ -41,14 +41,14 @@ pub fn able_broadcast(shape: &[usize], to: &[usize]) -> Result<(), PzeudoErr> {
 
 pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<Vec<usize>, PzeudoErr> {
     if shape.len() > to.len() {
-        return Err(BroadcastErr(format!(
+        return Err(OpsErr(format!(
             "BroadcastErr. get_broadcast_dim. The shape {:?} cannot be broadcast to shape {:?} because the target shape is smaller.",
             shape, to
         )));
     }
 
     if shape.len() == 0 || to.len() == 0 {
-        return Err(BroadcastErr(format!(
+        return Err(OpsErr(format!(
             "BroadcastErr. get_broadcast_dim. It is currently not possible to broadcast with 0D"
         )));
     }
@@ -60,7 +60,7 @@ pub fn get_broadcast_dim(shape: &[usize], to: &[usize]) -> Result<Vec<usize>, Pz
         let index = idx - d;
         let shape_dim = shape[index];
         if shape_dim != 1 && shape_dim != *to_dim {
-            return Err(PzeudoErr::BroadcastErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "BroadcastErr. get_broadcast_dim. cannot broadcast the shape {:?} to {:?} because {:?} cannot be broadcast to {:?}",
                 shape, to, shape_dim, to_dim
             )));

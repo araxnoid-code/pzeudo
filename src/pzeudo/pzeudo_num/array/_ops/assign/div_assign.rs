@@ -12,7 +12,7 @@ pub trait OpsDivAssign<F>: ArrayAssignTrait<F> {
         let rhs_metadata = assign.get_metadata();
 
         if lhs_metadata.shape != rhs_metadata.shape {
-            return Err(PzeudoErr::MulAssignErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "OpsDivAssign::div_assign. cannot div_assign arrays of shape {:?} and {:?} because they have different shapes",
                 lhs_metadata.shape, rhs_metadata.shape
             )));

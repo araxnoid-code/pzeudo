@@ -30,7 +30,7 @@ where
         );
         self.get_record().borrow_mut().push(record_label);
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,
@@ -58,14 +58,14 @@ where
 
         let record_label = RecordLabel::Log(
             (self.get_array_idx(), self.get_grad_idx()),
-            F::from(10).ok_or(PzeudoErr::Log10Err(format!(
+            F::from(10).ok_or(PzeudoErr::OpsErr(format!(
                 "Tensor::log10. cannot cast 10 to data type"
             )))?,
             grad_idx,
         );
         self.get_record().borrow_mut().push(record_label);
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,
@@ -93,7 +93,7 @@ where
         let record_label = RecordLabel::Ln((self.get_array_idx(), self.get_grad_idx()), grad_idx);
         self.get_record().borrow_mut().push(record_label);
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,
@@ -123,7 +123,7 @@ where
             RecordLabel::Log((self.get_array_idx(), self.get_grad_idx()), base, grad_idx);
         self.get_record().borrow_mut().push(record_label);
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,

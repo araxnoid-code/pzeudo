@@ -1,6 +1,6 @@
 use std::ops::Sub;
 
-use crate::prelude::{PzeudoErr::SubErr, *};
+use crate::prelude::{PzeudoErr::OpsErr, *};
 
 pub trait OpsSub<F>: ArrayTrait<F> {
     fn sub<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>
@@ -36,7 +36,7 @@ pub trait OpsSub<F>: ArrayTrait<F> {
                 lhs_metadata.shape.to_vec(),
             )
         } else {
-            return Err(SubErr(format!(
+            return Err(OpsErr(format!(
                 "OpsAdd::add. cannot add arrays of shape {:?} and {:?} because they have different shapes",
                 lhs_metadata.shape, rhs_metadata.shape
             )));

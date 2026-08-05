@@ -26,34 +26,3 @@ use pzeudo::{EpochBuilder, Grad, Linear, Module, NoGrad, Sgd, mse, r};
 
 //     // dataset.backward().unwrap();
 // }
-
-fn main() {
-    let module = Module::<f32>::new();
-
-    let shape = [8, 1];
-    let vec = (0..shape.iter().product::<usize>())
-        .map(|x| x as f32)
-        .collect::<Vec<f32>>();
-
-    let tensor_a = module
-        .param_from_vector_with_shape::<Grad>(&vec, &shape)
-        .unwrap();
-
-    let tensor_b = module
-        .param_from_vector_with_shape::<Grad>(&vec, &shape)
-        .unwrap();
-
-    let tensor_c = tensor_a.mul(&tensor_b, Grad).unwrap();
-
-    let tensor_d = module
-        .param_from_vector_with_shape::<Grad>(&vec, &shape)
-        .unwrap();
-
-    let tensor_e = tensor_d.mul(&tensor_c, Grad).unwrap();
-    let tensor_c_no_grad = tensor_c.no_grad().unwrap();
-
-    let tensor_c_grad = tensor_c_no_grad.with_grad().unwrap();
-
-    let tensor_f = tensor_c_grad.mul(&tensor_e, Grad).unwrap();
-    tensor_f.backward().unwrap();
-}

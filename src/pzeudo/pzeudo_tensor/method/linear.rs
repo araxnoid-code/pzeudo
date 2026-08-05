@@ -28,15 +28,15 @@ impl<F> Linear<F> {
         let weight = Tensor::param_from_vector_with_shape(
             &weight_vector,
             &[in_features, out_features],
-            module.storage.clone(),
-            module.record.clone(),
+            module,
+            Grad,
         )?;
 
         let bias: Tensor<F, Contiguous, Grad> = Tensor::param_from_vector_with_shape(
             &vec![F::zero(); out_features],
             &[out_features],
-            module.storage.clone(),
-            module.record.clone(),
+            module,
+            Grad,
         )?;
 
         Ok(Self {

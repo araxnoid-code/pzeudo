@@ -26,7 +26,9 @@ pub enum StorageType {
 impl StorageType {
     pub fn to_view_element_type(&self) -> Result<ViewStorageType, PzeudoErr> {
         match self {
-            Self::View(_) => Err(PzeudoErr::CastingStorageTypeToView(format!(""))),
+            Self::View(_) => Err(PzeudoErr::StorageErr(format!(
+                "StorageType::to_view_element_type. Cannot cast StorageType::View to ViewStorageType."
+            ))),
             Self::Arr(arr_idx, grad_time) => Ok(ViewStorageType::Storage(*arr_idx, *grad_time)),
             Self::Param(permanent_idx) => Ok(ViewStorageType::Param(*permanent_idx)),
         }

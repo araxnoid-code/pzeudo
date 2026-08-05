@@ -34,7 +34,7 @@ impl<F, T, G> Tensor<F, T, G> {
             Ok(Some(grad_idx))
         })?;
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,
@@ -76,7 +76,7 @@ impl<F, T, G> Tensor<F, T, G> {
             Ok(Some(grad_idx))
         })?;
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,

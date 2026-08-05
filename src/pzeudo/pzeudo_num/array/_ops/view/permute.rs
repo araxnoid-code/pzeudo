@@ -1,6 +1,6 @@
 use crate::{
     ArrayTrait, ArrayView,
-    PzeudoErr::{self, PermuteErr},
+    PzeudoErr::{self, OpsErr},
 };
 
 pub trait OpsPermute<F>: ArrayTrait<F> {
@@ -8,13 +8,13 @@ pub trait OpsPermute<F>: ArrayTrait<F> {
         let metadata = self.get_metadata();
 
         if permute.len() == 0 {
-            return Err(PermuteErr(format!(
+            return Err(OpsErr(format!(
                 "PermuteErr. OpsPermute::permute. permute cannot be empty",
             )));
         }
 
         if metadata.shape.len() != permute.len() {
-            return Err(PermuteErr(format!(
+            return Err(OpsErr(format!(
                 "PermuteErr. OpsPermute::permute. array has shape {:?} cannot do permutation with {:?} because the dimensions are not the same",
                 metadata.shape, permute
             )));
@@ -27,12 +27,12 @@ pub trait OpsPermute<F>: ArrayTrait<F> {
 
         for dim in permute {
             if *dim >= len {
-                return Err(PermuteErr(format!(
+                return Err(OpsErr(format!(
                     "PermuteErr. OpsPermute::permute. in permute {:?}, there is an index that is out of bounds",
                     permute
                 )));
             } else if check[*dim] {
-                return Err(PermuteErr(format!(
+                return Err(OpsErr(format!(
                     "PermuteErr. OpsPermute::permute. on permute {:?}, a repeated number is detected",
                     permute
                 )));

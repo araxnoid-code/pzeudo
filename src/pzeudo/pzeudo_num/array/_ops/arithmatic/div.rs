@@ -1,6 +1,6 @@
 use std::ops::Div;
 
-use crate::prelude::{PzeudoErr::DivErr, *};
+use crate::prelude::{PzeudoErr::OpsErr, *};
 
 pub trait OpsDiv<F>: ArrayTrait<F> {
     fn div<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>
@@ -36,7 +36,7 @@ pub trait OpsDiv<F>: ArrayTrait<F> {
                 lhs_metadata.shape.to_vec(),
             )
         } else {
-            return Err(DivErr(format!(
+            return Err(OpsErr(format!(
                 "OpsAdd::add. cannot add arrays of shape {:?} and {:?} because they have different shapes",
                 lhs_metadata.shape, rhs_metadata.shape
             )));

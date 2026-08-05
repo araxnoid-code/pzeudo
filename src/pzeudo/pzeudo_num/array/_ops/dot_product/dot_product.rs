@@ -14,7 +14,7 @@ pub trait OpsDotProduct<F>: ArrayTrait<F> {
         let rhs_metadata = rhs.get_metadata();
 
         if lhs_metadata.shape.len() != 1 || rhs_metadata.shape.len() != 1 {
-            return Err(PzeudoErr::DotProductErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on arrays with shape {:?} and arrays with shape {:?} because they are not 1-dimensional.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -22,7 +22,7 @@ pub trait OpsDotProduct<F>: ArrayTrait<F> {
 
         let len = lhs_metadata.shape.iter().product::<usize>();
         if len != rhs_metadata.shape.iter().product::<usize>() {
-            return Err(PzeudoErr::DotProductErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on an array with shape {:?} and an array with shape {:?} because they do not have the same length.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -53,7 +53,7 @@ pub trait OpsDotProductF32: ArrayTrait<f32> {
         let rhs_metadata = rhs.get_metadata();
 
         if lhs_metadata.shape.len() != 1 || rhs_metadata.shape.len() != 1 {
-            return Err(PzeudoErr::DotProductErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on arrays with shape {:?} and arrays with shape {:?} because they are not 1-dimensional.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -61,7 +61,7 @@ pub trait OpsDotProductF32: ArrayTrait<f32> {
 
         let len = lhs_metadata.shape.iter().product::<usize>();
         if len != rhs_metadata.shape.iter().product::<usize>() {
-            return Err(PzeudoErr::DotProductErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on an array with shape {:?} and an array with shape {:?} because they do not have the same length.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -105,7 +105,7 @@ pub trait OpsDotProductF64: ArrayTrait<f64> {
         let rhs_metadata = rhs.get_metadata();
 
         if lhs_metadata.shape.len() != 1 || rhs_metadata.shape.len() != 1 {
-            return Err(PzeudoErr::DotProductErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on arrays with shape {:?} and arrays with shape {:?} because they are not 1-dimensional.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -113,7 +113,7 @@ pub trait OpsDotProductF64: ArrayTrait<f64> {
 
         let len = lhs_metadata.shape.iter().product::<usize>();
         if len != rhs_metadata.shape.iter().product::<usize>() {
-            return Err(PzeudoErr::DotProductErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "DotProductErr. OpsDotProduct::dot. cannot do dot product on an array with shape {:?} and an array with shape {:?} because they do not have the same length.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));

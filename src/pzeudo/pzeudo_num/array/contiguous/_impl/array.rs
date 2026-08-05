@@ -15,7 +15,7 @@ where
 
     fn linear_index(&self, index: usize) -> Result<F, crate::PzeudoErr> {
         if index >= self.data.len() {
-            return Err(PzeudoErr::LinearIndexErr(
+            return Err(PzeudoErr::OpsErr(
                 "LinearIndex. linear_index\nindex points outside the size of the data".to_string(),
             ));
         }
@@ -39,7 +39,7 @@ where
 
     fn linear_index(&self, index: usize) -> Result<F, crate::PzeudoErr> {
         if index >= self.data.len() {
-            return Err(PzeudoErr::LinearIndexErr(
+            return Err(PzeudoErr::OpsErr(
                 "LinearIndex. linear_index\nindex points outside the size of the data".to_string(),
             ));
         }

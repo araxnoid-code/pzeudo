@@ -1,6 +1,6 @@
 use crate::{
     Array, ArrayTrait, OpsMatmul2DF32, OpsMatmul2DF64,
-    PzeudoErr::{self, MatmulNDErr},
+    PzeudoErr::{self, OpsErr},
     shape_to_stride,
 };
 
@@ -13,7 +13,7 @@ pub trait OpsMatmulNDF32: OpsMatmul2DF32 {
         let rhs_metadata = rhs.get_metadata();
 
         if lhs_metadata.shape.len() != rhs_metadata.shape.len() {
-            return Err(MatmulNDErr(format!(
+            return Err(OpsErr(format!(
                 "MatmulNDErr. OpsMatmulNDF32::matmul_nd. cannot perform matmul_nd on an array having shape {:?} and an array having shape {:?} due to unequal dimensions.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -23,7 +23,7 @@ pub trait OpsMatmulNDF32: OpsMatmul2DF32 {
             // Pass to Matmul 2d
             return Ok(self.matmul_2d(rhs)?);
         } else if lhs_metadata.shape.len() == 1 || rhs_metadata.shape.len() == 1 {
-            return Err(MatmulNDErr(format!(
+            return Err(OpsErr(format!(
                 "MatmulNDErr. OpsMatmulNDF32::matmul_nd. Arrays that have shape {:?} and arrays that have shape {:?} cannot do matmul_nd because they have dimension 1.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -34,14 +34,14 @@ pub trait OpsMatmulNDF32: OpsMatmul2DF32 {
         let dim = lhs_shape.len();
 
         if lhs_shape[..dim - 2] != rhs_shape[..dim - 2] {
-            return Err(MatmulNDErr(format!(
+            return Err(OpsErr(format!(
                 "MatmulNDErr. OpsMatmulNDF32::matmul_nd. cannot perform matmul_nd on an array having shape {:?} and an array having shape {:?} due to unequal batch sizes.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
         }
 
         if lhs_shape[dim - 1] != rhs_shape[dim - 2] {
-            return Err(MatmulNDErr(format!(
+            return Err(OpsErr(format!(
                 "MatmulNDErr. OpsMatmulNDF32::matmul_nd. cannot perform matmul_nd on an array having shape {:?} and an array having shape {:?} because it does not fulfill the shape '...×m×k * ...×k×n'.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -128,7 +128,7 @@ pub trait OpsMatmulNDF64: OpsMatmul2DF64 {
         let rhs_metadata = rhs.get_metadata();
 
         if lhs_metadata.shape.len() != rhs_metadata.shape.len() {
-            return Err(MatmulNDErr(format!(
+            return Err(OpsErr(format!(
                 "MatmulNDErr. OpsMatmulNDF32::matmul_nd. cannot perform matmul_nd on an array having shape {:?} and an array having shape {:?} due to unequal dimensions.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -138,7 +138,7 @@ pub trait OpsMatmulNDF64: OpsMatmul2DF64 {
             // Pass to Matmul 2d
             return Ok(self.matmul_2d(rhs)?);
         } else if lhs_metadata.shape.len() == 1 || rhs_metadata.shape.len() == 1 {
-            return Err(MatmulNDErr(format!(
+            return Err(OpsErr(format!(
                 "MatmulNDErr. OpsMatmulNDF32::matmul_nd. Arrays that have shape {:?} and arrays that have shape {:?} cannot do matmul_nd because they have dimension 1.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
@@ -149,14 +149,14 @@ pub trait OpsMatmulNDF64: OpsMatmul2DF64 {
         let dim = lhs_shape.len();
 
         if lhs_shape[..dim - 2] != rhs_shape[..dim - 2] {
-            return Err(MatmulNDErr(format!(
+            return Err(OpsErr(format!(
                 "MatmulNDErr. OpsMatmulNDF32::matmul_nd. cannot perform matmul_nd on an array having shape {:?} and an array having shape {:?} due to unequal batch sizes.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));
         }
 
         if lhs_shape[dim - 1] != rhs_shape[dim - 2] {
-            return Err(MatmulNDErr(format!(
+            return Err(OpsErr(format!(
                 "MatmulNDErr. OpsMatmulNDF32::matmul_nd. cannot perform matmul_nd on an array having shape {:?} and an array having shape {:?} because it does not fulfill the shape '...×m×k * ...×k×n'.",
                 lhs_metadata.shape, rhs_metadata.shape
             )));

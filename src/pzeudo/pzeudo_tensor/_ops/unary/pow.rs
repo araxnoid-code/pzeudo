@@ -28,7 +28,7 @@ where
             RecordLabel::Powi((self.get_array_idx(), self.get_grad_idx()), i, grad_idx);
         self.get_record().borrow_mut().push(record_label);
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,
@@ -58,7 +58,7 @@ where
             RecordLabel::Powf((self.get_array_idx(), self.get_grad_idx()), f, grad_idx);
         self.get_record().borrow_mut().push(record_label);
 
-        Ok(Tensor::new(
+        Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,
@@ -91,7 +91,7 @@ where
                 let grad = storage
                     .get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?
                     .powi(i - 1)?
-                    .mul_scalar(F::from(i).ok_or(PzeudoErr::PowiBackwardErr(format!(
+                    .mul_scalar(F::from(i).ok_or(PzeudoErr::OpsErr(format!(
                         "powi_backward. cannot cast on i32 which has value {i}"
                     )))?)?
                     .mul(&gradient)?;

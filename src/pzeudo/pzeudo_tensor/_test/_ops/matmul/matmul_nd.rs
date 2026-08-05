@@ -10,17 +10,13 @@ fn tensor_matmul_nd_f32_test() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = module
-        .tensor_from_vector_with_shape::<Grad>(&vec_a, &shape)
-        .unwrap();
+    let array_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module, Grad).unwrap();
 
     let shape = [2, 3, 5, 6];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 100.)
         .collect::<Vec<f32>>();
-    let array_b = module
-        .tensor_from_vector_with_shape::<Grad>(&vec_b, &shape)
-        .unwrap();
+    let array_b = Tensor::from_vector_with_shape(&vec_b, &shape, &module, Grad).unwrap();
 
     let tensor_c = array_a.matmul_nd(&array_b, Grad).unwrap();
     tensor_c.backward().unwrap();
@@ -64,17 +60,13 @@ fn tensor_matmul_nd_f64_test() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_a = module
-        .tensor_from_vector_with_shape::<Grad>(&vec_a, &shape)
-        .unwrap();
+    let array_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module, Grad).unwrap();
 
     let shape = [2, 3, 5, 6];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64 + 100.)
         .collect::<Vec<f64>>();
-    let array_b = module
-        .tensor_from_vector_with_shape::<Grad>(&vec_b, &shape)
-        .unwrap();
+    let array_b = Tensor::from_vector_with_shape(&vec_b, &shape, &module, Grad).unwrap();
 
     let tensor_c = array_a.matmul_nd(&array_b, Grad).unwrap();
     tensor_c.backward().unwrap();

@@ -9,19 +9,13 @@ fn logic_test_1() {
         .map(|x| x as f32)
         .collect::<Vec<f32>>();
 
-    let tensor_a = module
-        .param_from_vector_with_shape::<Grad>(&vec, &shape)
-        .unwrap();
+    let tensor_a = Tensor::param_from_vector_with_shape(&vec, &shape, &module, Grad).unwrap();
 
-    let tensor_b = module
-        .param_from_vector_with_shape::<Grad>(&vec, &shape)
-        .unwrap();
+    let tensor_b = Tensor::param_from_vector_with_shape(&vec, &shape, &module, Grad).unwrap();
 
     let tensor_c = tensor_a.mul(&tensor_b, Grad).unwrap();
 
-    let tensor_d = module
-        .param_from_vector_with_shape::<Grad>(&vec, &shape)
-        .unwrap();
+    let tensor_d = Tensor::param_from_vector_with_shape(&vec, &shape, &module, Grad).unwrap();
 
     let tensor_e = tensor_d.mul(&tensor_c, Grad).unwrap();
     let tensor_c_no_grad = tensor_c.no_grad().unwrap();

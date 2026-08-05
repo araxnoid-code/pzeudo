@@ -26,13 +26,13 @@ where
         storage.get_as_array_ref::<J>(actual.get_array_idx(), ContiguousType::Arr)?;
 
     if pred_array.shape != actual_array.shape {
-        return Err(PzeudoErr::MseErr(format!(
+        return Err(PzeudoErr::LossErr(format!(
             "mse. actual shape: {:?}, predicted shape: {:?}. The shape of both tensors must be the same",
             actual_array.shape, pred_array.shape
         )));
     }
 
-    let len = F::from(actual_array.shape.iter().product::<usize>()).ok_or(PzeudoErr::MseErr(
+    let len = F::from(actual_array.shape.iter().product::<usize>()).ok_or(PzeudoErr::LossErr(
         format!("mse. Unable to cast on length type"),
     ))?;
 
@@ -53,7 +53,7 @@ where
     );
     prediction.record.borrow_mut().push(record_label);
 
-    Ok(Tensor::new(
+    Ok(Tensor::_new(
         array_idx,
         grad_idx,
         vec![1],
@@ -97,9 +97,7 @@ where
 
             let scalar = -(F::one() + F::one())
                 / F::from(actual_value.shape.iter().product::<usize>()).ok_or(
-                    PzeudoErr::MseBackwardErr(format!(
-                        "mse_backward. Cannot cast on scalar length"
-                    )),
+                    PzeudoErr::LossErr(format!("mse_backward. Cannot cast on scalar length")),
                 )?;
 
             let grad = actual_value

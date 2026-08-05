@@ -24,7 +24,7 @@ where
         RecordLabel::Softplus(tensor.get_array_idx(), tensor.get_grad_idx(), grad_idx);
     tensor.get_record().borrow_mut().push(record_label);
 
-    Ok(Tensor::new(
+    Ok(Tensor::_new(
         array_idx,
         grad_idx,
         shape,

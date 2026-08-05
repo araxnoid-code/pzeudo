@@ -20,18 +20,14 @@ fn linear_model_test_mse_f32() {
         .iter()
         .map(|x| (*x as f32 + 1.) * 0.001)
         .collect::<Vec<f32>>();
-    let dataset = module
-        .param_from_vector_with_shape::<Grad>(&vector, &shape)
-        .unwrap();
+    let dataset = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
         .iter()
         .map(|x| *x as f32 + 10.)
         .collect::<Vec<f32>>();
-    let actual = module
-        .param_from_vector_with_shape::<Grad>(&vector, &shape)
-        .unwrap();
+    let actual = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
     let epoch = EpochBuilder::new(25, model, (dataset, actual));
 
@@ -65,18 +61,14 @@ fn linear_model_test_mse_f64() {
         .iter()
         .map(|x| (*x as f64 + 1.) * 0.001)
         .collect::<Vec<f64>>();
-    let dataset = module
-        .param_from_vector_with_shape::<Grad>(&vector, &shape)
-        .unwrap();
+    let dataset = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
         .iter()
         .map(|x| *x as f64 + 10.)
         .collect::<Vec<f64>>();
-    let actual = module
-        .param_from_vector_with_shape::<Grad>(&vector, &shape)
-        .unwrap();
+    let actual = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
     let epoch = EpochBuilder::new(25, model, (dataset, actual));
 
@@ -110,18 +102,14 @@ fn linear_model_test_mae_f32() {
         .iter()
         .map(|x| (*x as f32 + 1.) * 0.001)
         .collect::<Vec<f32>>();
-    let dataset = module
-        .param_from_vector_with_shape::<Grad>(&vector, &shape)
-        .unwrap();
+    let dataset = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
         .iter()
         .map(|x| *x as f32 + 10.)
         .collect::<Vec<f32>>();
-    let actual = module
-        .param_from_vector_with_shape::<Grad>(&vector, &shape)
-        .unwrap();
+    let actual = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
     let epoch = EpochBuilder::new(25, model, (dataset, actual));
 
@@ -155,18 +143,14 @@ fn linear_model_test_mae_f64() {
         .iter()
         .map(|x| (*x as f64 + 1.) * 0.001)
         .collect::<Vec<f64>>();
-    let dataset = module
-        .param_from_vector_with_shape::<Grad>(&vector, &shape)
-        .unwrap();
+    let dataset = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
         .iter()
         .map(|x| *x as f64 + 10.)
         .collect::<Vec<f64>>();
-    let actual = module
-        .param_from_vector_with_shape::<Grad>(&vector, &shape)
-        .unwrap();
+    let actual = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
     let epoch = EpochBuilder::new(25, model, (dataset, actual));
 

@@ -35,7 +35,7 @@ pub trait OpsAdd<F>: ArrayTrait<F> {
                 lhs_metadata.shape.to_vec(),
             )
         } else {
-            return Err(AddErr(format!(
+            return Err(OpsErr(format!(
                 "OpsAdd::add. cannot add arrays of shape {:?} and {:?} because they have different shapes",
                 lhs_metadata.shape, rhs_metadata.shape
             )));

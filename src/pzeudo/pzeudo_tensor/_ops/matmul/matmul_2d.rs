@@ -31,7 +31,7 @@ impl<T, G> Tensor<f32, T, G> {
         self.record.borrow_mut().push(record_label);
 
         drop(storage);
-        let tensor = Tensor::new(
+        let tensor = Tensor::_new(
             array_idx,
             grad_idx,
             shape,
@@ -74,7 +74,7 @@ impl<T, G> Tensor<f64, T, G> {
         self.record.borrow_mut().push(record_label);
 
         drop(storage);
-        let tensor = Tensor::new(
+        let tensor = Tensor::_new(
             array_idx,
             grad_idx,
             shape,

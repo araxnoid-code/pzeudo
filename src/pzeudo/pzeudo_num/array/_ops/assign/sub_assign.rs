@@ -12,7 +12,7 @@ pub trait OpsSubAssign<F>: ArrayAssignTrait<F> {
         let rhs_metadata = assign.get_metadata();
 
         if lhs_metadata.shape != rhs_metadata.shape {
-            return Err(PzeudoErr::SubAssignErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "OpsSubAssign::sub_assign. cannot sub_assign arrays of shape {:?} and {:?} because they have different shapes",
                 lhs_metadata.shape, rhs_metadata.shape
             )));

@@ -26,13 +26,13 @@ where
         storage.get_as_array_ref::<J>(prediction.get_array_idx(), ContiguousType::Arr)?;
 
     if actual_array.shape != pred_array.shape {
-        return Err(PzeudoErr::CrossEntropyLossErr(format!(
+        return Err(PzeudoErr::LossErr(format!(
             "cross_entropy_loss. actual shape: {:?}, predicted shape: {:?}. The shape of both tensors must be the same",
             actual_array.shape, pred_array.shape
         )));
     }
 
-    let epsilon = F::from(1e-7).ok_or(PzeudoErr::CrossEntropyLossErr(format!(
+    let epsilon = F::from(1e-7).ok_or(PzeudoErr::LossErr(format!(
         "cross_entropy_loss. cannot cast data type epsilon"
     )))?;
 
@@ -55,7 +55,7 @@ where
     );
     prediction.get_record().borrow_mut().push(record_label);
 
-    Ok(Tensor::new(
+    Ok(Tensor::_new(
         array_idx,
         grad_idx,
         vec![1],
@@ -89,9 +89,9 @@ where
                     storage.get_as_array_ref::<View>(prediction_idx, ContiguousType::Arr)?;
 
                 // -actual/prediction
-                let epsilon = F::from(1e-7).ok_or(PzeudoErr::CrossEntropyLossBackwardErr(
-                    format!("cross_entropy_loss_backward. cannot cast data type epsilon"),
-                ))?;
+                let epsilon = F::from(1e-7).ok_or(PzeudoErr::LossErr(format!(
+                    "cross_entropy_loss_backward. cannot cast data type epsilon"
+                )))?;
 
                 let grad = actual_value
                     .div(&prediction_value.add_scalar(epsilon)?)?

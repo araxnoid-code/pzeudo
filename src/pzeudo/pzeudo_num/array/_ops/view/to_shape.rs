@@ -4,7 +4,7 @@ pub trait OpsToShape<F>: ArrayTrait<F> {
     fn to_shape(&self, shape: &[usize]) -> Result<ArrayView<'_, F>, PzeudoErr> {
         let metadata = self.get_metadata();
         if metadata.shape.iter().product::<usize>() != shape.iter().product::<usize>() {
-            return Err(PzeudoErr::ToShapeErr(format!(
+            return Err(PzeudoErr::OpsErr(format!(
                 "OpsToShape::to_shape. Cannot change array with shape {:?} to {shape:?} due to unequal sizes",
                 metadata.shape
             )));
@@ -27,7 +27,7 @@ pub trait OpsToShape<F>: ArrayTrait<F> {
         for (idx, dim) in reshape.iter().enumerate() {
             if *dim == -1 {
                 if let Some(_) = label_idx {
-                    return Err(PzeudoErr::ToShapeErr(format!(
+                    return Err(PzeudoErr::OpsErr(format!(
                         "OpsToShape::reshape. in shape {reshape:?}, cannot perform size inference on more than 1 dimension at once.",
                     )));
                 } else {
@@ -35,7 +35,7 @@ pub trait OpsToShape<F>: ArrayTrait<F> {
                     to_shape.push(0);
                 }
             } else if *dim == 0 || *dim < -1 {
-                return Err(PzeudoErr::ToShapeErr(format!(
+                return Err(PzeudoErr::OpsErr(format!(
                     "OpsToShape::reshape. cannot reshape on {reshape:?}, only allowed sizes are x > 0 or x == -1",
                 )));
             } else {

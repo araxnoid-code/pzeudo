@@ -7,6 +7,24 @@ use std::{
     vec,
 };
 
+/// Linear Layer
+/// Accepts 2D input in the form [Batch, Features]. Must be exactly 2D.
+///
+/// formula:
+/// linear = input * weight + bias
+///
+/// Shape specifications:
+/// input shape: batch×in_features
+/// weight shape: in_features×out_features
+/// bias shape: out_features
+///
+/// Weight Initialization
+/// Xavier:
+///     mean    : 0
+///     std_dev : 2/(in_features+out_features)
+/// He:
+///     mean: 0
+///     std_dev : 2/in_features
 pub struct Linear<F> {
     pub(crate) in_features: usize,
     pub(crate) out_features: usize,

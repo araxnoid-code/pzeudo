@@ -1,12 +1,15 @@
+use crate::prelude::*;
+use num_traits::{Float, NumCast};
 use std::{
     iter::Sum,
     ops::{Add, AddAssign, Div, Neg},
 };
 
-use num_traits::{Float, NumCast};
-
-use crate::prelude::*;
-
+/// Cross Entropy Loss
+/// H(p,q) = -p * log(q)
+/// p = target probability
+/// q = prediction probability
+/// The result of H(p,q) will be summed into a scalar (since pzeudo does not yet support 0D tensors/scalars, it returns a 1D tensor containing a single value).
 pub fn cross_entropy_loss<F, T, J, LhsGrad, RhsGrad, ReqGrad>(
     actual: Tensor<F, T, LhsGrad>,
     prediction: Tensor<F, J, RhsGrad>,

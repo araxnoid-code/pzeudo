@@ -6,6 +6,8 @@ use std::{
     rc::Rc,
 };
 
+/// SGD (Stochastic Gradient Descent)
+/// w_new = w_old - lr * grad(w_old)
 pub struct Sgd<F> {
     lr: F,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,

@@ -5,6 +5,10 @@ use std::{
     ops::{AddAssign, Sub},
 };
 
+/// Mean Absolute Error
+/// mae = 1/n * ∑|target - prediction|
+/// n = The total number of elements in the tensor.
+/// The result of mae will be summed into a scalar (since pzeudo does not yet support 0D tensors/scalars, it returns a 1D tensor containing a single value).
 pub fn mae<F, T, J, LhsGrad, RhsGrad, ReqGrad>(
     actual: &Tensor<F, T, LhsGrad>,
     prediction: &Tensor<F, J, RhsGrad>,

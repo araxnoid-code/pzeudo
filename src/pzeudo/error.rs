@@ -1,3 +1,5 @@
+use rand_distr::NormalError;
+
 #[derive(Debug)]
 pub enum PzeudoErr {
     // Tensor Tools
@@ -22,4 +24,10 @@ pub enum PzeudoErr {
 
     // Loss
     LossErr(String),
+
+    // Layer
+    LayerErr(String),
+
+    // DependenciesErr
+    RandDistrNormalErr(NormalError),
 }

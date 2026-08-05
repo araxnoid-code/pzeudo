@@ -4,7 +4,7 @@ use crate::prelude::*;
 
 #[test]
 fn broadcast_test_1() {
-    let module = Module::<f32>::new();
+    let module = Module::<f32>::new(42);
 
     let shape = [3, 1];
     let vec_a = (0..shape.iter().product::<usize>())

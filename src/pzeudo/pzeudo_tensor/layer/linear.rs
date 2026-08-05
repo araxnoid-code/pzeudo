@@ -1,10 +1,11 @@
 use crate::prelude::*;
-use num_traits::Zero;
-use rand::{
-    distr::{Distribution, StandardUniform},
-    random,
+use num_traits::{Float, NumCast, One, Zero};
+use rand::distr::{Distribution, StandardUniform};
+use rand_distr::{Normal, StandardNormal};
+use std::{
+    ops::{Add, Div},
+    vec,
 };
-use std::{ops::Add, vec};
 
 pub struct Linear<F> {
     pub(crate) in_features: usize,
@@ -17,14 +18,35 @@ impl<F> Linear<F> {
     pub fn new(
         in_features: usize,
         out_features: usize,
-        module: &Module<F>,
+        weight_init: WeightInit,
+        module: &mut Module<F>,
     ) -> Result<Linear<F>, PzeudoErr>
     where
-        F: Clone + Zero,
+        F: Clone + Zero + One + NumCast + Div<Output = F> + Float,
         StandardUniform: Distribution<F>,
+        StandardNormal: Distribution<F>,
     {
+        let std = match weight_init {
+            WeightInit::He => {
+                (F::one() + F::one())
+                    / F::from(in_features).ok_or(PzeudoErr::LayerErr(format!(
+                        "Linear::new. Cannot perform data type casting on in_feature."
+                    )))?
+            }
+            WeightInit::Xavier => {
+                (F::one() + F::one())
+                    / F::from(in_features + out_features).ok_or(PzeudoErr::LayerErr(format!(
+                        "Linear::new. Cannot perform data type casting on in_feature."
+                    )))?
+            }
+        };
+        let normal =
+            Normal::new(F::zero(), std).map_err(|err| PzeudoErr::RandDistrNormalErr(err))?;
+
         let len = in_features * out_features;
-        let weight_vector = (0..len).map(|_| random::<F>()).collect::<Vec<F>>();
+        let weight_vector = (0..len)
+            .map(|_| normal.sample(module.get_rng_mut()))
+            .collect::<Vec<F>>();
         let weight = Tensor::param_from_vector_with_shape(
             &weight_vector,
             &[in_features, out_features],

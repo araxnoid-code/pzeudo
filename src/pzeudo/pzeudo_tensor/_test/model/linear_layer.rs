@@ -8,10 +8,10 @@ struct Model<F> {
 
 #[test]
 fn linear_model_test_mse_f32() {
-    let module = Module::<f32>::new();
+    let mut module = Module::<f32>::new(42);
     let model = Model {
-        linear_1: Linear::new(1, 4, &module).unwrap(),
-        linear_2: Linear::new(4, 1, &module).unwrap(),
+        linear_1: Linear::new(1, 4, WeightInit::He, &mut module).unwrap(),
+        linear_2: Linear::new(4, 1, WeightInit::He, &mut module).unwrap(),
         optim: Sgd::new(0.0001, &module),
     };
 
@@ -49,10 +49,10 @@ fn linear_model_test_mse_f32() {
 
 #[test]
 fn linear_model_test_mse_f64() {
-    let module = Module::<f64>::new();
+    let mut module = Module::<f64>::new(42);
     let model = Model {
-        linear_1: Linear::new(1, 4, &module).unwrap(),
-        linear_2: Linear::new(4, 1, &module).unwrap(),
+        linear_1: Linear::new(1, 4, WeightInit::He, &mut module).unwrap(),
+        linear_2: Linear::new(4, 1, WeightInit::He, &mut module).unwrap(),
         optim: Sgd::new(0.0001, &module),
     };
 
@@ -90,10 +90,10 @@ fn linear_model_test_mse_f64() {
 
 #[test]
 fn linear_model_test_mae_f32() {
-    let module = Module::<f32>::new();
+    let mut module = Module::<f32>::new(42);
     let model = Model {
-        linear_1: Linear::new(1, 4, &module).unwrap(),
-        linear_2: Linear::new(4, 1, &module).unwrap(),
+        linear_1: Linear::new(1, 4, WeightInit::He, &mut module).unwrap(),
+        linear_2: Linear::new(4, 1, WeightInit::He, &mut module).unwrap(),
         optim: Sgd::new(0.0001, &module),
     };
 
@@ -131,10 +131,10 @@ fn linear_model_test_mae_f32() {
 
 #[test]
 fn linear_model_test_mae_f64() {
-    let module = Module::<f64>::new();
+    let mut module = Module::<f64>::new(42);
     let model = Model {
-        linear_1: Linear::new(1, 4, &module).unwrap(),
-        linear_2: Linear::new(4, 1, &module).unwrap(),
+        linear_1: Linear::new(1, 4, WeightInit::Xavier, &mut module).unwrap(),
+        linear_2: Linear::new(4, 1, WeightInit::Xavier, &mut module).unwrap(),
         optim: Sgd::new(0.0001, &module),
     };
 
@@ -190,10 +190,10 @@ impl Model<f32> {
 
 #[test]
 fn linear_model_test_mse_f32_train_eval() {
-    let module = Module::<f32>::new();
+    let mut module = Module::<f32>::new(42);
     let model = Model {
-        linear_1: Linear::new(1, 16, &module).unwrap(),
-        linear_2: Linear::new(16, 1, &module).unwrap(),
+        linear_1: Linear::new(1, 16, WeightInit::He, &mut module).unwrap(),
+        linear_2: Linear::new(16, 1, WeightInit::He, &mut module).unwrap(),
         optim: Sgd::new(0.01, &module),
     };
 

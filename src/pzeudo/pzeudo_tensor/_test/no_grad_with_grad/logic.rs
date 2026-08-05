@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 #[test]
 fn logic_test_1() {
-    let module = Module::<f32>::new();
+    let module = Module::<f32>::new(42);
 
     let shape = [8, 1];
     let vec = (0..shape.iter().product::<usize>())

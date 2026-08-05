@@ -127,13 +127,14 @@ impl<F> GradStorage<F> {
     }
 
     pub fn check_no_grad(&self, idx: usize) -> Result<bool, PzeudoErr> {
+        // println!("{}", idx);
         let status = self.status
             .get(idx)
-            .ok_or(PzeudoErr::StorageErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(status).")))?;
+            .ok_or(PzeudoErr::StorageErr(format!("GradStorage::check_no_grad. index {idx} points to an invalid location on gradient storage(status).")))?;
 
         if *status == 0 {
             return Err(PzeudoErr::StorageErr(format!(
-                "GradStorage::get_grad_mut. index {idx} points to elements that have the value None in gradient storage(status)."
+                "GradStorage::check_no_grad. index {idx} points to elements that have the value None in gradient storage(status)."
             )));
         } else if *status == 1 {
             return Ok(true);

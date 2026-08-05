@@ -4,7 +4,7 @@ use rand::{
     distr::{Distribution, StandardUniform},
     random,
 };
-use std::vec;
+use std::{ops::Add, vec};
 
 pub struct Linear<F> {
     pub(crate) in_features: usize,
@@ -46,19 +46,6 @@ impl<F> Linear<F> {
             weight,
         })
     }
-}
-
-impl Linear<f32> {
-    pub fn forward<J, G>(
-        &self,
-        input: &Tensor<f32, J, G>,
-    ) -> Result<Tensor<f32, Contiguous, Grad>, PzeudoErr>
-    where
-        for<'a> ArrayRef<'a, f32, J>: ArrayTrait<f32> + OpsAdd<f32> + OpsBroadcast<f32>,
-        for<'a> ArrayRef<'a, f32, Contiguous>: ArrayTrait<f32> + OpsAdd<f32> + OpsBroadcast<f32>,
-    {
-        Ok(input.matmul_2d(&self.weight, Grad)?.add(&self.bias, Grad)?)
-    }
 
     pub fn get_in_features(&self) -> usize {
         self.in_features
@@ -68,40 +55,25 @@ impl Linear<f32> {
         self.out_features
     }
 
-    pub fn get_weight(&self) -> &Tensor<f32, Contiguous, Grad> {
+    pub fn get_weight(&self) -> &Tensor<F, Contiguous, Grad> {
         &self.weight
     }
 
-    pub fn get_bias(&self) -> &Tensor<f32, Contiguous, Grad> {
+    pub fn get_bias(&self) -> &Tensor<F, Contiguous, Grad> {
         &self.bias
     }
-}
 
-impl Linear<f64> {
-    pub fn forward<J, G>(
+    pub fn forward<J, G, ReqGrad>(
         &self,
-        input: &Tensor<f64, J, G>,
-    ) -> Result<Tensor<f64, Contiguous, Grad>, PzeudoErr>
+        input: &Tensor<F, J, G>,
+        requires_grad: ReqGrad,
+    ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
     where
-        for<'a> ArrayRef<'a, f64, J>: ArrayTrait<f64> + OpsAdd<f64> + OpsBroadcast<f64>,
-        for<'a> ArrayRef<'a, f64, Contiguous>: ArrayTrait<f64> + OpsAdd<f64> + OpsBroadcast<f64>,
+        F: F32F64MatmulTensor<F> + Copy + Add + Zero,
+        ReqGrad: ReqGradTrait<F> + Copy,
+        for<'a> ArrayRef<'a, F, Contiguous>: ArrayTrait<F>,
+        for<'a> ArrayRef<'a, F, J>: ArrayTrait<F>,
     {
-        Ok(input.matmul_2d(&self.weight, Grad)?.add(&self.bias, Grad)?)
-    }
-
-    pub fn get_in_features(&self) -> usize {
-        self.in_features
-    }
-
-    pub fn get_out_features(&self) -> usize {
-        self.out_features
-    }
-
-    pub fn get_weight(&self) -> &Tensor<f64, Contiguous, Grad> {
-        &self.weight
-    }
-
-    pub fn get_bias(&self) -> &Tensor<f64, Contiguous, Grad> {
-        &self.bias
+        Ok(F::matmul_2d(&input, &self.weight, requires_grad)?.add(&self.bias, requires_grad)?)
     }
 }

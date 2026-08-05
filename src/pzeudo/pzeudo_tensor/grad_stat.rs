@@ -1,7 +1,10 @@
 use crate::prelude::*;
 use num_traits::Zero;
 
+#[derive(Clone, Copy)]
 pub struct Grad;
+
+#[derive(Clone, Copy)]
 pub struct NoGrad;
 
 pub trait ReqGradTrait<F> {

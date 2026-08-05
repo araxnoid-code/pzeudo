@@ -1,6 +1,11 @@
 use crate::prelude::*;
 
 impl<F> Module<F> {
+    pub fn reset(&self) {
+        self.storage.borrow_mut().clear_storage();
+        self.get_record().borrow_mut().clear();
+    }
+
     pub fn epoch<M, T, O>(
         &self,
         epoch_builder: EpochBuilder<M, T>,
@@ -10,7 +15,7 @@ impl<F> Module<F> {
             f(i, self, &epoch_builder.model, &epoch_builder.arg)?;
 
             // RESET
-            self.storage.borrow_mut().clear_storage();
+            self.reset();
         }
 
         Ok(())

@@ -22,7 +22,7 @@ where
         let shape = arr_log.shape.to_vec();
 
         let array_idx = storage.push(ElementType::Arr(arr_log))?;
-        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
+        let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
         let record_label =
             RecordLabel::Powi((self.get_array_idx(), self.get_grad_idx()), i, grad_idx);
@@ -52,7 +52,7 @@ where
         let shape = arr_log.shape.to_vec();
 
         let array_idx = storage.push(ElementType::Arr(arr_log))?;
-        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
+        let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
         let record_label =
             RecordLabel::Powf((self.get_array_idx(), self.get_grad_idx()), f, grad_idx);

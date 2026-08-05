@@ -5,13 +5,15 @@ pub struct Grad;
 pub struct NoGrad;
 
 pub trait ReqGradTrait<F> {
-    fn into_zeros_grad(
+    fn zeros_grad(shape: &[usize]) -> Option<Array<F>>;
+
+    fn into_zeros_grad_storage(
         self,
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
     ) -> Result<Option<StorageType>, PzeudoErr>;
 
-    fn zeros_grad(
+    fn zeros_grad_storage(
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
     ) -> Result<Option<StorageType>, PzeudoErr>;
@@ -21,7 +23,11 @@ impl<F> ReqGradTrait<F> for Grad
 where
     F: Clone + Zero,
 {
-    fn into_zeros_grad(
+    fn zeros_grad(shape: &[usize]) -> Option<Array<F>> {
+        Some(Array::zeros(shape))
+    }
+
+    fn into_zeros_grad_storage(
         self,
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
@@ -31,7 +37,7 @@ where
         Ok(grad_idx)
     }
 
-    fn zeros_grad(
+    fn zeros_grad_storage(
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
     ) -> Result<Option<StorageType>, PzeudoErr> {
@@ -45,7 +51,11 @@ impl<F> ReqGradTrait<F> for NoGrad
 where
     F: Clone + Zero,
 {
-    fn into_zeros_grad(
+    fn zeros_grad(_: &[usize]) -> Option<Array<F>> {
+        None
+    }
+
+    fn into_zeros_grad_storage(
         self,
         _: &[usize],
         _: &mut ArrayStorage<F>,
@@ -53,7 +63,10 @@ where
         Ok(None)
     }
 
-    fn zeros_grad(_: &[usize], _: &mut ArrayStorage<F>) -> Result<Option<StorageType>, PzeudoErr> {
+    fn zeros_grad_storage(
+        _: &[usize],
+        _: &mut ArrayStorage<F>,
+    ) -> Result<Option<StorageType>, PzeudoErr> {
         Ok(None)
     }
 }
@@ -62,20 +75,18 @@ impl<F> Tensor<F, Contiguous, Grad> {
     pub fn no_grad(self) -> Result<Tensor<F, Contiguous, NoGrad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
-        let storage_type = self.grad_idx.ok_or(PzeudoErr::NoGradErr(format!(
+        let storage_type = self.grad_idx.ok_or(PzeudoErr::ReqGradErr(format!(
             "Tensor::no_grad. gradient tensor of type None"
         )))?;
 
         match storage_type {
-            StorageType::Permanent(_) => Err(PzeudoErr::NoGradErr(format!(
-                "Tensor::no_grad. can't do Tensor::no_grad on permanent tensor"
-            ))),
-            StorageType::View(_) => Err(PzeudoErr::NoGradErr(format!(
+            StorageType::View(_) => Err(PzeudoErr::ReqGradErr(format!(
                 "Tensor::no_grad. cannot do Tensor::no_grad on tensor view"
             ))),
+            StorageType::Param(idx) => storage.params_storage.no_grad(idx),
             StorageType::Arr(idx, grad_time) => storage.grad_storage.no_grad(
                 idx,
-                grad_time.ok_or(PzeudoErr::NoGradErr(format!(
+                grad_time.ok_or(PzeudoErr::ReqGradErr(format!(
                     "Tensor::no_grad. tensor does not have grad_time"
                 )))?,
             ),
@@ -96,12 +107,22 @@ where
         let mut storage = self.storage.borrow_mut();
 
         self.grad_idx.map_or(Ok(()), |_| {
-            Err(PzeudoErr::WithGradErr(format!(
+            Err(PzeudoErr::ReqGradErr(format!(
                 "Tensor::with_grad. tensor has gradient"
             )))
         })?;
 
-        let grad_idx = Grad.into_zeros_grad(&self.shape, &mut storage)?;
+        let grad_idx = match self.array_idx {
+            StorageType::View(_) => Err(PzeudoErr::ReqGradErr(format!(
+                "Tensor::no_grad. cannot do Tensor::no_grad on tensor view"
+            ))),
+            StorageType::Param(idx) => {
+                let zeros = Array::<F>::zeros(&self.shape);
+                storage.get_params_storage_mut().with_grad(idx, zeros)?;
+                Ok(Some(StorageType::Param(idx)))
+            }
+            StorageType::Arr(_, _) => Grad.into_zeros_grad_storage(&self.shape, &mut storage),
+        }?;
 
         drop(storage);
         let tensor = Tensor::new(

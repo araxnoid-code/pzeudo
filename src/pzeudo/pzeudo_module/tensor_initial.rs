@@ -25,19 +25,15 @@ impl<F> Module<F> {
         Tensor::from_vector_with_shape(vec, shape, self.storage.clone(), self.record.clone())
     }
 
-    pub fn permanent_tensor_from_vector_with_shape(
+    pub fn param_from_vector_with_shape<G>(
         &self,
         vec: &[F],
         shape: &[usize],
-    ) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
+    ) -> Result<Tensor<F, Contiguous, G>, PzeudoErr>
     where
+        G: ReqGradTrait<F>,
         F: Clone + Zero,
     {
-        Tensor::permanent_from_vector_with_shape(
-            vec,
-            shape,
-            self.storage.clone(),
-            self.record.clone(),
-        )
+        Tensor::param_from_vector_with_shape(vec, shape, self.storage.clone(), self.record.clone())
     }
 }

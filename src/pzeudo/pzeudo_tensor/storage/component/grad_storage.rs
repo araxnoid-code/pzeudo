@@ -24,10 +24,11 @@ impl<F> GradStorage<F> {
     pub(crate) fn grad_push(&mut self, array: Array<F>) -> Result<(usize, usize), PzeudoErr> {
         if let Some(idx) = self.empty_idx.pop() {
             if self.storage[idx].is_some() {
-                return Err(PzeudoErr::StoragePushErr(format!(
+                return Err(PzeudoErr::StorageErr(format!(
                     "ArrayStorage::push. The problem occurs because the index {idx} obtained from empty_idx points to an element that still has a value."
                 )));
             }
+            self.storage[idx] = Some(array);
             self.status[idx] = 2;
             self.time[idx] += 1;
 
@@ -43,22 +44,22 @@ impl<F> GradStorage<F> {
     pub(crate) fn get_grad(&self, idx: usize, grad_time: usize) -> Result<&Array<F>, PzeudoErr> {
         let status = self.status
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetErr(format!("GradStorage::get_grad. index {idx} points to an invalid location on gradient storage(status).")))?;
+            .ok_or(PzeudoErr::StorageErr(format!("GradStorage::get_grad. index {idx} points to an invalid location on gradient storage(status).")))?;
 
         let time = self.time
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetErr(format!("GradStorage::get_grad. index {idx} points to an invalid location on gradient storage(time).")))?;
+            .ok_or(PzeudoErr::StorageErr(format!("GradStorage::get_grad. index {idx} points to an invalid location on gradient storage(time).")))?;
 
         if *status == 0 {
-            return Err(PzeudoErr::GradStorageGetErr(format!(
+            return Err(PzeudoErr::StorageErr(format!(
                 "GradStorage::get_grad. index {idx} points to elements that have the value None in gradient storage(status)."
             )));
         } else if *status == 1 {
-            return Err(PzeudoErr::GradNoGradErr(format!(
+            return Err(PzeudoErr::StorageNoGradErr(format!(
                 "GradStorage::get_grad. index {idx} points to elements that have the value None in gradient storage because the gradient is set to no_grad(status)."
             )));
         } else if *time != grad_time {
-            return Err(PzeudoErr::GradTimeErr(format!(
+            return Err(PzeudoErr::StorageTimeErr(format!(
                 "GradStorage::get_grad. index {idx} points to an element that has a different time value. time owned by {grad_time}, time on element {time}(time)."
             )));
         }
@@ -66,11 +67,11 @@ impl<F> GradStorage<F> {
         let grad = self
             .storage
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::get_grad. index {idx} points to an invalid location on gradient storage(storage)."
             )))?
             .as_ref()
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::get_grad. index {idx} points to elements that have the value None in gradient storage(storage)."
             )))?;
 
@@ -84,22 +85,22 @@ impl<F> GradStorage<F> {
     ) -> Result<&mut Array<F>, PzeudoErr> {
         let status = self.status
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetMutErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(status).")))?;
+            .ok_or(PzeudoErr::StorageErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(status).")))?;
 
         let time = self.time
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetMutErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(time).")))?;
+            .ok_or(PzeudoErr::StorageErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(time).")))?;
 
         if *status == 0 {
-            return Err(PzeudoErr::GradStorageGetErr(format!(
+            return Err(PzeudoErr::StorageErr(format!(
                 "GradStorage::get_grad_mut. index {idx} points to elements that have the value None in gradient storage(status)."
             )));
         } else if *status == 1 {
-            return Err(PzeudoErr::GradNoGradErr(format!(
+            return Err(PzeudoErr::StorageNoGradErr(format!(
                 "GradStorage::get_grad_mut. index {idx} points to elements that have the value None in gradient storage because the gradient is set to no_grad(status)."
             )));
         } else if *time != grad_time {
-            return Err(PzeudoErr::GradTimeErr(format!(
+            return Err(PzeudoErr::StorageTimeErr(format!(
                 "GradStorage::get_grad_mut. index {idx} points to an element that has a different time value. time owned by {grad_time}, time on element {time}(time)."
             )));
         }
@@ -107,11 +108,11 @@ impl<F> GradStorage<F> {
         let grad = self
             .storage
             .get_mut(idx)
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::get_grad. index {idx} points to an invalid location on gradient storage."
             )))?
             .as_mut()
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::get_grad. index {idx} points to elements that have the value None in gradient storage."
             )))?;
 
@@ -128,10 +129,10 @@ impl<F> GradStorage<F> {
     pub fn check_no_grad(&self, idx: usize) -> Result<bool, PzeudoErr> {
         let status = self.status
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetMutErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(status).")))?;
+            .ok_or(PzeudoErr::StorageErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(status).")))?;
 
         if *status == 0 {
-            return Err(PzeudoErr::GradStorageGetErr(format!(
+            return Err(PzeudoErr::StorageErr(format!(
                 "GradStorage::get_grad_mut. index {idx} points to elements that have the value None in gradient storage(status)."
             )));
         } else if *status == 1 {
@@ -144,7 +145,7 @@ impl<F> GradStorage<F> {
     pub fn check_time_not_match(&self, idx: usize, grad_time: usize) -> Result<bool, PzeudoErr> {
         let time = self.time
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetMutErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(time).")))?;
+            .ok_or(PzeudoErr::StorageErr(format!("GradStorage::get_grad_mut. index {idx} points to an invalid location on gradient storage(time).")))?;
 
         if *time != grad_time {
             return Ok(true);
@@ -157,10 +158,10 @@ impl<F> GradStorage<F> {
         self
             .storage
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::remove_grad. index {idx} points to an invalid location on gradient storage.")))?
             .as_ref()
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::remove_grad. index {idx} points to elements that have the value None in gradient storage."
         )))?;
 
@@ -173,11 +174,11 @@ impl<F> GradStorage<F> {
     }
 
     pub fn no_grad(&mut self, idx: usize, grad_time: usize) -> Result<(), PzeudoErr> {
-        let time = self.time.get(idx).ok_or(PzeudoErr::GradStorageGetErr(format!(
+        let time = self.time.get(idx).ok_or(PzeudoErr::StorageErr(format!(
             "GradStorage::no_grad. index {idx} points to an invalid location on gradient storage(time).")))?;
 
         if *time != grad_time {
-            return Err(PzeudoErr::GradTimeErr(format!(
+            return Err(PzeudoErr::StorageTimeErr(format!(
                 "GradStorage::no_grad. index {idx} points to an element that has a different time value. time owned by {grad_time}, time on element {time}(time)."
             )));
         }
@@ -185,10 +186,10 @@ impl<F> GradStorage<F> {
         self
             .storage
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::no_grad. index {idx} points to an invalid location on gradient storage.")))?
             .as_ref()
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::no_grad. index {idx} points to elements that have the value None in gradient storage."
         )))?;
 

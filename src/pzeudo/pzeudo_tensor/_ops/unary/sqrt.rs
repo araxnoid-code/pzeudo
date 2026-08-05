@@ -21,7 +21,7 @@ where
         let shape = arr_log.shape.to_vec();
 
         let array_idx = storage.push(ElementType::Arr(arr_log))?;
-        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
+        let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Sqrt((array_idx, self.get_grad_idx()), grad_idx);
         self.get_record().borrow_mut().push(record_label);

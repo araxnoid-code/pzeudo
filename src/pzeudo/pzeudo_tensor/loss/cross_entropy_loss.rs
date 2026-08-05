@@ -45,7 +45,7 @@ where
         .neg()?;
 
     let array_idx = storage.push(ElementType::Arr(loss))?;
-    let grad_idx = requieres_grad.into_zeros_grad(&[1], &mut storage)?;
+    let grad_idx = requieres_grad.into_zeros_grad_storage(&[1], &mut storage)?;
 
     let record_label = RecordLabel::CrossEntropyLoss(
         actual.get_array_idx(),

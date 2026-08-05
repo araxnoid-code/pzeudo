@@ -31,7 +31,7 @@ impl<F, T, G> Tensor<F, T, G> {
         let (lhs_broadcast, rhs_broadcast) = broadcast_detect(lhs_array.shape, rhs_array.shape);
 
         let array_idx = storage.push(ElementType::Arr(array))?;
-        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
+        let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Sub(
             (self.get_array_idx(), self.get_grad_idx(), lhs_broadcast),

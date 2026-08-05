@@ -25,14 +25,14 @@ impl<F> Linear<F> {
     {
         let len = in_features * out_features;
         let weight_vector = (0..len).map(|_| random::<F>()).collect::<Vec<F>>();
-        let weight = Tensor::permanent_from_vector_with_shape(
+        let weight = Tensor::param_from_vector_with_shape(
             &weight_vector,
             &[in_features, out_features],
             module.storage.clone(),
             module.record.clone(),
         )?;
 
-        let bias: Tensor<F, Contiguous, Grad> = Tensor::permanent_from_vector_with_shape(
+        let bias: Tensor<F, Contiguous, Grad> = Tensor::param_from_vector_with_shape(
             &vec![F::zero(); out_features],
             &[out_features],
             module.storage.clone(),

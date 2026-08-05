@@ -41,7 +41,7 @@ where
         let array = Array::from_vector_with_shape(vec, shape)?;
         let array_idx = borrow_storage.push(ElementType::Arr(array))?;
 
-        let grad_idx = G::zeros_grad(shape, &mut borrow_storage)?;
+        let grad_idx = G::zeros_grad_storage(shape, &mut borrow_storage)?;
         drop(borrow_storage);
 
         let tensor = Tensor {
@@ -67,7 +67,7 @@ where
         let shape = array.shape.to_vec();
         let mut storage_borrow_mut = storage.borrow_mut();
 
-        let grad_idx = G::zeros_grad(&array.shape, &mut storage_borrow_mut)?;
+        let grad_idx = G::zeros_grad_storage(&array.shape, &mut storage_borrow_mut)?;
         let array_idx = storage_borrow_mut.push(ElementType::Arr(array))?;
         drop(storage_borrow_mut);
 
@@ -82,21 +82,24 @@ where
     }
 }
 
-impl<F> Tensor<F, Contiguous, Grad> {
-    pub fn permanent_from_vector_with_shape(
+impl<F, ReqGrad> Tensor<F, Contiguous, ReqGrad>
+where
+    ReqGrad: ReqGradTrait<F>,
+{
+    pub fn param_from_vector_with_shape(
         vec: &[F],
         shape: &[usize],
         storage: Rc<RefCell<ArrayStorage<F>>>,
         record: Rc<RefCell<Vec<RecordLabel<F>>>>,
-    ) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr>
+    ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
     where
         F: Clone + Zero,
     {
         let mut borrow_storage = storage.borrow_mut();
 
         let array = Array::from_vector_with_shape(vec, shape)?;
-        let gradient: Array<F> = Array::zeros(shape);
-        let update_able_idx = borrow_storage.push_permanent_tensor(array, gradient);
+        let gradient = ReqGrad::zeros_grad(&shape);
+        let update_able_idx = borrow_storage.push_param_tensor(array, gradient);
 
         drop(borrow_storage);
 

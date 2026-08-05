@@ -30,7 +30,7 @@ where
     let result = Array::from_vector_with_shape(&vec, &shape)?;
 
     let array_idx = storage.push(ElementType::Arr(result))?;
-    let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
+    let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
     let record_label = RecordLabel::Sigmoid(array_idx, tensor.get_grad_idx(), grad_idx);
     tensor.get_record().borrow_mut().push(record_label);
 

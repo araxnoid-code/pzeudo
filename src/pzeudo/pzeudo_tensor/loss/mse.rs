@@ -43,7 +43,7 @@ where
         .div_scalar(len)?;
 
     let array_idx = storage.push(ElementType::Arr(array))?;
-    let grad_idx = requires_grad.into_zeros_grad(&[1], &mut storage)?;
+    let grad_idx = requires_grad.into_zeros_grad_storage(&[1], &mut storage)?;
 
     let record_label = RecordLabel::LossMse(
         actual.get_array_idx(),

@@ -12,13 +12,13 @@ pub enum ContiguousType {
 // 16
 #[derive(Clone, Copy, Debug)]
 pub enum ViewStorageType {
-    Permanent(usize),
+    Param(usize),
     Storage(usize, Option<usize>),
 }
 
 #[derive(Clone, Copy, Debug)]
 pub enum StorageType {
-    Permanent(usize),
+    Param(usize),
     Arr(usize, Option<usize>),
     View(usize),
 }
@@ -28,7 +28,7 @@ impl StorageType {
         match self {
             Self::View(_) => Err(PzeudoErr::CastingStorageTypeToView(format!(""))),
             Self::Arr(arr_idx, grad_time) => Ok(ViewStorageType::Storage(*arr_idx, *grad_time)),
-            Self::Permanent(permanent_idx) => Ok(ViewStorageType::Permanent(*permanent_idx)),
+            Self::Param(permanent_idx) => Ok(ViewStorageType::Param(*permanent_idx)),
         }
     }
 }

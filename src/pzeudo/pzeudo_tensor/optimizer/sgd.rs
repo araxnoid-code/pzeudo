@@ -25,10 +25,10 @@ impl<F> Sgd<F> {
     where
         F: Mul<Output = F> + Copy + SubAssign,
     {
-        for permanent in self.storage.borrow_mut().get_permanent_storage_mut() {
-            permanent
-                .array
-                .sub_assign(&permanent.grad.mul_scalar(self.lr)?)?;
+        for permanent in &mut self.storage.borrow_mut().get_params_storage_mut().storage {
+            if let Some(grad) = &permanent.grad {
+                permanent.array.sub_assign(&grad.mul_scalar(self.lr)?)?;
+            }
         }
         Ok(())
     }
@@ -37,8 +37,10 @@ impl<F> Sgd<F> {
     where
         F: Zero,
     {
-        for permanent in self.storage.borrow_mut().get_permanent_storage_mut() {
-            permanent.grad.to_zeros();
+        for permanent in &mut self.storage.borrow_mut().get_params_storage_mut().storage {
+            if let Some(grad) = &mut permanent.grad {
+                grad.to_zeros();
+            }
         }
     }
 }

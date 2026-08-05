@@ -39,7 +39,7 @@ where
         .div_scalar(len)?;
 
     let array_idx = storage.push(ElementType::Arr(loss_array))?;
-    let grad_idx = require_grad.into_zeros_grad(&[1], &mut storage)?;
+    let grad_idx = require_grad.into_zeros_grad_storage(&[1], &mut storage)?;
 
     let record_label = RecordLabel::LossMae(
         actual.get_array_idx(),

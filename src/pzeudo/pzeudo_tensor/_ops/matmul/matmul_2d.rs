@@ -21,7 +21,7 @@ impl<T, G> Tensor<f32, T, G> {
         let shape = result.shape.to_vec();
 
         let array_idx = storage.push(ElementType::Arr(result))?;
-        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
+        let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Matmul2dF32(
             (self.array_idx, self.grad_idx),
@@ -64,7 +64,7 @@ impl<T, G> Tensor<f64, T, G> {
         let shape = result.shape.to_vec();
 
         let array_idx = storage.push(ElementType::Arr(result))?;
-        let grad_idx = requires_grad.into_zeros_grad(&shape, &mut storage)?;
+        let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Matmul2dF64(
             (self.array_idx, self.grad_idx),

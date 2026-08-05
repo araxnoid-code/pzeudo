@@ -15,25 +15,37 @@ pub fn check_no_grad_or_time_not_match<F>(
             return Ok(storage.grad_storage.check_no_grad(idx)?
                 || storage.grad_storage.check_time_not_match(
                     idx,
-                    grad_time.ok_or(PzeudoErr::CheckNoGradOrTimeNotMatchErr(format!(
+                    grad_time.ok_or(PzeudoErr::TensorToolsErr(format!(
                         "check_no_grad_or_time_not_match. gradient does not have time_grad"
                     )))?,
                 )?);
         }
         StorageType::View(view_idx) => {
             let metadata = storage.view_storage.get_metadata(view_idx)?;
-            if let ViewStorageType::Storage(idx, grad_time) = metadata.arr_index {
-                return Ok(storage.grad_storage.check_no_grad(idx)?
-                    || storage.grad_storage.check_time_not_match(
-                        idx,
-                        grad_time.ok_or(PzeudoErr::CheckNoGradOrTimeNotMatchErr(format!(
-                            "check_no_grad_or_time_not_match. gradient does not have time_grad"
-                        )))?,
-                    )?);
+            match metadata.arr_index{
+                ViewStorageType::Storage(idx, grad_time) => {
+                    return Ok(storage.grad_storage.check_no_grad(idx)?
+                        || storage.grad_storage.check_time_not_match(
+                            idx,
+                            grad_time.ok_or(PzeudoErr::TensorToolsErr(format!(
+                                "check_no_grad_or_time_not_match. gradient does not have time_grad"
+                            )))?,
+                        )?);
+                },
+                ViewStorageType::Param(idx) => {
+                    return Ok(storage
+                        .params_storage.storage
+                        .get(idx)
+                        .ok_or(PzeudoErr::TensorToolsErr(format!("check_no_grad_or_time_not_match. metadata index {idx} points to an invalid location on params storage")))?.grad.is_none())
+
+                }
             }
         }
-        StorageType::Permanent(_) => {}
+        StorageType::Param(idx) => {
+            return Ok(storage
+                .params_storage.storage
+                .get(idx)
+                .ok_or(PzeudoErr::TensorToolsErr(format!("check_no_grad_or_time_not_match. index {idx} points to an invalid location on params storage")))?.grad.is_none())
+        }
     }
-
-    Ok(false)
 }

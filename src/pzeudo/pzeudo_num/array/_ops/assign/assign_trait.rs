@@ -25,7 +25,7 @@ pub trait ArrayAssignTrait<F>: ArrayTrait<F> {
         }
 
         if idx >= data.len() {
-            return Err(PzeudoErr::MutLinearIndexErr(format!(
+            return Err(PzeudoErr::LinearIndexMutErr(format!(
                 "ArrayAssignTrait::mut_linear_index. index points to {idx} but array only has length {:?}",
                 data.len()
             )));

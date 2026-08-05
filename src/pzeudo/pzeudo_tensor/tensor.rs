@@ -1,6 +1,13 @@
 use crate::prelude::*;
 use num_traits::{Float, One};
-use std::{cell::RefCell, fmt::Display, iter::Sum, marker::PhantomData, ops::AddAssign, rc::Rc};
+use std::{
+    cell::RefCell,
+    fmt::{Debug, Display},
+    iter::Sum,
+    marker::PhantomData,
+    ops::AddAssign,
+    rc::Rc,
+};
 
 pub struct Tensor<F, T, G> {
     pub(crate) record: Rc<RefCell<Vec<RecordLabel<F>>>>,
@@ -12,6 +19,39 @@ pub struct Tensor<F, T, G> {
 }
 
 impl<F, T, G> Tensor<F, T, G> {
+    pub fn array_to_string(&self) -> Result<String, PzeudoErr>
+    where
+        for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
+        F: Debug + Copy,
+    {
+        let string = format!(
+            "{}",
+            self.storage
+                .borrow()
+                .get_as_array_ref::<T>(self.array_idx, ContiguousType::Arr)?
+        );
+
+        Ok(string)
+    }
+
+    pub fn grad_to_string(&self) -> Result<String, PzeudoErr>
+    where
+        for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
+        F: Debug + Copy,
+    {
+        let string = format!(
+            "{}",
+            self.storage.borrow().get_as_array_ref::<T>(
+                self.grad_idx.ok_or(PzeudoErr::ReqGradErr(format!(
+                    "Tensor::grad_to_string. Tensor with NoGrad status"
+                )))?,
+                ContiguousType::Grad
+            )?
+        );
+
+        Ok(string)
+    }
+
     pub fn get_shape(&self) -> &[usize] {
         &self.shape
     }

@@ -16,7 +16,7 @@ impl ViewStorage {
     pub(crate) fn push_metadata(&mut self, metadata: TensorMetadata) -> Result<usize, PzeudoErr> {
         if let Some(idx) = self.empty_idx.pop() {
             if self.storage[idx].is_some() {
-                return Err(PzeudoErr::StoragePushErr(format!(
+                return Err(PzeudoErr::StorageErr(format!(
                     "ArrayStorage::push. The problem occurs because the index {idx} obtained from empty_idx points to an element that still has a value."
                 )));
             }
@@ -32,11 +32,11 @@ impl ViewStorage {
         let array = self
             .storage
             .get(idx)
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::get_grad. index {idx} points to an invalid location on gradient storage."
             )))?
             .as_ref()
-            .ok_or(PzeudoErr::GradStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "GradStorage::get_grad. index {idx} points to elements that have the value None in gradient storage."
             )))?;
 

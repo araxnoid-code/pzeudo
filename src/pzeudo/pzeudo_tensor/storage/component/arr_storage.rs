@@ -18,7 +18,7 @@ impl<F> ArrStorage<F> {
     pub(crate) fn push_arr(&mut self, element: Array<F>) -> Result<usize, PzeudoErr> {
         if let Some(idx) = self.empty_idx.pop() {
             if self.storage[idx].is_some() {
-                return Err(PzeudoErr::ArrStoragePushErr(format!(
+                return Err(PzeudoErr::StorageErr(format!(
                     "ArrStorage::arr_push. The problem occurs because the index {idx} obtained from empty_idx points to an element that still has a value."
                 )));
             }
@@ -34,11 +34,11 @@ impl<F> ArrStorage<F> {
         let array = self
             .storage
             .get(idx)
-            .ok_or(PzeudoErr::ArrStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "ArrStorage::get_arr. index {idx} points to an invalid location on arr storage."
             )))?
             .as_ref()
-            .ok_or(PzeudoErr::ArrStorageGetErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "ArrStorage::get_arr. index {idx} points to elements that have the value None in arr storage."
             )))?;
 
@@ -49,11 +49,11 @@ impl<F> ArrStorage<F> {
         let array = self
             .storage
             .get_mut(idx)
-            .ok_or(PzeudoErr::ArrStorageGetMutErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "ArrStorage::get_arr_mut. index {idx} points to an invalid location on arr storage."
             )))?
             .as_mut()
-            .ok_or(PzeudoErr::ArrStorageGetMutErr(format!(
+            .ok_or(PzeudoErr::StorageErr(format!(
                 "ArrStorage::get_arr_mut. index {idx} points to elements that have the value None in arr storage."
             )))?;
 

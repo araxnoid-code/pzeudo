@@ -1,10 +1,10 @@
 use crate::prelude::*;
 
 impl<F> ArrayStorage<F> {
-    pub fn push_permanent_tensor(&mut self, array: Array<F>, grad: Array<F>) -> StorageType {
-        let idx = self.permanent_storage.len();
-        self.permanent_storage.push(PermanentTensor { array, grad });
-        StorageType::Permanent(idx)
+    pub fn push_param_tensor(&mut self, array: Array<F>, grad: Option<Array<F>>) -> StorageType {
+        let idx = self.params_storage.storage.len();
+        self.params_storage.push(ParamTensor { array, grad });
+        StorageType::Param(idx)
     }
 
     pub fn push(&mut self, element: ElementType<F>) -> Result<StorageType, PzeudoErr> {

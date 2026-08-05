@@ -1,21 +1,19 @@
 #[derive(Debug)]
 pub enum PzeudoErr {
     // tools
-    ShapeToStride(String),
-    CheckNoGradOrTimeNotMatchErr(String),
+    TensorToolsErr(String),
 
     // Array
     ArrayNewErr(String),
     ToStringErr(String),
 
     // Tensor
-    NoGradErr(String),
-    WithGradErr(String),
+    ReqGradErr(String),
 
     // Ops
     // //  index
     LinearIndexErr(String),
-    MutLinearIndexErr(String),
+    LinearIndexMutErr(String),
     Index(String),
 
     // // Arith
@@ -56,20 +54,9 @@ pub enum PzeudoErr {
     CastingStorageTypeToView(String),
 
     // Storage
-    StoragePushErr(String),
-    StorageGetErr(String),
-    StorageGetAsArrayRefErr(String),
-    StorageGetAsArrayRefMutErr(String),
-    StorageRemoveErr(String),
-    ArrStoragePushErr(String),
-    ArrStorageGetErr(String),
-    ArrStorageGetMutErr(String),
-
-    GradStoragePushErr(String),
-    GradStorageGetErr(String),
-    GradStorageGetMutErr(String),
-    GradNoGradErr(String),
-    GradTimeErr(String),
+    StorageErr(String),
+    StorageNoGradErr(String),
+    StorageTimeErr(String),
 
     // backward
     BackwardErr(String),

@@ -3,6 +3,8 @@ use std::ops::AddAssign;
 use crate::prelude::*;
 use num_traits::Float;
 
+/// ## Relu
+/// relu(x) = max(0, x)
 pub fn relu<F, T, G, ReqGrad>(
     tensor: Tensor<F, T, G>,
     requires_grad: ReqGrad,
@@ -39,6 +41,8 @@ where
     ))
 }
 
+/// ## Relu Backward
+/// relu_backward(x) = (if x > 1 else 0) * grad
 pub fn relu_backward<F>(
     array_idx: StorageType,
     array_grad_idx: Option<StorageType>,

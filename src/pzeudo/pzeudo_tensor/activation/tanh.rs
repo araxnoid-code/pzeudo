@@ -4,6 +4,8 @@ use num_traits::Float;
 
 pub use crate::prelude::*;
 
+/// ## Tanh
+/// tanh(x) = (e^x-e^-x)/(e^x+e^-x)
 pub fn tanh<F, T, G, ReqGrad>(
     tensor: Tensor<F, T, G>,
     requires_grad: ReqGrad,
@@ -44,6 +46,8 @@ where
     ))
 }
 
+/// ## Tanh Backward
+/// tanh_backward(x) = 1 - tanh(x)^2 * grad
 pub fn tanh_backward<F>(
     output_idx: StorageType,
     array_grad_idx: Option<StorageType>,

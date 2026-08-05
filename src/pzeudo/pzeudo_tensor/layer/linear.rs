@@ -7,24 +7,24 @@ use std::{
     vec,
 };
 
-/// Linear Layer
+/// ## Linear Layer
 /// Accepts 2D input in the form [Batch, Features]. Must be exactly 2D.
 ///
-/// formula:
+/// ### formula:
 /// linear = input * weight + bias
 ///
-/// Shape specifications:
-/// input shape: batch×in_features
-/// weight shape: in_features×out_features
-/// bias shape: out_features
+/// ### Shape specifications:
+/// - input shape: batch×in_features
+/// - weight shape: in_features×out_features
+/// - bias shape: out_features
 ///
-/// Weight Initialization
-/// Xavier:
-///     mean    : 0
-///     std_dev : 2/(in_features+out_features)
-/// He:
-///     mean: 0
-///     std_dev : 2/in_features
+/// ### Weight Initialization
+/// #### Xavier:
+/// mean    : 0
+/// std_dev : 2/(in_features+out_features)
+/// #### He:
+/// mean: 0
+/// std_dev : 2/in_features
 pub struct Linear<F> {
     pub(crate) in_features: usize,
     pub(crate) out_features: usize,
@@ -33,6 +33,18 @@ pub struct Linear<F> {
 }
 
 impl<F> Linear<F> {
+    /// ### Shape specifications:
+    /// - input shape: batch×in_features
+    /// - weight shape: in_features×out_features
+    /// - bias shape: out_features
+    ///
+    /// ### Weight Initialization
+    /// #### Xavier:
+    /// mean    : 0
+    /// std_dev : 2/(in_features+out_features)
+    /// #### He:
+    /// mean: 0
+    /// std_dev : 2/in_features
     pub fn new(
         in_features: usize,
         out_features: usize,
@@ -87,6 +99,25 @@ impl<F> Linear<F> {
         })
     }
 
+    /// ### formula:
+    /// linear = input * weight + bias
+    ///
+    /// ### requires_grad:
+    /// Affects the return value of Linear::forward. If Grad is set, the returned tensor will store gradients; if NoGrad is set, the returned tensor will not store gradients.
+    pub fn forward<J, G, ReqGrad>(
+        &self,
+        input: &Tensor<F, J, G>,
+        requires_grad: ReqGrad,
+    ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
+    where
+        F: F32F64MatmulTensor<F> + Copy + Add + Zero,
+        ReqGrad: ReqGradTrait<F> + Copy,
+        for<'a> ArrayRef<'a, F, Contiguous>: ArrayTrait<F>,
+        for<'a> ArrayRef<'a, F, J>: ArrayTrait<F>,
+    {
+        Ok(F::matmul_2d(&input, &self.weight, requires_grad)?.add(&self.bias, requires_grad)?)
+    }
+
     pub fn get_in_features(&self) -> usize {
         self.in_features
     }
@@ -101,19 +132,5 @@ impl<F> Linear<F> {
 
     pub fn get_bias(&self) -> &Tensor<F, Contiguous, Grad> {
         &self.bias
-    }
-
-    pub fn forward<J, G, ReqGrad>(
-        &self,
-        input: &Tensor<F, J, G>,
-        requires_grad: ReqGrad,
-    ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
-    where
-        F: F32F64MatmulTensor<F> + Copy + Add + Zero,
-        ReqGrad: ReqGradTrait<F> + Copy,
-        for<'a> ArrayRef<'a, F, Contiguous>: ArrayTrait<F>,
-        for<'a> ArrayRef<'a, F, J>: ArrayTrait<F>,
-    {
-        Ok(F::matmul_2d(&input, &self.weight, requires_grad)?.add(&self.bias, requires_grad)?)
     }
 }

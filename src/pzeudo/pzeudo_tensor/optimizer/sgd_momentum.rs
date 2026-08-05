@@ -6,10 +6,10 @@ use std::{
     rc::Rc,
 };
 
-/// SGD + Momentum
-/// w_new = w_old - v_new
-/// v_new = mu * v_old + lr * grad(w_old)
-/// mu = 0.9 (default). can be changed via SgdMomentum::set_mu
+/// ## SGD + Momentum
+/// - w_new = w_old - v_new
+/// - v_new = mu * v_old + lr * grad(w_old)
+/// - mu = 0.9 (default). can be changed via SgdMomentum::set_mu
 pub struct SgdMomentum<F> {
     lr: F,
     pub(crate) v: Vec<Array<F>>,
@@ -47,6 +47,10 @@ where
         self.mu = mu;
     }
 
+    /// ### formula:
+    /// - w_new = w_old - v_new
+    /// - v_new = mu * v_old + lr * grad(w_old)
+    /// - mu = 0.9 (default). can be changed via SgdMomentum::set_mu
     pub fn optim(&mut self) -> Result<(), PzeudoErr>
     where
         F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign,
@@ -74,6 +78,7 @@ where
         Ok(())
     }
 
+    /// will set all gradients in storage params to 0.
     pub fn zero_grad(&self)
     where
         F: Zero,

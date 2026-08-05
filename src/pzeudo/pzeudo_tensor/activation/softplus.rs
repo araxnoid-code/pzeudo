@@ -2,6 +2,8 @@ use crate::prelude::*;
 use num_traits::Float;
 use std::ops::AddAssign;
 
+/// ## Softplus
+/// softplus(x) = ln(1+e^x)
 pub fn softplus<F, T, G, ReqGrad>(
     tensor: Tensor<F, T, G>,
     requires_grad: ReqGrad,
@@ -33,6 +35,8 @@ where
     ))
 }
 
+/// ## Softplus Backward
+/// softplus_backward = e^x/(1+e^x) * grad
 pub fn softplus_backward<F>(
     array_idx: StorageType,
     array_grad_idx: Option<StorageType>,
@@ -51,7 +55,7 @@ where
 
         if let Some(lhs_grad_idx) = array_grad_idx {
             if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
-                // e^x/(e^x+1) * gradient
+                // e^x/(1+e^x) * gradient
                 let array = storage.get_as_array_ref::<View>(array_idx, ContiguousType::Arr)?;
                 let exp = array.exp()?;
                 let grad = exp.div(&exp.add_scalar(F::one())?)?.mul(&gradient)?;

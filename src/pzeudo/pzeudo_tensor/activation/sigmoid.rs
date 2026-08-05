@@ -4,6 +4,8 @@ use num_traits::Float;
 
 pub use crate::prelude::*;
 
+/// ## Sigmoid
+/// Sigmoid(x) = 1/(1+e^{-x})
 pub fn sigmoid<F, T, G, ReqGrad>(
     tensor: Tensor<F, T, G>,
     requires_grad: ReqGrad,
@@ -43,6 +45,8 @@ where
     ))
 }
 
+/// ## Sigmoid Backward
+/// Sigmoid_backward(x) = sigmoid(x) * (1 - sigmoid(x)) * grad
 pub fn sigmoid_backward<F>(
     output_idx: StorageType,
     array_grad_idx: Option<StorageType>,

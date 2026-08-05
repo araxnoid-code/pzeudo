@@ -6,7 +6,7 @@ use std::{
     rc::Rc,
 };
 
-/// SGD (Stochastic Gradient Descent)
+/// ## SGD (Stochastic Gradient Descent)
 /// w_new = w_old - lr * grad(w_old)
 pub struct Sgd<F> {
     lr: F,
@@ -25,6 +25,8 @@ impl<F> Sgd<F> {
         self.lr = lr;
     }
 
+    /// ### formula:
+    /// w_new = w_old - lr * grad(w_old)
     pub fn optim(&self) -> Result<(), PzeudoErr>
     where
         F: Mul<Output = F> + Copy + SubAssign,
@@ -37,6 +39,7 @@ impl<F> Sgd<F> {
         Ok(())
     }
 
+    /// will set all gradients in storage params to 0.
     pub fn zero_grad(&self)
     where
         F: Zero,

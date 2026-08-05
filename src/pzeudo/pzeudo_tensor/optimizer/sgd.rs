@@ -1,12 +1,10 @@
+use crate::prelude::*;
+use num_traits::Zero;
 use std::{
     cell::RefCell,
     ops::{Mul, SubAssign},
     rc::Rc,
 };
-
-use num_traits::Zero;
-
-use crate::prelude::*;
 
 pub struct Sgd<F> {
     lr: F,
@@ -19,6 +17,10 @@ impl<F> Sgd<F> {
             lr,
             storage: module.storage.clone(),
         }
+    }
+
+    pub fn set_lr(&mut self, lr: F) {
+        self.lr = lr;
     }
 
     pub fn optim(&self) -> Result<(), PzeudoErr>

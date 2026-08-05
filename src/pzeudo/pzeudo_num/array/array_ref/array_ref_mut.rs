@@ -18,7 +18,7 @@ impl<F, T> ArrayRefMut<'_, F, T> {
     {
         let len = self.shape.iter().product::<usize>();
         for i in 0..len {
-            *self.mut_linear_index(i)? = F::one();
+            *self.linear_index_mut(i)? = F::one();
         }
         Ok(())
     }

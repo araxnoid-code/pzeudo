@@ -13,7 +13,7 @@ where
         }
     }
 
-    fn mut_linear_index(&mut self, index: usize) -> Result<&mut F, PzeudoErr>
+    fn linear_index_mut(&mut self, index: usize) -> Result<&mut F, PzeudoErr>
     where
         F: Copy,
     {

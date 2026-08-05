@@ -8,11 +8,11 @@ impl<F> Module<F> {
 
     pub fn epoch<M, T, O>(
         &self,
-        epoch_builder: EpochBuilder<M, T>,
-        f: fn(usize, &Module<F>, &M, &T) -> Result<O, PzeudoErr>,
+        mut epoch_builder: EpochBuilder<M, T>,
+        f: fn(usize, &Module<F>, &mut M, &T) -> Result<O, PzeudoErr>,
     ) -> Result<(), PzeudoErr> {
         for i in 0..epoch_builder.epoch {
-            f(i, self, &epoch_builder.model, &epoch_builder.arg)?;
+            f(i, self, &mut epoch_builder.model, &epoch_builder.arg)?;
 
             // RESET
             self.reset();

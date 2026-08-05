@@ -5,7 +5,7 @@ struct Model<F> {
     linear_2: Linear<F>,
     linear_3: Linear<F>,
     linear_4: Linear<F>,
-    optim: Sgd<F>,
+    optim: SgdMomentum<F>,
 }
 
 impl Model<f32> {
@@ -34,7 +34,7 @@ fn main() {
         linear_2: Linear::new(32, 16, WeightInit::Xavier, &mut module).unwrap(),
         linear_3: Linear::new(16, 8, WeightInit::Xavier, &mut module).unwrap(),
         linear_4: Linear::new(8, 1, WeightInit::Xavier, &mut module).unwrap(),
-        optim: Sgd::new(0.001, &module),
+        optim: SgdMomentum::new(0.0001, &module).unwrap(),
     };
 
     let shape = [16, 1];
@@ -66,7 +66,7 @@ fn main() {
     let actual_test =
         Tensor::param_from_vector_with_shape(&vector, &shape, &module, NoGrad).unwrap();
 
-    let epoch = EpochBuilder::new(500, model, (dataset, test, actual, actual_test));
+    let epoch = EpochBuilder::new(300, model, (dataset, test, actual, actual_test));
 
     module
         .epoch(

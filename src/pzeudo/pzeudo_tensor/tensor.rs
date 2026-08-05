@@ -68,7 +68,7 @@ impl<F, T, G> Tensor<F, T, G> {
             let mut grad = storage.get_as_array_ref_mut::<T>(grad_idx, ContiguousType::Grad)?;
             let len = grad.shape.iter().product::<usize>();
             for i in 0..len {
-                *grad.mut_linear_index(i)? += F::one();
+                *grad.linear_index_mut(i)? += F::one();
             }
         }
 

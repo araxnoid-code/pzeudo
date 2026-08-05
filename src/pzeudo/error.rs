@@ -28,6 +28,9 @@ pub enum PzeudoErr {
     // Layer
     LayerErr(String),
 
+    // Optim
+    OptimErr(String),
+
     // DependenciesErr
     RandDistrNormalErr(NormalError),
 }

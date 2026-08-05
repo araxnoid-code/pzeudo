@@ -3,7 +3,7 @@ use crate::prelude::*;
 pub trait ArrayAssignTrait<F>: ArrayTrait<F> {
     fn get_mut_metadata(&mut self) -> MutMetadata<'_, F>;
 
-    fn mut_linear_index(&mut self, index: usize) -> Result<&mut F, PzeudoErr>
+    fn linear_index_mut(&mut self, index: usize) -> Result<&mut F, PzeudoErr>
     where
         F: Copy,
     {

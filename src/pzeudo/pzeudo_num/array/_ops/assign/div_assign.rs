@@ -20,7 +20,7 @@ pub trait OpsDivAssign<F>: ArrayAssignTrait<F> {
 
         let len = lhs_metadata.shape.iter().product::<usize>();
         for i in 0..len {
-            let lhs_value = self.mut_linear_index(i)?;
+            let lhs_value = self.linear_index_mut(i)?;
             let rhs_value = assign.linear_index(i)?;
             *lhs_value /= rhs_value;
         }

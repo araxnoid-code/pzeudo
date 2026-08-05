@@ -22,6 +22,7 @@ impl<F> ArrStorage<F> {
                     "ArrStorage::arr_push. The problem occurs because the index {idx} obtained from empty_idx points to an element that still has a value."
                 )));
             }
+            self.storage[idx] = Some(element);
 
             return Ok(idx);
         } else {

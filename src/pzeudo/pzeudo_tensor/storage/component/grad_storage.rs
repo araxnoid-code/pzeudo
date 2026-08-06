@@ -127,7 +127,6 @@ impl<F> GradStorage<F> {
     }
 
     pub fn check_no_grad(&self, idx: usize) -> Result<bool, PzeudoErr> {
-        // println!("{}", idx);
         let status = self.status
             .get(idx)
             .ok_or(PzeudoErr::StorageErr(format!("GradStorage::check_no_grad. index {idx} points to an invalid location on gradient storage(status).")))?;

@@ -49,13 +49,14 @@ impl<F> Linear<F> {
         in_features: usize,
         out_features: usize,
         weight_init: WeightInit,
-        module: &mut Module<F>,
+        model_builder: &mut ModelBuilder<F>,
     ) -> Result<Linear<F>, PzeudoErr>
     where
         F: Clone + Zero + One + NumCast + Div<Output = F> + Float,
         StandardUniform: Distribution<F>,
         StandardNormal: Distribution<F>,
     {
+        let module = model_builder.get_module();
         let std = match weight_init {
             WeightInit::He => {
                 (F::one() + F::one())

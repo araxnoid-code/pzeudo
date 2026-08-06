@@ -6,27 +6,26 @@ use std::{
     rc::Rc,
 };
 
-/// ## SGD + Momentum
-/// - w_new = w_old - v_new
-/// - v_new = mu * v_old + lr * grad(w_old)
-/// - mu = 0.9 (default). can be changed via SgdMomentum::set_mu
-pub struct SgdMomentum<F> {
+/// ## AdaGrad
+/// - w_new = w_old - lr/√(g_new + e) * grad(w_old)
+/// - g_new = g_old * grad(w_old)^2
+pub struct AdaGrad<F> {
     lr: F,
-    pub(crate) v: Vec<Array<F>>,
-    pub(crate) mu: F,
+    pub(crate) g: Vec<Array<F>>,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
     pub(crate) range: (usize, usize),
 }
 
-impl<F> SgdMomentum<F>
+impl<F> AdaGrad<F>
 where
     F: Float,
 {
-    pub fn new(lr: F, mut model_builder: ModelBuilder<F>) -> Result<SgdMomentum<F>, PzeudoErr> {
+    pub fn new(lr: F, mut model_builder: ModelBuilder<F>) -> Result<AdaGrad<F>, PzeudoErr> {
         let start = model_builder.start;
         let module = model_builder.get_module();
         let storage = module.storage.borrow();
         let params_storage = &storage.get_params_storage().storage;
+
         let mut vec = Vec::with_capacity(params_storage.len());
         for param in params_storage {
             vec.push(Array::<F>::zeros(&param.array.shape));
@@ -35,10 +34,7 @@ where
         Ok(Self {
             lr,
             range: (start, vec.len()),
-            v: vec,
-            mu: F::from(0.9).ok_or(PzeudoErr::OpsErr(format!(
-                "SgdMomentum::new. Unable to cast the default momentum (0.9) data type."
-            )))?,
+            g: vec,
             storage: module.storage.clone(),
         })
     }
@@ -47,14 +43,9 @@ where
         self.lr = lr;
     }
 
-    pub fn set_mu(&mut self, mu: F) {
-        self.mu = mu;
-    }
-
-    /// ### formula:
-    /// - w_new = w_old - v_new
-    /// - v_new = mu * v_old + lr * grad(w_old)
-    /// - mu = 0.9 (default). can be changed via SgdMomentum::set_mu
+    /// formula:
+    /// - w_new = w_old - lr/√(g_new + e) * grad(w_old)
+    /// - g_new = g_old * grad(w_old)^2
     pub fn optim(&mut self) -> Result<(), PzeudoErr>
     where
         F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign,
@@ -65,13 +56,21 @@ where
             .enumerate()
         {
             if let Some(grad) = &param.grad {
-                let v_arr = self.v.get_mut(idx).ok_or(PzeudoErr::OptimErr(format!("SgdMomentum::optim. Index {idx} points to an invalid location in the v (velocity) list.")))?;
-                let len = v_arr.shape.iter().product::<usize>();
+                let g_arr = self.g.get_mut(idx).ok_or(PzeudoErr::OptimErr(format!(
+                    "AdaGrad::optim. Index {idx} points to an invalid location in the g list."
+                )))?;
+                let epsilon = F::from(1e-7).ok_or(PzeudoErr::OptimErr(format!(
+                    "AdaGrad::optim. Unable to cast data type for epsilon 1e-7."
+                )))?;
+
+                let len = g_arr.shape.iter().product::<usize>();
                 for i in 0..len {
-                    let x = v_arr.linear_index_mut(i)?;
-                    *x *= self.mu;
-                    *x += self.lr * grad.linear_index(i)?;
-                    *param.array.linear_index_mut(i)? -= *x;
+                    let g = g_arr.linear_index_mut(i)?;
+                    let grad = grad.linear_index(i)?;
+                    *g += grad * grad;
+
+                    let update = self.lr / (*g + epsilon).sqrt() * grad;
+                    *param.array.linear_index_mut(i)? -= update;
                 }
             }
         }

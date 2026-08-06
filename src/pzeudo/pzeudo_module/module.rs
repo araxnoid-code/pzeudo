@@ -11,6 +11,10 @@ pub struct Module<F> {
 }
 
 impl<F> Module<F> {
+    pub fn model_builder(&mut self) -> ModelBuilder<'_, F> {
+        ModelBuilder::new(self)
+    }
+
     pub fn get_storage(&self) -> &Rc<RefCell<ArrayStorage<F>>> {
         &self.storage
     }

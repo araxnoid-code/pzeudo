@@ -11,12 +11,24 @@ use std::{
 pub struct Sgd<F> {
     lr: F,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
+    pub(crate) range: (usize, usize),
 }
 
 impl<F> Sgd<F> {
-    pub fn new(lr: F, module: &Module<F>) -> Sgd<F> {
+    pub fn new(lr: F, mut model_builder: ModelBuilder<F>) -> Sgd<F> {
+        let start = model_builder.start;
+        let module = model_builder.get_module();
         Self {
             lr,
+            range: (
+                start,
+                module
+                    .get_storage()
+                    .borrow()
+                    .get_params_storage()
+                    .storage
+                    .len(),
+            ),
             storage: module.storage.clone(),
         }
     }
@@ -31,9 +43,11 @@ impl<F> Sgd<F> {
     where
         F: Mul<Output = F> + Copy + SubAssign,
     {
-        for permanent in &mut self.storage.borrow_mut().get_params_storage_mut().storage {
-            if let Some(grad) = &permanent.grad {
-                permanent.array.sub_assign(&grad.mul_scalar(self.lr)?)?;
+        for param in &mut self.storage.borrow_mut().get_params_storage_mut().storage
+            [self.range.0..self.range.1]
+        {
+            if let Some(grad) = &param.grad {
+                param.array.sub_assign(&grad.mul_scalar(self.lr)?)?;
             }
         }
         Ok(())
@@ -44,7 +58,9 @@ impl<F> Sgd<F> {
     where
         F: Zero,
     {
-        for permanent in &mut self.storage.borrow_mut().get_params_storage_mut().storage {
+        for permanent in &mut self.storage.borrow_mut().get_params_storage_mut().storage
+            [self.range.0..self.range.1]
+        {
             if let Some(grad) = &mut permanent.grad {
                 grad.to_zeros();
             }

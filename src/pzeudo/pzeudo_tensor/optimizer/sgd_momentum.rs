@@ -8,12 +8,12 @@ use std::{
 
 /// ## SGD + Momentum
 /// - w_new = w_old - v_new
-/// - v_new = mu * v_old + lr * grad(w_old)
+/// - v_new = hyperparameter * v_old + lr * grad(w_old)
 /// - mu = 0.9 (default). can be changed via SgdMomentum::set_mu
 pub struct SgdMomentum<F> {
     lr: F,
     pub(crate) v: Vec<Array<F>>,
-    pub(crate) mu: F,
+    pub(crate) hyperparameter: F,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
     pub(crate) range: (usize, usize),
 }
@@ -34,9 +34,9 @@ where
 
         Ok(Self {
             lr,
-            range: (start, vec.len()),
+            range: (start, start + vec.len()),
             v: vec,
-            mu: F::from(0.9).ok_or(PzeudoErr::OpsErr(format!(
+            hyperparameter: F::from(0.9).ok_or(PzeudoErr::OpsErr(format!(
                 "SgdMomentum::new. Unable to cast the default momentum (0.9) data type."
             )))?,
             storage: module.storage.clone(),
@@ -47,13 +47,13 @@ where
         self.lr = lr;
     }
 
-    pub fn set_mu(&mut self, mu: F) {
-        self.mu = mu;
+    pub fn set_hyperparameter(&mut self, hyperparameter: F) {
+        self.hyperparameter = hyperparameter;
     }
 
     /// ### formula:
     /// - w_new = w_old - v_new
-    /// - v_new = mu * v_old + lr * grad(w_old)
+    /// - v_new = hyperparameter * v_old + lr * grad(w_old)
     /// - mu = 0.9 (default). can be changed via SgdMomentum::set_mu
     pub fn optim(&mut self) -> Result<(), PzeudoErr>
     where
@@ -69,7 +69,7 @@ where
                 let len = v_arr.shape.iter().product::<usize>();
                 for i in 0..len {
                     let x = v_arr.linear_index_mut(i)?;
-                    *x *= self.mu;
+                    *x *= self.hyperparameter;
                     *x += self.lr * grad.linear_index(i)?;
                     *param.array.linear_index_mut(i)? -= *x;
                 }

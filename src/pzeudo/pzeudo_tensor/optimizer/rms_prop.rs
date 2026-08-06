@@ -6,22 +6,23 @@ use std::{
     rc::Rc,
 };
 
-/// ## AdaGrad
+/// ## RMSProp
 /// - w_new = w_old - lr/√(g_new + e) * grad(w_old)
-/// - g_new = g_old * grad(w_old)^2
+/// - g_new = hyperparameter * g_old + (1 - hyperparameter)  * grad(w_old)^2
 /// - e = 1e-7
-pub struct AdaGrad<F> {
+pub struct RMSProp<F> {
     lr: F,
     pub(crate) g: Vec<Array<F>>,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
+    pub(crate) hyperparameter: F,
     pub(crate) range: (usize, usize),
 }
 
-impl<F> AdaGrad<F>
+impl<F> RMSProp<F>
 where
     F: Float,
 {
-    pub fn new(lr: F, mut model_builder: ModelBuilder<F>) -> Result<AdaGrad<F>, PzeudoErr> {
+    pub fn new(lr: F, mut model_builder: ModelBuilder<F>) -> Result<RMSProp<F>, PzeudoErr> {
         let start = model_builder.start;
         let module = model_builder.get_module();
         let storage = module.storage.borrow();
@@ -37,6 +38,9 @@ where
             range: (start, start + vec.len()),
             g: vec,
             storage: module.storage.clone(),
+            hyperparameter: F::from(0.9).ok_or(PzeudoErr::OpsErr(format!(
+                "RMSProp::new. Unable to cast the default momentum (0.9) data type."
+            )))?,
         })
     }
 
@@ -44,9 +48,13 @@ where
         self.lr = lr;
     }
 
+    pub fn set_hyperparameter(&mut self, hyperparameter: F) {
+        self.hyperparameter = hyperparameter;
+    }
+
     /// formula:
     /// - w_new = w_old - lr/√(g_new + e) * grad(w_old)
-    /// - g_new = g_old * grad(w_old)^2
+    /// - g_new = hyperparameter * g_old + (1 - hyperparameter)  * grad(w_old)^2
     /// - e = 1e-7
     pub fn optim(&mut self) -> Result<(), PzeudoErr>
     where
@@ -59,17 +67,20 @@ where
         {
             if let Some(grad) = &param.grad {
                 let g_arr = self.g.get_mut(idx).ok_or(PzeudoErr::OptimErr(format!(
-                    "AdaGrad::optim. Index {idx} points to an invalid location in the g list."
+                    "RMSProp::optim. Index {idx} points to an invalid location in the g list."
                 )))?;
                 let epsilon = F::from(1e-7).ok_or(PzeudoErr::OptimErr(format!(
-                    "AdaGrad::optim. Unable to cast data type for epsilon 1e-7."
+                    "RMSProp::optim. Unable to cast data type for epsilon 1e-7."
                 )))?;
+                let one = F::one();
 
                 let len = g_arr.shape.iter().product::<usize>();
                 for i in 0..len {
                     let g = g_arr.linear_index_mut(i)?;
                     let grad = grad.linear_index(i)?;
-                    *g += grad * grad;
+
+                    *g *= self.hyperparameter;
+                    *g += (one - self.hyperparameter) * (grad * grad);
 
                     let update = self.lr / (*g + epsilon).sqrt() * grad;
                     *param.array.linear_index_mut(i)? -= update;

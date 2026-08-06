@@ -22,12 +22,13 @@ impl<F> Sgd<F> {
             lr,
             range: (
                 start,
-                module
-                    .get_storage()
-                    .borrow()
-                    .get_params_storage()
-                    .storage
-                    .len(),
+                start
+                    + module
+                        .get_storage()
+                        .borrow()
+                        .get_params_storage()
+                        .storage
+                        .len(),
             ),
             storage: module.storage.clone(),
         }

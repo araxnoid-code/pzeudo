@@ -31,6 +31,11 @@ pub enum PzeudoErr {
     // Optim
     OptimErr(String),
 
+    // Module
+    ModuleErr(String),
+
     // DependenciesErr
     RandDistrNormalErr(NormalError),
+    SerdeJsonErr(serde_json::Error),
+    IOErr(std::io::Error),
 }

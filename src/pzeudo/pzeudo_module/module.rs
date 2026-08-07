@@ -11,6 +11,7 @@ pub struct Module<F> {
 }
 
 impl<F> Module<F> {
+    /// will create a ModelBuilder, needed to build the model architecture and optimizer.
     pub fn model_builder(&mut self) -> ModelBuilder<'_, F> {
         ModelBuilder::new(self)
     }

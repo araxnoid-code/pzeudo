@@ -2,10 +2,7 @@ use crate::prelude::*;
 use num_traits::{Float, NumCast, One, Zero};
 use rand::distr::{Distribution, StandardUniform};
 use rand_distr::{Normal, StandardNormal};
-use std::{
-    ops::{Add, Div},
-    vec,
-};
+use std::ops::{Add, Div};
 
 /// ## Linear Layer
 /// Accepts 2D input in the form [Batch, Features]. Must be exactly 2D.
@@ -38,13 +35,17 @@ impl<F> Linear<F> {
     /// - weight shape: in_features×out_features
     /// - bias shape: out_features
     ///
-    /// ### Weight Initialization
+    /// ### forward formula:
+    /// `linear = input * weight + bias`
+    /// - `*` = matmul 2d
+    ///
+    /// ### Weight Initialization:
     /// #### Xavier:
-    /// mean    : 0
-    /// std_dev : 2/(in_features+out_features)
+    /// - mean    : 0
+    /// - std_dev : 2/(in_features+out_features)
     /// #### He:
-    /// mean: 0
-    /// std_dev : 2/in_features
+    /// - mean: 0
+    /// - std_dev : 2/in_features
     pub fn new(
         in_features: usize,
         out_features: usize,
@@ -56,7 +57,6 @@ impl<F> Linear<F> {
         StandardUniform: Distribution<F>,
         StandardNormal: Distribution<F>,
     {
-        let module = model_builder.get_module();
         let std = match weight_init {
             WeightInit::He => {
                 (F::one() + F::one())
@@ -74,10 +74,11 @@ impl<F> Linear<F> {
         let normal =
             Normal::new(F::zero(), std).map_err(|err| PzeudoErr::RandDistrNormalErr(err))?;
 
-        let len = in_features * out_features;
-        let weight_vector = (0..len)
-            .map(|_| normal.sample(module.get_rng_mut()))
-            .collect::<Vec<F>>();
+        let weight_vector =
+            model_builder.get_load_else_generate_vec(in_features * out_features, &normal)?;
+        let bias_vector = model_builder.get_load_else_generate_vec(out_features, &normal)?;
+        let module = model_builder.get_module();
+
         let weight = Tensor::param_from_vector_with_shape(
             &weight_vector,
             &[in_features, out_features],
@@ -85,12 +86,8 @@ impl<F> Linear<F> {
             Grad,
         )?;
 
-        let bias: Tensor<F, Contiguous, Grad> = Tensor::param_from_vector_with_shape(
-            &vec![F::zero(); out_features],
-            &[out_features],
-            module,
-            Grad,
-        )?;
+        let bias: Tensor<F, Contiguous, Grad> =
+            Tensor::param_from_vector_with_shape(&bias_vector, &[out_features], module, Grad)?;
 
         Ok(Self {
             in_features,

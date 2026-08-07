@@ -30,9 +30,11 @@ impl<F> Array<F> {
         F: Clone,
     {
         if vector.len() != shape.iter().product::<usize>() {
-            return Err(PzeudoErr::ArrayErr(
-                "ArrayNewErr. from_vector_with_shape\ncannot create array because shape size and vector length are different".to_string(),
-            ));
+            return Err(PzeudoErr::ArrayErr(format!(
+                "Array::from_vector_with_shape. Cannot create array because a vector of size {} cannot be stored in shape {:?}",
+                vector.len(),
+                shape
+            )));
         }
 
         let stride = shape_to_stride(shape);

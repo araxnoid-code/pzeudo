@@ -25,11 +25,15 @@ impl Model<f32> {
 
 fn main() {
     let mut module = Module::<f32>::new(42);
-    let mut create_model = module.model_builder();
-    let model = Model {
-        linear_1: Linear::new(1, 32, WeightInit::Xavier, &mut create_model).unwrap(),
-        linear_2: Linear::new(32, 1, WeightInit::Xavier, &mut create_model).unwrap(),
-        optim: Adam::new(0.1, create_model).unwrap(),
+    let mut model_builder = module.model_builder();
+
+    // LOAD HERE
+    model_builder.load_params("./params.json").unwrap();
+
+    let mut model = Model {
+        linear_1: Linear::new(1, 32, WeightInit::Xavier, &mut model_builder).unwrap(),
+        linear_2: Linear::new(32, 1, WeightInit::Xavier, &mut model_builder).unwrap(),
+        optim: Adam::new(0.1, model_builder).unwrap(),
     };
 
     let shape = [16, 1];
@@ -61,19 +65,20 @@ fn main() {
     let actual_test =
         Tensor::param_from_vector_with_shape(&vector, &shape, &module, NoGrad).unwrap();
 
-    let epoch = EpochBuilder::new(100, model, (dataset, test, actual, actual_test));
+    let epoch = EpochBuilder::new(100, &mut model, (dataset, test, actual, actual_test));
 
     module
         .epoch(
             epoch,
             |epoch, _module, model, (dataset, test, actual, actual_test)| {
-                println!("epoch: {}", epoch);
-                let loss = model.forward(Grad, dataset, actual)?;
-                println!("train loss: {}", loss);
-                loss.backward()?;
+                // SKIP TRAINING
+                // println!("epoch: {}", epoch);
+                // let loss = model.forward(Grad, dataset, actual)?;
+                // println!("train loss: {}", loss);
+                // loss.backward()?;
 
-                model.optim.optim()?;
-                model.optim.zero_grad();
+                // model.optim.optim()?;
+                // model.optim.zero_grad();
 
                 let loss = model.forward(NoGrad, test, actual_test)?;
                 println!("test loss: {}\n", loss);
@@ -81,4 +86,7 @@ fn main() {
             },
         )
         .unwrap();
+
+    // SAVE
+    // model.optim.save_params("./params.json").unwrap();
 }

@@ -15,10 +15,18 @@ pub struct Sgd<F> {
 }
 
 impl<F> Sgd<F> {
-    pub fn new(lr: F, mut model_builder: ModelBuilder<F>) -> Sgd<F> {
+    pub fn new(lr: F, mut model_builder: ModelBuilder<F>) -> Result<Sgd<F>, PzeudoErr> {
+        if let Some(load_params) = &model_builder.load_params {
+            if !load_params.is_empty() {
+                return Err(PzeudoErr::OptimErr(format!(
+                    "Sgd::new. Load Params in ModelBuilder are not all used, identifying the Model architecture as not being the same as the stored parameters."
+                )));
+            }
+        }
+
         let start = model_builder.start;
         let module = model_builder.get_module();
-        Self {
+        Ok(Self {
             lr,
             range: (
                 start,
@@ -31,14 +39,14 @@ impl<F> Sgd<F> {
                         .len(),
             ),
             storage: module.storage.clone(),
-        }
+        })
     }
 
     pub fn set_lr(&mut self, lr: F) {
         self.lr = lr;
     }
 
-    /// ### formula:
+    /// ## formula:
     /// w_new = w_old - lr * grad(w_old)
     pub fn optim(&self) -> Result<(), PzeudoErr>
     where

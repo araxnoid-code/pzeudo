@@ -32,6 +32,14 @@ where
     F: Float,
 {
     pub fn new(lr: F, mut model_builder: ModelBuilder<F>) -> Result<Adam<F>, PzeudoErr> {
+        if let Some(load_params) = &model_builder.load_params {
+            if !load_params.is_empty() {
+                return Err(PzeudoErr::OptimErr(format!(
+                    "Adam::new. Load Params in ModelBuilder are not all used, identifying the Model architecture as not being the same as the stored parameters."
+                )));
+            }
+        }
+
         let start = model_builder.start;
         let module = model_builder.get_module();
         let storage = module.storage.borrow();
@@ -74,7 +82,7 @@ where
         self.hyperparameter_m = hyperparameter_m;
     }
 
-    /// formula:
+    /// ## formula:
     /// - w_new = w_old - lr/√(g_hat + eps) * m_hat
     /// - g_new = hyperparameter_g * g_old + (1 - hyperparameter_g)  * grad(w_old)^2
     /// - g_hat = g_new/(1 - hyperparameter_g^i)

@@ -23,6 +23,14 @@ where
     F: Float,
 {
     pub fn new(lr: F, mut model_builder: ModelBuilder<F>) -> Result<SgdMomentum<F>, PzeudoErr> {
+        if let Some(load_params) = &model_builder.load_params {
+            if !load_params.is_empty() {
+                return Err(PzeudoErr::OptimErr(format!(
+                    "SgdMomentum::new. Load Params in ModelBuilder are not all used, identifying the Model architecture as not being the same as the stored parameters."
+                )));
+            }
+        }
+
         let start = model_builder.start;
         let module = model_builder.get_module();
         let storage = module.storage.borrow();
@@ -51,7 +59,7 @@ where
         self.hyperparameter = hyperparameter;
     }
 
-    /// ### formula:
+    /// ## formula:
     /// - w_new = w_old - v_new
     /// - v_new = hyperparameter * v_old + lr * grad(w_old)
     /// - mu = 0.9 (default). Modify via SgdMomentum::set_mu

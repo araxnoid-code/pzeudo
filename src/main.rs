@@ -3,7 +3,7 @@ use pzeudo::*;
 struct Model<F> {
     linear_1: Linear<F>,
     linear_2: Linear<F>,
-    optim: RMSProp<F>,
+    optim: Adam<F>,
 }
 
 impl Model<f32> {
@@ -29,7 +29,7 @@ fn main() {
     let model = Model {
         linear_1: Linear::new(1, 32, WeightInit::Xavier, &mut create_model).unwrap(),
         linear_2: Linear::new(32, 1, WeightInit::Xavier, &mut create_model).unwrap(),
-        optim: RMSProp::new(0.01, create_model).unwrap(),
+        optim: Adam::new(0.1, create_model).unwrap(),
     };
 
     let shape = [16, 1];

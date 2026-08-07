@@ -9,7 +9,7 @@ use std::{
 /// ## SGD + Momentum
 /// - w_new = w_old - v_new
 /// - v_new = hyperparameter * v_old + lr * grad(w_old)
-/// - mu = 0.9 (default). can be changed via SgdMomentum::set_mu
+/// - mu = 0.9 (default). Modify via SgdMomentum::set_mu
 pub struct SgdMomentum<F> {
     lr: F,
     pub(crate) v: Vec<Array<F>>,
@@ -54,7 +54,7 @@ where
     /// ### formula:
     /// - w_new = w_old - v_new
     /// - v_new = hyperparameter * v_old + lr * grad(w_old)
-    /// - mu = 0.9 (default). can be changed via SgdMomentum::set_mu
+    /// - mu = 0.9 (default). Modify via SgdMomentum::set_mu
     pub fn optim(&mut self) -> Result<(), PzeudoErr>
     where
         F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign,

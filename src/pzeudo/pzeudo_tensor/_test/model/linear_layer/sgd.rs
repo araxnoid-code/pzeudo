@@ -14,7 +14,7 @@ fn linear_model_test_mse_f32() {
     let model = Model {
         linear_1: Linear::new(1, 4, WeightInit::He, &mut create_model).unwrap(),
         linear_2: Linear::new(4, 1, WeightInit::He, &mut create_model).unwrap(),
-        optim: Sgd::new(0.0001, create_model),
+        optim: Sgd::new(0.0001, create_model).unwrap(),
     };
 
     let shape = [4, 1];
@@ -56,7 +56,7 @@ fn linear_model_test_mse_f64() {
     let model = Model {
         linear_1: Linear::new(1, 4, WeightInit::He, &mut create_model).unwrap(),
         linear_2: Linear::new(4, 1, WeightInit::He, &mut create_model).unwrap(),
-        optim: Sgd::new(0.0001, create_model),
+        optim: Sgd::new(0.0001, create_model).unwrap(),
     };
 
     let shape = [4, 1];
@@ -99,7 +99,7 @@ fn linear_model_test_mae_f32() {
     let model = Model {
         linear_1: Linear::new(1, 4, WeightInit::He, &mut create_model).unwrap(),
         linear_2: Linear::new(4, 1, WeightInit::He, &mut create_model).unwrap(),
-        optim: Sgd::new(0.0001, create_model),
+        optim: Sgd::new(0.0001, create_model).unwrap(),
     };
 
     let shape = [4, 1];
@@ -141,7 +141,7 @@ fn linear_model_test_mae_f64() {
     let model = Model {
         linear_1: Linear::new(1, 4, WeightInit::Xavier, &mut create_model).unwrap(),
         linear_2: Linear::new(4, 1, WeightInit::Xavier, &mut create_model).unwrap(),
-        optim: Sgd::new(0.0001, create_model),
+        optim: Sgd::new(0.0001, create_model).unwrap(),
     };
 
     let shape = [4, 1];
@@ -202,7 +202,7 @@ fn linear_model_test_mse_f32_train_eval() {
     let model = Model {
         linear_1: Linear::new(1, 16, WeightInit::He, &mut create_model).unwrap(),
         linear_2: Linear::new(16, 1, WeightInit::He, &mut create_model).unwrap(),
-        optim: Sgd::new(0.01, create_model),
+        optim: Sgd::new(0.01, create_model).unwrap(),
     };
 
     let shape = [16, 1];

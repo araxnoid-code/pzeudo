@@ -16,6 +16,33 @@ impl<F> ParamsStorage<F> {
         }
     }
 
+    pub(crate) fn take_grad(&mut self, idx: usize) -> Result<Array<F>, PzeudoErr> {
+        Ok(self.storage
+            .get_mut(idx)
+            .ok_or(PzeudoErr::StorageErr(format!(
+                "ParamsStorage::take_params_grad. index {idx} points to an invalid location on gradient storage."
+            )))?.grad
+        .take()
+        .ok_or(PzeudoErr::StorageErr(format!(
+            "ParamsStorage::take_params_grad. index {idx} points to elements that have the value None in gradient storage."
+        )))?)
+    }
+
+    pub(crate) fn replace_grad(&mut self, idx: usize, grad: Array<F>) -> Result<(), PzeudoErr> {
+        let space = self.storage.get_mut(idx).ok_or(PzeudoErr::StorageErr(format!(
+            "ParamsStorage::replace_params_grad. index {idx} points to an invalid location on gradient storage."
+        )))?;
+
+        if space.grad.is_some() {
+            return Err(PzeudoErr::StorageErr(format!(
+                "ParamsStorage::replace_params_grad. Index {idx} points to the location where the gradient is stored in gradient storage."
+            )));
+        }
+
+        space.grad.replace(grad);
+        Ok(())
+    }
+
     pub fn push(&mut self, param: ParamTensor<F>) {
         self.storage.push(param);
     }

@@ -21,11 +21,38 @@ impl<F> GradStorage<F> {
         }
     }
 
-    pub(crate) fn grad_push(&mut self, array: Array<F>) -> Result<(usize, usize), PzeudoErr> {
+    pub(crate) fn take_grad(&mut self, idx: usize) -> Result<Array<F>, PzeudoErr> {
+        Ok(self.storage
+            .get_mut(idx)
+            .ok_or(PzeudoErr::StorageErr(format!(
+                "GradStorage::take_grad. index {idx} points to an invalid location on gradient storage."
+            )))?
+            .take()
+            .ok_or(PzeudoErr::StorageErr(format!(
+                "GradStorage::take_grad. index {idx} points to elements that have the value None in gradient storage."
+            )))?)
+    }
+
+    pub(crate) fn replace_grad(&mut self, idx: usize, grad: Array<F>) -> Result<(), PzeudoErr> {
+        let space = self.storage.get_mut(idx).ok_or(PzeudoErr::StorageErr(format!(
+            "GradStorage::replace_grad. index {idx} points to an invalid location on gradient storage."
+        )))?;
+
+        if space.is_some() {
+            return Err(PzeudoErr::StorageErr(format!(
+                "GradStorage::replace_grad. Index {idx} points to the location where the gradient is stored in gradient storage."
+            )));
+        }
+
+        space.replace(grad);
+        Ok(())
+    }
+
+    pub(crate) fn push_grad(&mut self, array: Array<F>) -> Result<(usize, usize), PzeudoErr> {
         if let Some(idx) = self.empty_idx.pop() {
             if self.storage[idx].is_some() {
                 return Err(PzeudoErr::StorageErr(format!(
-                    "ArrayStorage::push. The problem occurs because the index {idx} obtained from empty_idx points to an element that still has a value."
+                    "GradStorage::push_grad. The problem occurs because the index {idx} obtained from empty_idx points to an element that still has a value."
                 )));
             }
             self.storage[idx] = Some(array);

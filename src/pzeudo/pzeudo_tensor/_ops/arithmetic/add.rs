@@ -64,10 +64,7 @@ where
         if check_no_grad_or_time_not_match(gradient_idx, storage)? {
             return Ok(());
         };
-
-        let gradient = storage
-            .get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?
-            .into_array();
+        let gradient = storage.take_grad(gradient_idx)?;
 
         if let Some(lhs_grad) = lhs_grad {
             if !check_no_grad_or_time_not_match(lhs_grad, storage)? {
@@ -99,6 +96,8 @@ where
                 }
             };
         }
+
+        storage.replace_grad(gradient_idx, gradient)?;
     }
 
     Ok(())

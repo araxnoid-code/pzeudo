@@ -43,8 +43,8 @@ impl<F> ArrayStorage<F> {
         &self.grad_storage
     }
 
-    pub fn get_grad_storage_mut(&mut self) -> &mut ArrStorage<F> {
-        &mut self.arr_storage
+    pub fn get_grad_storage_mut(&mut self) -> &mut GradStorage<F> {
+        &mut self.grad_storage
     }
 
     pub fn get_grad_element_mut(&mut self, idx: StorageType) -> Result<&mut Array<F>, PzeudoErr> {

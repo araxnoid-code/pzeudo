@@ -10,7 +10,7 @@ impl<F> ArrayStorage<F> {
     pub fn push(&mut self, element: ElementType<F>) -> Result<StorageType, PzeudoErr> {
         match element {
             ElementType::Grad(array) => {
-                let (idx, grad_time) = self.grad_storage.grad_push(array)?;
+                let (idx, grad_time) = self.grad_storage.push_grad(array)?;
                 Ok(StorageType::Arr(idx, Some(grad_time)))
             }
 

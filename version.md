@@ -85,3 +85,5 @@
 
 - in saving, only save parameters, then the model must be saved separately. 
   - the model that uses load parameters must be the same as the model that uses save parameters, because the save and load methods used are really affected by the order in the storage array.
+
+See more details at: [0.0.2-dev.1.md](./0.0.2-dev.1.md)

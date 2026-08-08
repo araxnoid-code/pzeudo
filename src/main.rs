@@ -1,92 +1,107 @@
-use pzeudo::*;
+use pzeudo::{
+    Adam, Contiguous, EpochBuilder, Grad, Linear, Module, NoGrad, PzeudoErr, ReqGradTrait,
+    SaveParamsTrait, Tensor, mse,
+};
 
-struct Model<F> {
-    linear_1: Linear<F>,
-    linear_2: Linear<F>,
-    optim: Adam<F>,
+// Create a model
+struct Model {
+    linear_1: Linear<f32>,
+    linear_2: Linear<f32>,
+    optim: Adam<f32>,
 }
 
-impl Model<f32> {
+// forward pass in the model
+impl Model {
     fn forward<ReqGrad>(
         &self,
+        input: &Tensor<f32, Contiguous, NoGrad>,
+        target: &Tensor<f32, Contiguous, NoGrad>,
         requires_grad: ReqGrad,
-        dataset: &Tensor<f32, Contiguous, NoGrad>,
-        actual: &Tensor<f32, Contiguous, NoGrad>,
     ) -> Result<Tensor<f32, Contiguous, ReqGrad>, PzeudoErr>
     where
-        ReqGrad: ReqGradTrait<f32> + Copy,
+        ReqGrad: Copy + Clone + ReqGradTrait<f32>,
     {
-        let x = self.linear_1.forward(dataset, requires_grad)?;
+        let x = self.linear_1.forward(input, requires_grad)?;
         let y = self.linear_2.forward(&x, requires_grad)?;
-        let loss = mse(actual, &y, requires_grad)?;
+        let loss = mse(target, &y, requires_grad)?;
         Ok(loss)
     }
 }
 
 fn main() {
-    let mut module = Module::<f32>::new(42);
+    // Create a module.
+    let mut module: Module<f32> = Module::new(42);
+
+    // To initialize a model that has been created, you need a ModelBuilder.
     let mut model_builder = module.model_builder();
-
-    // LOAD HERE
-    model_builder.load_params("./params.json").unwrap();
-
+    model_builder.load_params("params.json").unwrap();
     let mut model = Model {
-        linear_1: Linear::new(1, 32, WeightInit::Xavier, &mut model_builder).unwrap(),
-        linear_2: Linear::new(32, 1, WeightInit::Xavier, &mut model_builder).unwrap(),
-        optim: Adam::new(0.1, model_builder).unwrap(),
+        linear_1: Linear::new(1, 16, pzeudo::WeightInit::He, &mut model_builder).unwrap(),
+        linear_2: Linear::new(16, 1, pzeudo::WeightInit::He, &mut model_builder).unwrap(),
+        optim: Adam::new(0.01, model_builder).unwrap(),
     };
 
-    let shape = [16, 1];
-    let vector = Vec::from_iter(0..shape.iter().product::<usize>())
-        .iter()
-        .map(|x| (*x as f32 + 1.))
-        .collect::<Vec<f32>>();
-    let dataset = Tensor::param_from_vector_with_shape(&vector, &shape, &module, NoGrad).unwrap();
+    // Create training and testing datasets.
+    // The dataset below is for testing purposes only.
+    let train_dataset = Tensor::param_from_vector_with_shape(
+        &[1., 2., 3., 4., 5., 6., 7., 8.],
+        &[8, 1],
+        &module,
+        NoGrad,
+    )
+    .unwrap();
+    let train_target = Tensor::param_from_vector_with_shape(
+        &[11., 12., 13., 14., 15., 16., 17., 18.],
+        &[8, 1],
+        &module,
+        NoGrad,
+    )
+    .unwrap();
 
-    let shape = [16, 1];
-    let vector = Vec::from_iter(0..shape.iter().product::<usize>())
-        .iter()
-        .map(|x| *x as f32 + 10.)
-        .collect::<Vec<f32>>();
-    let actual = Tensor::param_from_vector_with_shape(&vector, &shape, &module, NoGrad).unwrap();
+    let test_dataset = Tensor::param_from_vector_with_shape(
+        &[9., 10., 11., 12., 13., 14., 15., 16.],
+        &[8, 1],
+        &module,
+        NoGrad,
+    )
+    .unwrap();
+    let test_target = Tensor::param_from_vector_with_shape(
+        &[19., 20., 21., 22., 23., 24., 25., 26.],
+        &[8, 1],
+        &module,
+        NoGrad,
+    )
+    .unwrap();
 
-    let shape = [16, 1];
-    let vector = Vec::from_iter(16..shape.iter().product::<usize>() + 16)
-        .iter()
-        .map(|x| (*x as f32 + 1.))
-        .collect::<Vec<f32>>();
-    let test = Tensor::param_from_vector_with_shape(&vector, &shape, &module, NoGrad).unwrap();
+    // Initialize EpochBuilder to manage training/testing iterations.
+    let epoch = 30;
+    let epoch_builder = EpochBuilder::new(
+        epoch,
+        &mut model,
+        (train_dataset, train_target, test_dataset, test_target),
+    );
 
-    let shape = [16, 1];
-    let vector = Vec::from_iter(16..shape.iter().product::<usize>() + 16)
-        .iter()
-        .map(|x| *x as f32 + 10.)
-        .collect::<Vec<f32>>();
-    let actual_test =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module, NoGrad).unwrap();
-
-    let epoch = EpochBuilder::new(100, &mut model, (dataset, test, actual, actual_test));
-
+    // Use the Module::epoch method to start the iteration.
     module
         .epoch(
-            epoch,
-            |epoch, _module, model, (dataset, test, actual, actual_test)| {
-                // SKIP TRAINING
-                // println!("epoch: {}", epoch);
-                // let loss = model.forward(Grad, dataset, actual)?;
-                // println!("train loss: {}", loss);
+            epoch_builder,
+            |epoch, _module, model, (train_dataset, train_target, test_dataset, test_target)| {
+                // training
+                // Use Grad.
+                // let loss = model.forward(train_dataset, train_target, Grad).unwrap();
+                // println!("epoch:{}\ntrain_loss:{}", epoch, loss);
                 // loss.backward()?;
 
                 // model.optim.optim()?;
                 // model.optim.zero_grad();
 
-                let loss = model.forward(NoGrad, test, actual_test)?;
-                println!("test loss: {}\n", loss);
+                // testing
+                // Use NoGrad.
+                let loss = model.forward(test_dataset, test_target, NoGrad).unwrap();
+                println!("test_loss:{}\n", loss);
+
                 Ok(())
             },
         )
         .unwrap();
-
-    // SAVE
-    // model.optim.save_params("./params.json").unwrap();
 }

@@ -1,4 +1,4 @@
-# Version 0.0.2
+# Version 0.0.2-dev.1
 ### BUG FIXES
 - Fixed a bug where the array was not being replaced at the empty index location in GradStorage::grad_push.
 - Fixed a bug where the array was not being replaced at the empty index location in ArrStorage::push_arr.

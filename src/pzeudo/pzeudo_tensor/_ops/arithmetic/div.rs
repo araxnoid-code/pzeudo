@@ -78,14 +78,16 @@ where
         if check_no_grad_or_time_not_match(gradient_idx, storage)? {
             return Ok(());
         };
-        let gradient = storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Arr)?;
+        let gradient = storage.take_grad(gradient_idx)?;
+        let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad) = lhs_grad {
             if !check_no_grad_or_time_not_match(lhs_grad, storage)? {
-                // df(lhs, rhs)/dlhs = 1/rhs * gradient
+                // df(lhs, rhs)/dlhs = 1/rhs * gradient = gradient / rhs
                 let rhs_value: ArrayRef<'_, F, View> =
                     storage.get_as_array_ref(rhs, ContiguousType::Arr)?;
-                let grad = rhs_value.scalar_div(one())?.mul(&gradient)?;
+
+                let grad = OpsDiv::div(&gradient_ref, &rhs_value)?;
 
                 let mut lhs_gradient =
                     storage.get_as_array_ref_mut::<View>(lhs_grad, ContiguousType::Grad)?;
@@ -123,6 +125,8 @@ where
                 }
             }
         }
+
+        storage.replace_grad(gradient_idx, gradient)?;
     }
     Ok(())
 }

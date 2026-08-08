@@ -65,6 +65,7 @@ where
             return Ok(());
         };
         let gradient = storage.take_grad(gradient_idx)?;
+        let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad) = lhs_grad {
             if !check_no_grad_or_time_not_match(lhs_grad, storage)? {
@@ -72,11 +73,11 @@ where
                     storage.get_as_array_ref_mut(lhs_grad, ContiguousType::Grad)?;
                 match lhs_broadcast_dim {
                     Some(dim) => {
-                        let gradient = OpsSum::sum_axis(&gradient, dim, true)?;
+                        let gradient = OpsSum::sum_axis(&gradient_ref, dim, true)?;
                         let to_shape = gradient.to_shape(lhs_gradient.shape)?;
                         lhs_gradient.add_assign(&to_shape)?
                     }
-                    None => lhs_gradient.add_assign(&gradient)?,
+                    None => lhs_gradient.add_assign(&gradient_ref)?,
                 }
             };
         }
@@ -88,11 +89,11 @@ where
 
                 match rhs_broadcast_dim {
                     Some(dim) => {
-                        let gradient = gradient.sum_axis(dim, true)?;
+                        let gradient = gradient_ref.sum_axis(dim, true)?;
                         let to_shape = gradient.to_shape(rhs_gradient.shape)?;
                         rhs_gradient.add_assign(&to_shape)?;
                     }
-                    None => rhs_gradient.add_assign(&gradient)?,
+                    None => rhs_gradient.add_assign(&gradient_ref)?,
                 }
             };
         }

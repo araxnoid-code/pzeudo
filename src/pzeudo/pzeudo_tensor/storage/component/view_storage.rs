@@ -13,6 +13,37 @@ impl ViewStorage {
         }
     }
 
+    pub(crate) fn take_metadata(&mut self, idx: usize) -> Result<TensorMetadata, PzeudoErr> {
+        Ok(self.storage
+            .get_mut(idx)
+            .ok_or(PzeudoErr::StorageErr(format!(
+                "GradStorage::take_grad. index {idx} points to an invalid location on gradient storage."
+            )))?
+            .take()
+            .ok_or(PzeudoErr::StorageErr(format!(
+                "GradStorage::take_grad. index {idx} points to elements that have the value None in gradient storage."
+            )))?)
+    }
+
+    pub(crate) fn replace_metadata(
+        &mut self,
+        idx: usize,
+        metadata: TensorMetadata,
+    ) -> Result<(), PzeudoErr> {
+        let space = self.storage.get_mut(idx).ok_or(PzeudoErr::StorageErr(format!(
+            "GradStorage::replace_grad. index {idx} points to an invalid location on gradient storage."
+        )))?;
+
+        if space.is_some() {
+            return Err(PzeudoErr::StorageErr(format!(
+                "GradStorage::replace_grad. Index {idx} points to the location where the gradient is stored in gradient storage."
+            )));
+        }
+
+        space.replace(metadata);
+        Ok(())
+    }
+
     pub(crate) fn push_metadata(&mut self, metadata: TensorMetadata) -> Result<usize, PzeudoErr> {
         if let Some(idx) = self.empty_idx.pop() {
             if self.storage[idx].is_some() {

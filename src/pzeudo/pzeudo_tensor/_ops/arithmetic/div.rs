@@ -1,9 +1,10 @@
 use std::{
     iter::Sum,
+    marker::PhantomData,
     ops::{AddAssign, Div, Neg},
 };
 
-use num_traits::{Float, One, Zero, one};
+use num_traits::{Float, One, Zero};
 
 use crate::prelude::*;
 
@@ -83,46 +84,81 @@ where
 
         if let Some(lhs_grad) = lhs_grad {
             if !check_no_grad_or_time_not_match(lhs_grad, storage)? {
+                let mut lhs_gradient = storage.take_grad(lhs_grad)?;
+                let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
+
                 // df(lhs, rhs)/dlhs = 1/rhs * gradient = gradient / rhs
                 let rhs_value: ArrayRef<'_, F, View> =
                     storage.get_as_array_ref(rhs, ContiguousType::Arr)?;
 
-                let grad = OpsDiv::div(&gradient_ref, &rhs_value)?;
-
-                let mut lhs_gradient =
-                    storage.get_as_array_ref_mut::<View>(lhs_grad, ContiguousType::Grad)?;
                 match lhs_broadcast_dim {
                     Some(dim) => {
+                        let grad = OpsDiv::div(&gradient_ref, &rhs_value)?;
                         let gradient = grad.sum_axis(dim, true)?;
-                        let to_shape = gradient.to_shape(lhs_gradient.shape)?;
-                        lhs_gradient.add_assign(&to_shape)?
+                        let to_shape = gradient.to_shape(lhs_gradient_ref.shape)?;
+                        lhs_gradient_ref.add_assign(&to_shape)?
                     }
-                    None => lhs_gradient.add_assign(&grad)?,
+                    None => {
+                        let len = lhs_gradient_ref.shape.iter().product::<usize>();
+                        for i in 0..len {
+                            *lhs_gradient_ref.linear_index_mut(i)? +=
+                                gradient_ref.linear_index(i)? / rhs_value.linear_index(i)?;
+                        }
+                    }
                 }
+
+                storage.replace_grad(lhs_grad, lhs_gradient)?;
             }
         }
 
-        let gradien = storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
         if let Some(rhs_grad) = rhs_grad {
             if !check_no_grad_or_time_not_match(rhs_grad, storage)? {
                 // df(lhs, rhs)/drhs = -lhs/rhs^2 * gradient
+                let mut rhs_gradient = storage.take_grad(rhs_grad)?;
+                let mut rhs_gradient_ref = rhs_gradient.to_array_ref_mut::<View>();
+
                 let rhs_value: ArrayRef<'_, F, View> =
                     storage.get_as_array_ref(rhs, ContiguousType::Arr)?;
                 let lhs_value: ArrayRef<'_, F, View> =
                     storage.get_as_array_ref(lhs, ContiguousType::Arr)?;
-                let grad = (lhs_value.neg()? / rhs_value.powi(2)?).mul(&gradien)?;
-
-                let mut rhs_gradient =
-                    storage.get_as_array_ref_mut::<View>(rhs_grad, ContiguousType::Grad)?;
 
                 match rhs_broadcast_dim {
                     Some(dim) => {
+                        let rhs_broadcaseted = rhs_value.broadcast(lhs_value.shape)?;
+
+                        let len = lhs_value.shape.iter().product::<usize>();
+                        let mut grad_vec = Vec::with_capacity(len);
+                        for i in 0..len {
+                            let x = -lhs_value.linear_index(i)?
+                                / rhs_broadcaseted.linear_index(i)?.powi(2)
+                                * gradient_ref.linear_index(i)?;
+                            grad_vec.push(x);
+                        }
+
+                        let grad: ArrayRef<'_, F, Contiguous> = ArrayRef {
+                            data: &grad_vec,
+                            offset: 0,
+                            shape: lhs_value.shape,
+                            stride: lhs_value.stride,
+                            _array_type: PhantomData::default(),
+                        };
+
                         let gradient = grad.sum_axis(dim, true)?;
-                        let to_shape = gradient.to_shape(rhs_gradient.shape)?;
-                        rhs_gradient.add_assign(&to_shape)?
+                        let to_shape = gradient.to_shape(rhs_gradient_ref.shape)?;
+                        rhs_gradient_ref.add_assign(&to_shape)?
                     }
-                    None => rhs_gradient.add_assign(&grad)?,
+                    None => {
+                        let len = lhs_value.shape.iter().product::<usize>();
+                        for i in 0..len {
+                            let x = -lhs_value.linear_index(i)?
+                                / rhs_value.linear_index(i)?.powi(2)
+                                * gradient_ref.linear_index(i)?;
+                            *rhs_gradient_ref.linear_index_mut(i)? += x;
+                        }
+                        // rhs_gradient.add_assign(&grad)?
+                    }
                 }
+                storage.replace_grad(rhs_grad, rhs_gradient)?;
             }
         }
 

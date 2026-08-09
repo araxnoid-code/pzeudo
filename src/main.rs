@@ -1,106 +1,38 @@
-use pzeudo::{
-    Adam, Contiguous, EpochBuilder, Grad, Linear, Module, NoGrad, PzeudoErr, ReqGradTrait, Tensor,
-    mse,
-};
-
-// Create a model
-struct Model {
-    linear_1: Linear<f32>,
-    linear_2: Linear<f32>,
-    optim: Adam<f32>,
-}
-
-// forward pass in the model
-impl Model {
-    fn forward<ReqGrad>(
-        &self,
-        input: &Tensor<f32, Contiguous, NoGrad>,
-        target: &Tensor<f32, Contiguous, NoGrad>,
-        requires_grad: ReqGrad,
-    ) -> Result<Tensor<f32, Contiguous, ReqGrad>, PzeudoErr>
-    where
-        ReqGrad: Copy + Clone + ReqGradTrait<f32>,
-    {
-        let x = self.linear_1.forward(input, requires_grad)?;
-        let y = self.linear_2.forward(&x, requires_grad)?;
-        let loss = mse(target, &y, requires_grad)?;
-        Ok(loss)
-    }
-}
+use pzeudo::*;
 
 fn main() {
-    // Create a module.
-    let mut module: Module<f32> = Module::new(42);
+    let module = Module::<f32>::new(42);
 
-    // To initialize a model that has been created, you need a ModelBuilder.
-    let mut model_builder = module.model_builder();
-    let model = Model {
-        linear_1: Linear::new(1, 16, pzeudo::WeightInit::He, &mut model_builder).unwrap(),
-        linear_2: Linear::new(16, 1, pzeudo::WeightInit::He, &mut model_builder).unwrap(),
-        optim: Adam::new(0.01, model_builder).unwrap(),
-    };
+    let shape = [3, 2, 1];
+    let vec_a = (0..shape.iter().product::<usize>())
+        .map(|idx| idx as f32)
+        .collect::<Vec<f32>>();
+    let array_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module, Grad).unwrap();
 
-    // Create training and testing datasets.
-    // The dataset below is for testing purposes only.
-    let train_dataset = Tensor::param_from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8.],
-        &[8, 1],
-        &module,
-        NoGrad,
-    )
-    .unwrap();
-    let train_target = Tensor::param_from_vector_with_shape(
-        &[11., 12., 13., 14., 15., 16., 17., 18.],
-        &[8, 1],
-        &module,
-        NoGrad,
-    )
-    .unwrap();
+    let shape = [3, 2, 3];
+    let vec_b = (5..shape.iter().product::<usize>() + 5)
+        .map(|idx| idx as f32)
+        .collect::<Vec<f32>>();
+    let array_b = Tensor::from_vector_with_shape(&vec_b, &shape, &module, Grad).unwrap();
 
-    let test_dataset = Tensor::param_from_vector_with_shape(
-        &[9., 10., 11., 12., 13., 14., 15., 16.],
-        &[8, 1],
-        &module,
-        NoGrad,
-    )
-    .unwrap();
-    let test_target = Tensor::param_from_vector_with_shape(
-        &[19., 20., 21., 22., 23., 24., 25., 26.],
-        &[8, 1],
-        &module,
-        NoGrad,
-    )
-    .unwrap();
+    let div = array_a.div(&array_b, Grad).unwrap();
+    div.backward().unwrap();
 
-    // Initialize EpochBuilder to manage training/testing iterations.
-    let epoch = 50;
-    let epoch_builder = EpochBuilder::new(
-        epoch,
-        model,
-        (train_dataset, train_target, test_dataset, test_target),
-    );
+    // Check
+    // let div_value = [0.0, 0.16666667, 0.2857143, 0.375, 0.44444445, 0.5];
+    // div.value_vec_eq(&div_value).unwrap();
 
-    // Use the Module::epoch method to start the iteration.
-    module
-        .epoch(
-            epoch_builder,
-            |epoch, _module, model, (train_dataset, train_target, test_dataset, test_target)| {
-                // training
-                // Use Grad.
-                let loss = model.forward(train_dataset, train_target, Grad).unwrap();
-                println!("epoch:{}\ntrain_loss:{}", epoch, loss);
-                loss.backward()?;
+    // println!("{}", array_a.grad_to_string().unwrap());
+    // let a_grad = [0.2, 0.16666667, 0.14285715, 0.125, 0.11111111, 0.1];
+    // array_a.grad_vec_eq(&a_grad).unwrap();
 
-                model.optim.optim()?;
-                model.optim.zero_grad();
-
-                // testing
-                // Use NoGrad.
-                let loss = model.forward(test_dataset, test_target, NoGrad).unwrap();
-                println!("test_loss:{}\n", loss);
-
-                Ok(())
-            },
-        )
-        .unwrap();
+    // let b_grad = [
+    //     0.0,
+    //     -0.027777778,
+    //     -0.040816326,
+    //     -0.046875,
+    //     -0.049382716,
+    //     -0.05,
+    // ];
+    // array_b.grad_vec_eq(&b_grad).unwrap();
 }

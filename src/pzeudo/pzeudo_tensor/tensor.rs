@@ -82,4 +82,62 @@ impl<F, T, G> Tensor<F, T, G> {
 
         Ok(())
     }
+
+    pub fn value_vec_eq(&self, vector: &[F]) -> Result<(), PzeudoErr>
+    where
+        F: Copy + Debug + PartialEq,
+    {
+        let len = self.shape.iter().product::<usize>();
+        if len != vector.len() {
+            return Err(PzeudoErr::TensorErr(format!(
+                "Tensor::value_vec_eq. The length of vector {} is not equal to the length of tensor {}.",
+                vector.len(),
+                len
+            )));
+        }
+
+        let storage = self.storage.borrow();
+        let array = storage
+            .get_as_array_ref::<View>(self.array_idx, ContiguousType::Arr)?
+            .into_array()?;
+
+        if array.data != vector {
+            return Err(PzeudoErr::TensorErr(format!(
+                "Tensor::value_vec_eq. The vector array and the input vector are not the same."
+            )));
+        }
+
+        Ok(())
+    }
+
+    pub fn grad_vec_eq(&self, vector: &[F]) -> Result<(), PzeudoErr>
+    where
+        F: Copy + Debug + PartialEq,
+    {
+        let len = self.shape.iter().product::<usize>();
+        if len != vector.len() {
+            return Err(PzeudoErr::TensorErr(format!(
+                "Tensor::grad_vec_eq. The length of vector {} is not equal to the length of tensor {}.",
+                vector.len(),
+                len
+            )));
+        }
+
+        let storage = self.storage.borrow();
+        let array = storage
+            .get_as_array_ref::<View>(
+                self.grad_idx.ok_or(PzeudoErr::TensorErr(format!(
+                    "Tensor::grad_vec_eq. Tensor NoGrad."
+                )))?,
+                ContiguousType::Grad,
+            )?
+            .into_array()?;
+
+        if array.data != vector {
+            return Err(PzeudoErr::TensorErr(format!(
+                "Tensor::grad_vec_eq. The vector array and the input vector are not the same."
+            )));
+        }
+        Ok(())
+    }
 }

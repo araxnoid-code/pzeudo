@@ -2,7 +2,8 @@ use rand_distr::NormalError;
 
 #[derive(Debug)]
 pub enum PzeudoErr {
-    // Tensor Tools
+    // Tensor
+    TensorErr(String),
     TensorToolsErr(String),
 
     // Array

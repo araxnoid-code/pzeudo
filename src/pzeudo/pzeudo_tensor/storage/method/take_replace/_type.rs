@@ -27,4 +27,23 @@ impl<F> TakeType<F> {
             },
         }
     }
+
+    pub fn to_array_ref_mut<T>(&mut self) -> ArrayRefMut<'_, F, T> {
+        match self {
+            Self::Array(array) => ArrayRefMut {
+                data: &mut array.data,
+                offset: array.offset,
+                shape: &array.shape,
+                stride: &array.stride,
+                _array_type: PhantomData::default(),
+            },
+            TakeType::Metadata(array, metadata) => ArrayRefMut {
+                data: &mut array.data,
+                offset: metadata.offset,
+                shape: &metadata.shape,
+                stride: &metadata.stride,
+                _array_type: PhantomData::default(),
+            },
+        }
+    }
 }

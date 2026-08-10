@@ -7,6 +7,8 @@ where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Clone + Zero + Float,
 {
+    /// - f(i, x) = x^i
+    /// - i: intiger
     pub fn powi<OutGrad>(
         &self,
         i: i32,
@@ -37,6 +39,8 @@ where
         ))
     }
 
+    /// - f(f, x) = x^f
+    /// - f: float
     pub fn powf<OutGrad>(
         &self,
         f: F,
@@ -68,6 +72,8 @@ where
     }
 }
 
+/// - f(i, x) = x^i
+/// - df(i, x)/dx = ix^{i-1} * gradient
 pub fn powi_backward<F>(
     lhs_idx: StorageType,
     lhs_grad_idx: Option<StorageType>,
@@ -83,28 +89,39 @@ where
             return Ok(());
         }
 
-        let gradient =
-            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
+        let gradient = storage.take_grad(gradient_idx)?;
+        let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
             if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
-                let grad = storage
-                    .get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?
-                    .powi(i - 1)?
-                    .mul_scalar(F::from(i).ok_or(PzeudoErr::OpsErr(format!(
-                        "powi_backward. cannot cast on i32 which has value {i}"
-                    )))?)?
-                    .mul(&gradient)?;
+                // - f(i, x) = x^i
+                // - df(i, x)/dx = ix^{i-1} * gradient
+                let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
+                let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
+                let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
 
-                let mut lhs_gradient =
-                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-                lhs_gradient.add_assign(&grad)?;
+                let len = lhs_value.shape.iter().product::<usize>();
+                let scalar = F::from(i).ok_or(PzeudoErr::BackwardErr(format!(
+                    "powi_backward. cannot cast on i32 which has value {i}"
+                )))?;
+                for idx in 0..len {
+                    *lhs_gradient_ref.linear_index_mut(idx)? +=
+                        lhs_value.linear_index(idx)?.powi(i - 1)
+                            * scalar
+                            * gradient_ref.linear_index(idx)?;
+                }
+
+                storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
             }
         }
+
+        storage.replace_grad(gradient_idx, gradient)?;
     }
     Ok(())
 }
 
+/// - f(f, x) = x^f
+/// - df(f, x)/dx = fx^{f-1.} * gradient
 pub fn powf_backward<F>(
     lhs_idx: StorageType,
     lhs_grad_idx: Option<StorageType>,
@@ -119,22 +136,29 @@ where
         if check_no_grad_or_time_not_match(gradient_idx, storage)? {
             return Ok(());
         }
-        let gradient =
-            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
+
+        let gradient = storage.take_grad(gradient_idx)?;
+        let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
             if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
-                let grad = storage
-                    .get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?
-                    .powf(f - F::one())?
-                    .mul_scalar(f)?
-                    .mul(&gradient)?;
+                // - f(f, x) = x^f
+                // - df(f, x)/dx = fx^{f-1.} * gradient
+                let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
+                let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
+                let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
 
-                let mut lhs_gradient =
-                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-                lhs_gradient.add_assign(&grad)?;
+                let len = lhs_value.shape.iter().product::<usize>();
+                for idx in 0..len {
+                    *lhs_gradient_ref.linear_index_mut(idx)? +=
+                        lhs_value.linear_index(idx)?.powf(f - F::one())
+                            * f
+                            * gradient_ref.linear_index(idx)?;
+                }
+                storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
             }
         }
+        storage.replace_grad(gradient_idx, gradient)?;
     }
     Ok(())
 }

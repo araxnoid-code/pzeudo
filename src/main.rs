@@ -8,6 +8,7 @@ fn main() {
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
     let array_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module, Grad).unwrap();
+    // array_a.powf(f, requires_grad)
 
     let shape = [3, 2, 3];
     let vec_b = (5..shape.iter().product::<usize>() + 5)

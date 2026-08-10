@@ -7,6 +7,7 @@ where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Clone + Zero + Float + One,
 {
+    /// f(x) = log(2, x)
     pub fn log2<OutGrad>(
         &self,
         requires_grad: OutGrad,
@@ -39,6 +40,7 @@ where
         ))
     }
 
+    /// f(x) = log(10, x)
     pub fn log10<OutGrad>(
         &self,
         requires_grad: OutGrad,
@@ -74,6 +76,7 @@ where
         ))
     }
 
+    /// f(x) = ln(x)
     pub fn ln<OutGrad>(
         &self,
         requires_grad: OutGrad,
@@ -102,6 +105,7 @@ where
         ))
     }
 
+    /// f(b, x) = log(b, x)
     pub fn log<OutGrad>(
         &self,
         base: F,
@@ -133,6 +137,8 @@ where
     }
 }
 
+/// - f(x) = log(n, x)
+/// - df(x)/x = 1/(x * ln(n)) * gradient = gradient/(x * ln(n))
 pub fn log_backward<F>(
     lhs_idx: StorageType,
     lhs_grad_idx: Option<StorageType>,
@@ -148,23 +154,37 @@ where
             return Ok(());
         }
 
-        let gradient =
-            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
+        let gradient = storage.take_grad(gradient_idx)?;
+        let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
             if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
-                let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
-                let grad = gradient.div(&lhs_value.mul_scalar(base.ln())?)?;
+                // f(x) = log(n, x)
+                // df(x)/x = 1/(x * ln(n)) * gradient = gradient/(x * ln(n))
 
-                let mut lhs_gradient =
-                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-                lhs_gradient.add_assign(&grad)?;
+                let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
+                let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
+
+                let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
+                let shape = lhs_value.shape.iter().product::<usize>();
+                let ln_base = base.ln();
+
+                for i in 0..shape {
+                    let x = gradient_ref.linear_index(i)? / (lhs_value.linear_index(i)? * ln_base);
+                    *lhs_gradient_ref.linear_index_mut(i)? += x;
+                }
+
+                storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
             }
         }
+
+        storage.replace_grad(gradient_idx, gradient)?;
     }
     Ok(())
 }
 
+/// - f(x) = ln(x)
+/// - df(x)/x = 1 / x * gradient = gradient / x
 pub fn ln_backward<F>(
     lhs_idx: StorageType,
     lhs_grad_idx: Option<StorageType>,
@@ -178,19 +198,30 @@ where
         if check_no_grad_or_time_not_match(gradient_idx, storage)? {
             return Ok(());
         }
-        let gradient =
-            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
+
+        let gradient = storage.take_grad(gradient_idx)?;
+        let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
             if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
-                let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
-                let grad = gradient.div(&lhs_value)?;
+                // - f(x) = ln(x)
+                // - df(x)/x = 1 / x * gradient = gradient / x
 
-                let mut lhs_gradient =
-                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-                lhs_gradient.add_assign(&grad)?;
+                let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
+                let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
+
+                let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
+                let len = lhs_value.shape.iter().product::<usize>();
+                for i in 0..len {
+                    let x = gradient_ref.linear_index(i)? / lhs_value.linear_index(i)?;
+                    *lhs_gradient_ref.linear_index_mut(i)? += x;
+                }
+
+                storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
             }
         }
+
+        storage.replace_grad(gradient_idx, gradient)?;
     }
     Ok(())
 }

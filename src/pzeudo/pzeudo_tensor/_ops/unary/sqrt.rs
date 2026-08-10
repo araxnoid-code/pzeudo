@@ -7,6 +7,7 @@ where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Clone + Zero + Float,
 {
+    /// f(x) = √x
     pub fn sqrt<OutGrad>(
         &self,
         requires_grad: OutGrad,
@@ -36,6 +37,8 @@ where
     }
 }
 
+/// - f(x) = √x
+/// - df(x)/x = 1/2√x * gradient = gradient/2√x
 pub fn sqrt_backward<F>(
     out_idx: StorageType,
     lhs_grad_idx: Option<StorageType>,
@@ -49,21 +52,29 @@ where
         if check_no_grad_or_time_not_match(gradient_idx, storage)? {
             return Ok(());
         }
-        let gradient =
-            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
+
+        let gradient = storage.take_grad(gradient_idx)?;
+        let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
             if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+                // - f(x) = √x
+                // - df(x)/x = 1/2√x * gradient = gradient/2√x
+                let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
+                let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
                 let out_value =
                     storage.get_as_array_ref::<Contiguous>(out_idx, ContiguousType::Arr)?;
-                // 1/(2*sqrt(x)) * gradient = gradient/(2*sqrt(x))
-                let grad = gradient.div(&out_value.mul_scalar(F::one() + F::one())?)?;
 
-                let mut lhs_gradient =
-                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-                lhs_gradient.add_assign(&grad)?;
+                let len = out_value.shape.iter().product::<usize>();
+                let two = F::one() + F::one();
+                for i in 0..len {
+                    *lhs_gradient_ref.linear_index_mut(i)? +=
+                        gradient_ref.linear_index(i)? / (two * out_value.linear_index(i)?);
+                }
+                storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
             }
         }
+        storage.replace_grad(gradient_idx, gradient)?;
     }
     Ok(())
 }

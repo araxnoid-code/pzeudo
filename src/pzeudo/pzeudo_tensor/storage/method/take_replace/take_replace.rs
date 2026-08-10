@@ -51,31 +51,25 @@ impl<F> ArrayStorage<F> {
                     )));
                 }
             },
-            StorageType::View(v_idx) => {
-                match take_grad {
-                    TakeType::Metadata(grad, metadata) => {
-                        match metadata.arr_index {
-                            ViewStorageType::Param(idx) => {
-                                self.get_params_storage_mut().replace_grad(idx, grad)?;
-                            }
-                            ViewStorageType::Storage(idx, _) => {
-                                self.get_grad_storage_mut().replace_grad(idx, grad)?;
-                            }
+            StorageType::View(v_idx) => match take_grad {
+                TakeType::Metadata(grad, metadata) => {
+                    match metadata.arr_index {
+                        ViewStorageType::Param(idx) => {
+                            self.get_params_storage_mut().replace_grad(idx, grad)?;
                         }
+                        ViewStorageType::Storage(idx, _) => {
+                            self.get_grad_storage_mut().replace_grad(idx, grad)?;
+                        }
+                    }
 
-                        self.view_storage.replace_metadata(v_idx, metadata)?;
-                    }
-                    TakeType::Array(_) => {
-                        return Err(PzeudoErr::StorageErr(format!(
-                            "ArrayStorage::replace_grad. TakeType::Array does not match StorageType::View"
-                        )));
-                    }
+                    self.view_storage.replace_metadata(v_idx, metadata)?;
                 }
-
-                return Err(PzeudoErr::StorageErr(format!(
-                    "ArrayStorage::take_grad. Cannot retrieve the gradient from the view (the view does not have a gradient)."
-                )));
-            }
+                TakeType::Array(_) => {
+                    return Err(PzeudoErr::StorageErr(format!(
+                        "ArrayStorage::replace_grad. TakeType::Array does not match StorageType::View"
+                    )));
+                }
+            },
         };
 
         Ok(())

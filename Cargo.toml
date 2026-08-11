@@ -1,6 +1,6 @@
 [package]
 name = "pzeudo"
-version = "0.0.2"
+version = "0.0.3-dev.1"
 edition = "2024"
 license = "MIT"
 description = "a Deep Learning library"

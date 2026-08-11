@@ -14,7 +14,6 @@ where
     F: Float + Copy,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
 {
-    // max(0, x)
     let mut storage = tensor.get_storage().borrow_mut();
 
     let array = storage.get_as_array_ref::<T>(tensor.get_array_idx(), ContiguousType::Arr)?;
@@ -41,8 +40,8 @@ where
     ))
 }
 
-/// ## Relu Backward
-/// relu_backward(x) = (if x > 1 else 0) * grad
+/// - relu(x) = max(0, x)
+/// - drelu(x)/dx = (if x > 0 {1} else {0}) * grad
 pub fn relu_backward<F>(
     array_idx: StorageType,
     array_grad_idx: Option<StorageType>,
@@ -56,31 +55,31 @@ where
         if check_no_grad_or_time_not_match(gradient_idx, storage)? {
             return Ok(());
         }
-        let gradient =
-            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = array_grad_idx {
             if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
                 // e^x/(e^x+1) * gradient
+                let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
+                let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
+
+                let gradient =
+                    storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
+
                 let array = storage.get_as_array_ref::<View>(array_idx, ContiguousType::Arr)?;
                 let len = array.shape.iter().product::<usize>();
                 let zero = F::zero();
 
-                let mut vec = Vec::with_capacity(len);
                 for i in 0..len {
                     let x = array.linear_index(i)?;
                     let v = if x > zero {
                         gradient.linear_index(i)?
                     } else {
-                        zero
+                        continue;
                     };
-                    vec.push(v);
+                    *lhs_gradient_ref.linear_index_mut(i)? += v;
                 }
-                let grad = Array::from_vector_with_shape(&vec, array.shape)?;
 
-                let mut array_grad =
-                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-                array_grad.add_assign(&grad)?;
+                storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
             }
         }
     }

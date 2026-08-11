@@ -46,8 +46,8 @@ where
     ))
 }
 
-/// ## Tanh Backward
-/// tanh_backward(x) = 1 - tanh(x)^2 * grad
+/// - tanh(x) = (e^x-e^-x)/(e^x+e^-x)
+/// - dtanh(x)/dx = 1 - tanh(x)^2 * grad
 pub fn tanh_backward<F>(
     output_idx: StorageType,
     array_grad_idx: Option<StorageType>,
@@ -61,28 +61,24 @@ where
         if check_no_grad_or_time_not_match(gradient_idx, storage)? {
             return Ok(());
         }
-        let gradient =
-            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = array_grad_idx {
             if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
-                // (1 - tanh^2) * gradient
+                let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
+                let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
+
+                let gradient =
+                    storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
                 let output = storage.get_as_array_ref::<View>(output_idx, ContiguousType::Arr)?;
                 let len = output.shape.iter().product::<usize>();
-                let mut vec = Vec::with_capacity(len);
 
                 let one = F::one();
                 for i in 0..len {
                     let x = output.linear_index(i)?;
                     let y = (one - x * x) * gradient.linear_index(i)?;
-                    vec.push(y);
+                    *lhs_gradient_ref.linear_index_mut(i)? += y;
                 }
-
-                let grad = Array::from_vector_with_shape(&vec, output.shape)?;
-
-                let mut array_grad =
-                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-                array_grad.add_assign(&grad)?;
+                storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
             }
         }
     }

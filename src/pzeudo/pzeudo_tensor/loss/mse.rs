@@ -135,7 +135,6 @@ where
 
             storage.replace_grad(prediction_grad_idx, prediction_grad)?;
         }
-
         storage.replace_grad(grad_idx, gradient)?;
     }
     Ok(())

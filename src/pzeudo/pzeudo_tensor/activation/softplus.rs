@@ -13,11 +13,18 @@ where
     F: Float + Copy,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
 {
-    // ln(1+e^x)
     let mut storage = tensor.get_storage().borrow_mut();
 
     let array = storage.get_as_array_ref::<T>(tensor.get_array_idx(), ContiguousType::Arr)?;
-    let result = array.exp()?.add_scalar(F::one())?.ln()?;
+    let len = array.shape.iter().product::<usize>();
+    let mut vec = Vec::with_capacity(len);
+
+    for i in 0..len {
+        let y = (F::one() + array.linear_index(i)?.exp()).ln();
+        vec.push(y);
+    }
+
+    let result = Array::from_vector_with_shape(&vec, array.shape)?;
     let shape = result.shape.to_vec();
 
     let array_idx = storage.push(ElementType::Arr(result))?;
@@ -35,8 +42,8 @@ where
     ))
 }
 
-/// ## Softplus Backward
-/// softplus_backward = e^x/(1+e^x) * grad
+/// - softplus(x) = ln(1+e^x)
+/// - softplus(x)/dx = e^x/(1+e^x) * grad
 pub fn softplus_backward<F>(
     array_idx: StorageType,
     array_grad_idx: Option<StorageType>,
@@ -50,19 +57,24 @@ where
         if check_no_grad_or_time_not_match(gradient_idx, storage)? {
             return Ok(());
         }
-        let gradient =
-            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = array_grad_idx {
             if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
-                // e^x/(1+e^x) * gradient
-                let array = storage.get_as_array_ref::<View>(array_idx, ContiguousType::Arr)?;
-                let exp = array.exp()?;
-                let grad = exp.div(&exp.add_scalar(F::one())?)?.mul(&gradient)?;
+                let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
+                let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
 
-                let mut array_grad =
-                    storage.get_as_array_ref_mut::<View>(lhs_grad_idx, ContiguousType::Grad)?;
-                array_grad.add_assign(&grad)?;
+                let gradient =
+                    storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
+
+                let array = storage.get_as_array_ref::<View>(array_idx, ContiguousType::Arr)?;
+                let len = array.shape.iter().product::<usize>();
+                let one = F::one();
+                for i in 0..len {
+                    let exp = array.linear_index(i)?.exp();
+                    let y = exp / (one + exp) * gradient.linear_index(i)?;
+                    *lhs_gradient_ref.linear_index_mut(i)? += y;
+                }
+                storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
             }
         }
     }

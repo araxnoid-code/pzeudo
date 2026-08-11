@@ -1,4 +1,4 @@
-# Version 0.0.2-dev.2
+# Version 0.0.2
 ### Fix Bug
 - Fixed an bug where the ArrayStorage::get_grad_storage_mut method was incorrectly returning ArrayStorage.
 

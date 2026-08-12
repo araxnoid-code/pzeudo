@@ -31,7 +31,7 @@ where
     let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
     let record_label =
         RecordLabel::Softplus(tensor.get_array_idx(), tensor.get_grad_idx(), grad_idx);
-    tensor.get_record().borrow_mut().push(record_label);
+    tensor.get_record().borrow_mut().push(Some(record_label));
 
     Ok(Tensor::_new(
         array_idx,

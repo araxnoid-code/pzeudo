@@ -49,6 +49,13 @@ impl<F> ParamsStorage<F> {
         self.storage.push(param);
     }
 
+    pub fn set_update(&mut self, idx: usize, status: bool) -> Result<(), PzeudoErr> {
+        *self.update
+            .get_mut(idx)
+            .ok_or(PzeudoErr::StorageErr(format!("ParamsStorage::set_update. index {idx} points to an invalid location on gradient storage(status).")))? = status;
+        Ok(())
+    }
+
     pub fn is_update(&self, idx: usize) -> Result<bool, PzeudoErr> {
         Ok(*self.update.get(idx).ok_or(PzeudoErr::StorageErr(format!(
             "ParamsStorage::is_update. Index {idx} points to an invalid location in params storage(update)."

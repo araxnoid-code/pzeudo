@@ -38,7 +38,7 @@ impl<F, T, G> Tensor<F, T, G> {
             (rhs.get_array_idx(), rhs.get_grad_idx(), rhs_broadcast),
             grad_idx,
         );
-        self.get_record().borrow_mut().push(record_label);
+        self.get_record().borrow_mut().push(Some(record_label));
 
         Ok(Tensor::_new(
             array_idx,
@@ -71,6 +71,7 @@ where
         let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad) = lhs_grad {
+            storage.set_grad_update(lhs_grad, true)?;
             if !is_no_grad_or_time_not_match_or_no_update(lhs_grad, storage)? {
                 // df(lhs, rhs)/dlhs = 1 * gradient
                 let mut lhs_gradient =
@@ -87,6 +88,7 @@ where
         }
 
         if let Some(rhs_grad) = rhs_grad {
+            storage.set_grad_update(rhs_grad, true)?;
             if !is_no_grad_or_time_not_match_or_no_update(rhs_grad, storage)? {
                 // df(lhs, rhs)/drhs = -1 * gradient
 

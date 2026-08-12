@@ -29,7 +29,7 @@ where
             F::one() + F::one(),
             grad_idx,
         );
-        self.get_record().borrow_mut().push(record_label);
+        self.get_record().borrow_mut().push(Some(record_label));
 
         Ok(Tensor::_new(
             array_idx,
@@ -65,7 +65,7 @@ where
             )))?,
             grad_idx,
         );
-        self.get_record().borrow_mut().push(record_label);
+        self.get_record().borrow_mut().push(Some(record_label));
 
         Ok(Tensor::_new(
             array_idx,
@@ -94,7 +94,7 @@ where
         let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
         let record_label = RecordLabel::Ln((self.get_array_idx(), self.get_grad_idx()), grad_idx);
-        self.get_record().borrow_mut().push(record_label);
+        self.get_record().borrow_mut().push(Some(record_label));
 
         Ok(Tensor::_new(
             array_idx,
@@ -125,7 +125,7 @@ where
 
         let record_label =
             RecordLabel::Log((self.get_array_idx(), self.get_grad_idx()), base, grad_idx);
-        self.get_record().borrow_mut().push(record_label);
+        self.get_record().borrow_mut().push(Some(record_label));
 
         Ok(Tensor::_new(
             array_idx,

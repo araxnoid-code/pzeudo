@@ -28,7 +28,7 @@ impl<T, G> Tensor<f32, T, G> {
             (rhs.get_array_idx(), rhs.get_grad_idx()),
             grad_idx,
         );
-        self.get_record().borrow_mut().push(record_label);
+        self.get_record().borrow_mut().push(Some(record_label));
 
         Ok(Tensor::_new(
             array_idx,
@@ -68,7 +68,7 @@ impl<T, G> Tensor<f64, T, G> {
             (rhs.get_array_idx(), rhs.get_grad_idx()),
             grad_idx,
         );
-        self.get_record().borrow_mut().push(record_label);
+        self.get_record().borrow_mut().push(Some(record_label));
 
         Ok(Tensor::_new(
             array_idx,

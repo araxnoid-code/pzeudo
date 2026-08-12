@@ -9,13 +9,15 @@ impl<F, T, G> Tensor<F, T, G> {
         array_idx: StorageType,
         grad_idx: Option<StorageType>,
         shape: Vec<usize>,
-        record: Rc<RefCell<Vec<RecordLabel<F>>>>,
+        record_status: Option<RecordStatus>,
+        record: Rc<RefCell<Vec<Option<RecordLabel<F>>>>>,
         storage: Rc<RefCell<ArrayStorage<F>>>,
     ) -> Tensor<F, T, G> {
         Self {
             array_idx,
             shape,
             grad_idx,
+            record_status,
             record,
             storage,
             _array_type: Default::default(),
@@ -32,6 +34,7 @@ impl<F, T, G> Tensor<F, T, G> {
             array_idx,
             shape,
             grad_idx,
+            record_status: None,
             record: module.record.clone(),
             storage: module.storage.clone(),
             _array_type: Default::default(),
@@ -65,6 +68,7 @@ where
             grad_idx,
             storage: module.storage.clone(),
             record: module.record.clone(),
+            record_status: None,
             shape: shape.to_vec(),
             _array_type: Default::default(),
         };
@@ -93,6 +97,7 @@ where
             grad_idx,
             record: module.get_record().clone(),
             storage: module.get_storage().clone(),
+            record_status: None,
             shape,
             _array_type: PhantomData::default(),
         })
@@ -127,6 +132,7 @@ where
             storage: module.get_storage().clone(),
             record: module.get_record().clone(),
             shape: shape.to_vec(),
+            record_status: None,
             _array_type: Default::default(),
         };
 

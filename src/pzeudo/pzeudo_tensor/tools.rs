@@ -30,7 +30,7 @@ pub fn is_no_grad_or_time_not_match_or_no_update<F>(
                     return Ok(storage
                         .params_storage.storage
                         .get(idx)
-                        .ok_or(PzeudoErr::TensorToolsErr(format!("check_no_grad_or_time_not_match. metadata index {idx} points to an invalid location on params storage")))?.grad.is_none())
+                        .ok_or(PzeudoErr::TensorToolsErr(format!("check_no_grad_or_time_not_match. metadata index {idx} points to an invalid location on params storage")))?.grad.is_none()|| storage.params_storage.is_update(idx)?)
 
                 }
             }

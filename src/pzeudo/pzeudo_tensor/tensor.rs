@@ -9,12 +9,18 @@ use std::{
     rc::Rc,
 };
 
+pub enum RecordStatus {
+    Record(usize),
+    UnRecord(usize),
+}
+
 pub struct Tensor<F, T, G> {
-    pub(crate) record: Rc<RefCell<Vec<RecordLabel<F>>>>,
+    pub(crate) record: Rc<RefCell<Vec<Option<RecordLabel<F>>>>>,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
     pub(crate) array_idx: StorageType,
     pub(crate) grad_idx: Option<StorageType>,
     pub(crate) shape: Vec<usize>,
+    pub(crate) record_status: Option<RecordStatus>,
     pub(crate) _array_type: PhantomData<(T, G)>,
 }
 
@@ -70,12 +76,15 @@ impl<F, T, G> Tensor<F, T, G> {
             for i in 0..len {
                 *grad.linear_index_mut(i)? += F::one();
             }
+            storage.set_grad_update(grad_idx, true)?;
         }
 
         let mut record = self.record.borrow_mut();
 
         for record in record.iter().rev() {
-            record.backward(&mut storage)?;
+            if let Some(record) = record {
+                record.backward(&mut storage)?;
+            }
         }
 
         record.clear();

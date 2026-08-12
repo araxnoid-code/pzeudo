@@ -7,4 +7,4 @@ pub use _type::*;
 mod method;
 
 mod component;
-pub use component::*;
+pub(crate) use component::*;

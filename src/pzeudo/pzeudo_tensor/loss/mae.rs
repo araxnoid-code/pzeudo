@@ -54,12 +54,16 @@ where
         prediction.get_grad_idx(),
         grad_idx,
     );
-    prediction.record.borrow_mut().push(record_label);
+
+    let mut record = prediction.get_record().borrow_mut();
+    record.push(Some(record_label));
+    let record_status = Some(RecordStatus::Record(record.len()));
 
     Ok(Tensor::_new(
         array_idx,
         grad_idx,
         vec![1],
+        record_status,
         prediction.get_record().clone(),
         prediction.get_storage().clone(),
     ))

@@ -96,7 +96,14 @@ impl<F> Tensor<F, Contiguous, Grad> {
         }?;
 
         drop(storage);
-        let tensor = Tensor::_new(self.array_idx, None, self.shape, self.record, self.storage);
+        let tensor = Tensor::_new(
+            self.array_idx,
+            None,
+            self.shape,
+            self.record_status,
+            self.record,
+            self.storage,
+        );
 
         Ok(tensor)
     }
@@ -132,6 +139,7 @@ where
             self.array_idx,
             grad_idx,
             self.shape,
+            self.record_status,
             self.record,
             self.storage,
         );

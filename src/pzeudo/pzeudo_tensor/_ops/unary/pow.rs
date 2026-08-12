@@ -28,7 +28,7 @@ where
 
         let record_label =
             RecordLabel::Powi((self.get_array_idx(), self.get_grad_idx()), i, grad_idx);
-        self.get_record().borrow_mut().push(record_label);
+        self.get_record().borrow_mut().push(Some(record_label));
 
         Ok(Tensor::_new(
             array_idx,
@@ -60,7 +60,7 @@ where
 
         let record_label =
             RecordLabel::Powf((self.get_array_idx(), self.get_grad_idx()), f, grad_idx);
-        self.get_record().borrow_mut().push(record_label);
+        self.get_record().borrow_mut().push(Some(record_label));
 
         Ok(Tensor::_new(
             array_idx,

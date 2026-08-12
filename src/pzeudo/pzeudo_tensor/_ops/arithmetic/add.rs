@@ -61,14 +61,14 @@ where
     for<'a> F: Clone + AddAssign + Copy + Zero + Sum<&'a F>,
 {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         };
         let gradient = storage.take_grad(gradient_idx)?;
         let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad) = lhs_grad {
-            if !check_no_grad_or_time_not_match(lhs_grad, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_grad, storage)? {
                 let mut lhs_gradient: ArrayRefMut<'_, F, View> =
                     storage.get_as_array_ref_mut(lhs_grad, ContiguousType::Grad)?;
                 match lhs_broadcast_dim {
@@ -83,7 +83,7 @@ where
         }
 
         if let Some(rhs_grad) = rhs_grad {
-            if !check_no_grad_or_time_not_match(rhs_grad, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(rhs_grad, storage)? {
                 let mut rhs_gradient =
                     storage.get_as_array_ref_mut::<View>(rhs_grad, ContiguousType::Grad)?;
 

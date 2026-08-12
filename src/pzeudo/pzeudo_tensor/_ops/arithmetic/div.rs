@@ -76,14 +76,14 @@ where
 {
     // f(lhs, rhs) = lhs / rhs
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         };
         let gradient = storage.take_grad(gradient_idx)?;
         let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad) = lhs_grad {
-            if !check_no_grad_or_time_not_match(lhs_grad, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_grad, storage)? {
                 let mut lhs_gradient = storage.take_grad(lhs_grad)?;
                 let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
 
@@ -112,7 +112,7 @@ where
         }
 
         if let Some(rhs_grad) = rhs_grad {
-            if !check_no_grad_or_time_not_match(rhs_grad, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(rhs_grad, storage)? {
                 // df(lhs, rhs)/drhs = -lhs/rhs^2 * gradient
                 let mut rhs_gradient = storage.take_grad(rhs_grad)?;
                 let mut rhs_gradient_ref = rhs_gradient.to_array_ref_mut::<View>();

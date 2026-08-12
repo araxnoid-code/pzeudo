@@ -6,12 +6,14 @@ pub struct ParamTensor<F> {
 }
 
 pub struct ParamsStorage<F> {
+    pub(crate) update: Vec<bool>,
     pub(crate) storage: Vec<ParamTensor<F>>,
 }
 
 impl<F> ParamsStorage<F> {
     pub fn new(capacity: usize) -> ParamsStorage<F> {
         Self {
+            update: Vec::with_capacity(capacity),
             storage: Vec::with_capacity(capacity),
         }
     }
@@ -45,6 +47,12 @@ impl<F> ParamsStorage<F> {
 
     pub fn push(&mut self, param: ParamTensor<F>) {
         self.storage.push(param);
+    }
+
+    pub fn is_update(&self, idx: usize) -> Result<bool, PzeudoErr> {
+        Ok(*self.update.get(idx).ok_or(PzeudoErr::StorageErr(format!(
+            "ParamsStorage::is_update. Index {idx} points to an invalid location in params storage(update)."
+        )))?)
     }
 
     pub fn no_grad(&mut self, idx: usize) -> Result<(), PzeudoErr> {

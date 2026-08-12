@@ -46,7 +46,7 @@ where
     F: One + Float + AddAssign,
 {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
 
@@ -54,7 +54,7 @@ where
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
-            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
                 let out_value =
                     storage.get_as_array_ref::<Contiguous>(out_idx, ContiguousType::Arr)?;
                 // e^x * gradient

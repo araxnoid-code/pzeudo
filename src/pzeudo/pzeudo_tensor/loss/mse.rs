@@ -99,7 +99,7 @@ where
         + Sub<Output = F>,
 {
     if let Some(grad_idx) = grad_idx {
-        if check_no_grad_or_time_not_match(grad_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(grad_idx, storage)? {
             return Ok(());
         }
 
@@ -108,7 +108,7 @@ where
         let grad_val = gradient_ref.linear_index(0)?;
 
         if let Some(prediction_grad_idx) = prediction_grad_idx {
-            if check_no_grad_or_time_not_match(prediction_grad_idx, storage)? {
+            if is_no_grad_or_time_not_match_or_no_update(prediction_grad_idx, storage)? {
                 return Ok(());
             }
 

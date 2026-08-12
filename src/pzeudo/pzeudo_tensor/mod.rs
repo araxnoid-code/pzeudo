@@ -3,6 +3,9 @@ pub use storage::*;
 
 mod new;
 
+mod tools;
+pub use tools::*;
+
 mod _impl;
 
 mod metadata;

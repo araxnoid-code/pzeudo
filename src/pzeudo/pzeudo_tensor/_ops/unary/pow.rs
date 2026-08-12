@@ -85,7 +85,7 @@ where
     F: Float + NumCast + AddAssign,
 {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
 
@@ -93,7 +93,7 @@ where
         let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
-            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
                 // - f(i, x) = x^i
                 // - df(i, x)/dx = ix^{i-1} * gradient
                 let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
@@ -133,7 +133,7 @@ where
     F: Float + NumCast + AddAssign + One,
 {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
 
@@ -141,7 +141,7 @@ where
         let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
-            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
                 // - f(f, x) = x^f
                 // - df(f, x)/dx = fx^{f-1.} * gradient
                 let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;

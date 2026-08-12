@@ -89,14 +89,14 @@ pub fn matmul_nd_f32_backward(
     storage: &mut ArrayStorage<f32>,
 ) -> Result<(), PzeudoErr> {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
         let gradient =
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_gradient_idx) = lhs_gradient_idx {
-            if !check_no_grad_or_time_not_match(lhs_gradient_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_gradient_idx, storage)? {
                 let rhs_value = storage.get_as_array_ref::<View>(rhs_idx, ContiguousType::Arr)?;
                 let dim = rhs_value.shape.len();
                 let mut rhs_permute_idx = Vec::from_iter(0..dim);
@@ -115,7 +115,7 @@ pub fn matmul_nd_f32_backward(
         let gradient =
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
         if let Some(rhs_gradient_idx) = rhs_gradient_idx {
-            if !check_no_grad_or_time_not_match(rhs_gradient_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(rhs_gradient_idx, storage)? {
                 let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
                 let dim = lhs_value.shape.len();
                 let mut lhs_permute_idx = Vec::from_iter(0..dim);
@@ -143,14 +143,14 @@ pub fn matmul_nd_f64_backward(
     storage: &mut ArrayStorage<f64>,
 ) -> Result<(), PzeudoErr> {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
         let gradient =
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_gradient_idx) = lhs_gradient_idx {
-            if !check_no_grad_or_time_not_match(lhs_gradient_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_gradient_idx, storage)? {
                 let rhs_value = storage.get_as_array_ref::<View>(rhs_idx, ContiguousType::Arr)?;
                 let dim = rhs_value.shape.len();
                 let mut rhs_permute_idx = Vec::from_iter(0..dim);
@@ -169,7 +169,7 @@ pub fn matmul_nd_f64_backward(
         let gradient =
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
         if let Some(rhs_gradient_idx) = rhs_gradient_idx {
-            if !check_no_grad_or_time_not_match(rhs_gradient_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(rhs_gradient_idx, storage)? {
                 let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
                 let dim = lhs_value.shape.len();
                 let mut lhs_permute_idx = Vec::from_iter(0..dim);

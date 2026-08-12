@@ -88,7 +88,7 @@ where
     F: Copy + Div<Output = F> + Neg<Output = F> + AddAssign + Float + NumCast,
 {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
 
@@ -97,7 +97,7 @@ where
         let grad_val = gradient_ref.linear_index(0)?;
 
         if let Some(prediction_grad_idx) = prediction_grad_idx {
-            if !check_no_grad_or_time_not_match(prediction_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(prediction_grad_idx, storage)? {
                 let mut prediction_grad = storage.take_grad(prediction_grad_idx)?;
                 let mut prediction_grad_ref = prediction_grad.to_array_ref_mut::<View>();
 

@@ -95,7 +95,7 @@ pub fn matmul_2d_f32_backward(
     storage: &mut ArrayStorage<f32>,
 ) -> Result<(), PzeudoErr> {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
 
@@ -103,7 +103,7 @@ pub fn matmul_2d_f32_backward(
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = lhs_gradient_idx {
-            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
                 let rhs_value = storage.get_as_array_ref::<View>(rhs_idx, ContiguousType::Arr)?;
                 let gradient = gradient.matmul_2d(&rhs_value.t())?;
 
@@ -117,7 +117,7 @@ pub fn matmul_2d_f32_backward(
             storage.get_as_array_ref(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(rhs_grad_idx) = rhs_gradient_idx {
-            if !check_no_grad_or_time_not_match(rhs_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(rhs_grad_idx, storage)? {
                 let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
                 let gradient = lhs_value.t().matmul_2d(&gradient)?;
 
@@ -139,14 +139,14 @@ pub fn matmul_2d_f64_backward(
     storage: &mut ArrayStorage<f64>,
 ) -> Result<(), PzeudoErr> {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
         let gradient =
             storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
 
         if let Some(lhs_grad_idx) = lhs_gradient_idx {
-            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
                 let rhs_value = storage.get_as_array_ref::<View>(rhs_idx, ContiguousType::Arr)?;
                 let gradient = gradient.matmul_2d(&rhs_value.t())?;
 
@@ -159,7 +159,7 @@ pub fn matmul_2d_f64_backward(
         let gradient: ArrayRef<'_, f64, Contiguous> =
             storage.get_as_array_ref(gradient_idx, ContiguousType::Grad)?;
         if let Some(rhs_grad_idx) = rhs_gradient_idx {
-            if !check_no_grad_or_time_not_match(rhs_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(rhs_grad_idx, storage)? {
                 let lhs_value = storage.get_as_array_ref::<View>(lhs_idx, ContiguousType::Arr)?;
                 let gradient = lhs_value.t().matmul_2d(&gradient)?;
 

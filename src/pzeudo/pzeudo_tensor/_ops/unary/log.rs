@@ -150,7 +150,7 @@ where
     F: Float + One + AddAssign,
 {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
 
@@ -158,7 +158,7 @@ where
         let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
-            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
                 // f(x) = log(n, x)
                 // df(x)/x = 1/(x * ln(n)) * gradient = gradient/(x * ln(n))
 
@@ -195,7 +195,7 @@ where
     F: Float + One + AddAssign,
 {
     if let Some(gradient_idx) = gradient_idx {
-        if check_no_grad_or_time_not_match(gradient_idx, storage)? {
+        if is_no_grad_or_time_not_match_or_no_update(gradient_idx, storage)? {
             return Ok(());
         }
 
@@ -203,7 +203,7 @@ where
         let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
         if let Some(lhs_grad_idx) = lhs_grad_idx {
-            if !check_no_grad_or_time_not_match(lhs_grad_idx, storage)? {
+            if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
                 // - f(x) = ln(x)
                 // - df(x)/x = 1 / x * gradient = gradient / x
 

@@ -9,11 +9,6 @@ use std::{
     rc::Rc,
 };
 
-pub enum RecordStatus {
-    Record(usize),
-    UnRecord(usize),
-}
-
 pub struct Tensor<F, T, G> {
     pub(crate) record: Rc<RefCell<Vec<Option<RecordLabel<F>>>>>,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,

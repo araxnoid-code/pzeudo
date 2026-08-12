@@ -29,12 +29,16 @@ where
     let array_idx = storage.push(ElementType::Arr(result))?;
     let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
     let record_label = RecordLabel::Relu(tensor.get_array_idx(), tensor.get_grad_idx(), grad_idx);
-    tensor.get_record().borrow_mut().push(Some(record_label));
+
+    let mut record = tensor.get_record().borrow_mut();
+    record.push(Some(record_label));
+    let record_status = Some(RecordStatus::Record(record.len()));
 
     Ok(Tensor::_new(
         array_idx,
         grad_idx,
         shape,
+        record_status,
         tensor.get_record().clone(),
         tensor.get_storage().clone(),
     ))

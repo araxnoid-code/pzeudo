@@ -37,12 +37,16 @@ impl<F, T, G> Tensor<F, T, G> {
             (rhs.array_idx, rhs.grad_idx, rhs_broadcast),
             grad_idx,
         );
-        self.record.borrow_mut().push(Some(record_label));
+
+        let mut record = self.get_record().borrow_mut();
+        record.push(Some(record_label));
+        let record_status = Some(RecordStatus::Record(record.len()));
 
         Ok(Tensor::_new(
             array_idx,
             grad_idx,
             shape,
+            record_status,
             self.record.clone(),
             self.storage.clone(),
         ))

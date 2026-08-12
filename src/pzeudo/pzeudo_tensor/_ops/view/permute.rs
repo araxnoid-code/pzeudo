@@ -38,6 +38,7 @@ impl<F, T, G> Tensor<F, T, G> {
             array_idx,
             grad_idx,
             shape,
+            self.record_status,
             self.get_record().clone(),
             self.get_storage().clone(),
         ))
@@ -80,6 +81,7 @@ impl<F, T, G> Tensor<F, T, G> {
             array_idx,
             grad_idx,
             shape,
+            self.record_status,
             self.get_record().clone(),
             self.get_storage().clone(),
         ))

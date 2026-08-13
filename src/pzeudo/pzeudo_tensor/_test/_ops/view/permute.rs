@@ -5,7 +5,7 @@ use crate::prelude::*;
 #[test]
 
 fn permute_test_1() {
-    let module = Module::<f32>::new(42);
+    let module = ModuleBuilder::<f32>::new(42);
 
     let shape = [3, 3, 2];
     let vec_a = (0..shape.iter().product::<usize>())

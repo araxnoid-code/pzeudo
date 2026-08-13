@@ -28,7 +28,7 @@ impl<F, T, G> Tensor<F, T, G> {
         array_idx: StorageType,
         grad_idx: Option<StorageType>,
         shape: Vec<usize>,
-        module: &Module<F>,
+        module: &ModuleBuilder<F>,
     ) -> Tensor<F, T, G> {
         Self {
             array_idx,
@@ -49,7 +49,7 @@ where
     pub fn from_vector_with_shape(
         vec: &[F],
         shape: &[usize],
-        module: &Module<F>,
+        module: &ModuleBuilder<F>,
         requires_grad: G,
     ) -> Result<Tensor<F, Contiguous, G>, PzeudoErr>
     where
@@ -78,7 +78,7 @@ where
 
     pub fn from_array(
         array: Array<F>,
-        module: &Module<F>,
+        module: &ModuleBuilder<F>,
         requires_grad: G,
     ) -> Result<Tensor<F, Contiguous, G>, PzeudoErr>
     where
@@ -112,7 +112,7 @@ where
     pub fn param_from_vector_with_shape(
         vec: &[F],
         shape: &[usize],
-        module: &Module<F>,
+        module: &ModuleBuilder<F>,
         requires_grad: ReqGrad,
     ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
     where

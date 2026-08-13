@@ -1,7 +1,4 @@
 mod module;
-pub use module::*;
-
-mod new;
 
 mod epoch;
 pub use epoch::*;
@@ -11,3 +8,6 @@ pub use model::*;
 
 mod optim;
 pub use optim::*;
+
+mod builder;
+pub use builder::*;

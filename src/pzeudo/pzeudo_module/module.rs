@@ -1,38 +1,37 @@
-use rand::rngs::SmallRng;
-
 use crate::prelude::*;
+use rand::rngs::SmallRng;
 use std::{cell::RefCell, rc::Rc};
 
-pub struct Module<F> {
-    pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
-    pub(crate) record: Rc<RefCell<Vec<Option<RecordLabel<F>>>>>,
-    pub(crate) rng: SmallRng,
-    pub(crate) seed: u64,
+pub struct Module<F, M> {
+    pub(crate) model: Option<M>,
+    pub(crate) builder: ModuleBuilder<F>,
 }
 
-impl<F> Module<F> {
-    /// will create a ModelBuilder, needed to build the model architecture and optimizer.
-    pub fn model_builder(&mut self) -> ModelBuilder<'_, F> {
-        ModelBuilder::new(self)
+impl<F, M> Module<F, M> {
+    pub fn new(model: M, builder: ModuleBuilder<F>) -> Module<F, M> {
+        Module {
+            model: Some(model),
+            builder,
+        }
     }
 
     pub fn get_storage(&self) -> &Rc<RefCell<ArrayStorage<F>>> {
-        &self.storage
+        &self.builder.storage
     }
 
     pub fn get_record(&self) -> &Rc<RefCell<Vec<Option<RecordLabel<F>>>>> {
-        &self.record
+        &self.builder.record
     }
 
     pub fn get_seed(&self) -> u64 {
-        self.seed
+        self.builder.seed
     }
 
     pub fn get_rng_mut(&mut self) -> &mut SmallRng {
-        &mut self.rng
+        &mut self.builder.rng
     }
 
     pub fn clear_storage(&self) {
-        self.storage.borrow_mut().clear_storage();
+        self.builder.clear_storage();
     }
 }

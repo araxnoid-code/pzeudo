@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 #[test]
 fn div_test_1() {
-    let module = Module::<f32>::new(42);
+    let module = ModuleBuilder::<f32>::new(42);
 
     let shape = [2, 3];
     let vec_a = (0..shape.iter().product::<usize>())

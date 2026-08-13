@@ -4,16 +4,16 @@ use num_traits::Float;
 use rand_distr::{Distribution, Normal, StandardNormal};
 use serde::Deserialize;
 
-use crate::{LoadParams, Module, PzeudoErr};
+use crate::{LoadParams, ModuleBuilder, PzeudoErr};
 
 pub struct ModelBuilder<'a, F> {
-    pub(crate) module: &'a mut Module<F>,
+    pub(crate) module: &'a mut ModuleBuilder<F>,
     pub(crate) start: usize,
     pub(crate) load_params: Option<LoadParams<F>>,
 }
 
 impl<'a, F> ModelBuilder<'a, F> {
-    pub fn new(module: &'a mut Module<F>) -> ModelBuilder<'a, F> {
+    pub fn new(module: &'a mut ModuleBuilder<F>) -> ModelBuilder<'a, F> {
         let start = module.storage.borrow().get_params_storage().storage.len();
         Self {
             module,
@@ -75,7 +75,7 @@ impl<'a, F> ModelBuilder<'a, F> {
         Ok(())
     }
 
-    pub fn get_module(&mut self) -> &mut Module<F> {
+    pub fn get_module(&mut self) -> &mut ModuleBuilder<F> {
         self.module
     }
 }

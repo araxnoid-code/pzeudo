@@ -8,7 +8,7 @@ struct Model<F> {
 
 #[test]
 fn linear_model_test_mse_f32() {
-    let mut module = Module::<f32>::new(42);
+    let mut module = ModuleBuilder::<f32>::new(42);
 
     let mut create_model = module.model_builder();
     let model = Model {
@@ -31,7 +31,8 @@ fn linear_model_test_mse_f32() {
         .collect::<Vec<f32>>();
     let actual = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
-    let epoch = EpochBuilder::new(25, model, (dataset, actual));
+    let epoch = EpochBuilder::new(25, (dataset, actual));
+    let mut module = module.build(model);
 
     module
         .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
@@ -51,7 +52,7 @@ fn linear_model_test_mse_f32() {
 
 #[test]
 fn linear_model_test_mse_f64() {
-    let mut module = Module::<f64>::new(42);
+    let mut module = ModuleBuilder::<f64>::new(42);
     let mut create_model = module.model_builder();
     let model = Model {
         linear_1: Linear::new(1, 4, WeightInit::He, &mut create_model).unwrap(),
@@ -73,7 +74,8 @@ fn linear_model_test_mse_f64() {
         .collect::<Vec<f64>>();
     let actual = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
-    let epoch = EpochBuilder::new(25, model, (dataset, actual));
+    let epoch = EpochBuilder::new(25, (dataset, actual));
+    let mut module = module.build(model);
 
     module
         .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
@@ -93,7 +95,7 @@ fn linear_model_test_mse_f64() {
 
 #[test]
 fn linear_model_test_mae_f32() {
-    let mut module = Module::<f32>::new(42);
+    let mut module = ModuleBuilder::<f32>::new(42);
     let mut create_model = module.model_builder();
 
     let model = Model {
@@ -116,7 +118,8 @@ fn linear_model_test_mae_f32() {
         .collect::<Vec<f32>>();
     let actual = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
-    let epoch = EpochBuilder::new(25, model, (dataset, actual));
+    let epoch = EpochBuilder::new(25, (dataset, actual));
+    let mut module = module.build(model);
 
     module
         .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
@@ -136,7 +139,7 @@ fn linear_model_test_mae_f32() {
 
 #[test]
 fn linear_model_test_mae_f64() {
-    let mut module = Module::<f64>::new(42);
+    let mut module = ModuleBuilder::<f64>::new(42);
     let mut create_model = module.model_builder();
     let model = Model {
         linear_1: Linear::new(1, 4, WeightInit::Xavier, &mut create_model).unwrap(),
@@ -158,7 +161,8 @@ fn linear_model_test_mae_f64() {
         .collect::<Vec<f64>>();
     let actual = Tensor::param_from_vector_with_shape(&vector, &shape, &module, Grad).unwrap();
 
-    let epoch = EpochBuilder::new(25, model, (dataset, actual));
+    let epoch = EpochBuilder::new(25, (dataset, actual));
+    let mut module = module.build(model);
 
     module
         .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
@@ -196,7 +200,7 @@ impl Model<f32> {
 
 #[test]
 fn linear_model_test_mse_f32_train_eval() {
-    let mut module = Module::<f32>::new(42);
+    let mut module = ModuleBuilder::<f32>::new(42);
     let mut create_model = module.model_builder();
 
     let model = Model {
@@ -234,7 +238,8 @@ fn linear_model_test_mse_f32_train_eval() {
     let actual_test =
         Tensor::param_from_vector_with_shape(&vector, &shape, &module, NoGrad).unwrap();
 
-    let epoch = EpochBuilder::new(50, model, (dataset, test, actual, actual_test));
+    let epoch = EpochBuilder::new(50, (dataset, test, actual, actual_test));
+    let mut module = module.build(model);
 
     module
         .epoch(

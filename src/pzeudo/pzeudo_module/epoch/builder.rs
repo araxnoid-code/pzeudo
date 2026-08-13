@@ -1,11 +1,10 @@
-pub struct EpochBuilder<M, T> {
+pub struct EpochBuilder<T> {
     pub epoch: usize,
-    pub model: M,
     pub arg: T,
 }
 
-impl<M, T> EpochBuilder<M, T> {
-    pub fn new(epoch: usize, model: M, arg: T) -> EpochBuilder<M, T> {
-        Self { epoch, model, arg }
+impl<T> EpochBuilder<T> {
+    pub fn new(epoch: usize, arg: T) -> EpochBuilder<T> {
+        Self { epoch, arg }
     }
 }

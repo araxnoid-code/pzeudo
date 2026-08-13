@@ -19,7 +19,7 @@ impl<F, M> Module<F, M> {
         &self.builder.storage
     }
 
-    pub fn get_record(&self) -> &Rc<RefCell<Vec<Option<RecordLabel<F>>>>> {
+    pub fn get_record(&self) -> &Rc<RefCell<Record<F>>> {
         &self.builder.record
     }
 

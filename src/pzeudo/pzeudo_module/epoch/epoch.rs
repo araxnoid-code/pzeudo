@@ -18,7 +18,7 @@ impl<F, M> Module<F, M> {
             // RESET
             self.reset();
         }
-
+        self.model = Some(model);
         Ok(())
     }
 }

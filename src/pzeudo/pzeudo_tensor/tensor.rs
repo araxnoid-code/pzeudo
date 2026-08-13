@@ -10,7 +10,7 @@ use std::{
 };
 
 pub struct Tensor<F, T, G> {
-    pub(crate) record: Rc<RefCell<Vec<Option<RecordLabel<F>>>>>,
+    pub(crate) record: Rc<RefCell<Record<F>>>,
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
     pub(crate) array_idx: StorageType,
     pub(crate) grad_idx: Option<StorageType>,
@@ -76,10 +76,11 @@ impl<F, T, G> Tensor<F, T, G> {
 
         let mut record = self.record.borrow_mut();
 
-        for record in record.iter().rev() {
-            if let Some(record) = record {
-                record.backward(&mut storage)?;
+        for (record, skip) in record.record.iter().zip(record.skip.iter()).rev() {
+            if *skip {
+                continue;
             }
+            record.backward(&mut storage)?;
         }
 
         record.clear();

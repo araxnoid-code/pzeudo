@@ -10,7 +10,7 @@ impl<F, T, G> Tensor<F, T, G> {
         grad_idx: Option<StorageType>,
         shape: Vec<usize>,
         record_status: Option<RecordStatus>,
-        record: Rc<RefCell<Vec<Option<RecordLabel<F>>>>>,
+        record: Rc<RefCell<Record<F>>>,
         storage: Rc<RefCell<ArrayStorage<F>>>,
     ) -> Tensor<F, T, G> {
         Self {

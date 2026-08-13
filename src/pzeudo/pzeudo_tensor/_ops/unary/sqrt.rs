@@ -26,8 +26,8 @@ where
 
         let record_label = RecordLabel::Sqrt((array_idx, self.get_grad_idx()), grad_idx);
         let mut record = self.get_record().borrow_mut();
-        record.push(Some(record_label));
         let record_status = Some(RecordStatus::Record(record.len()));
+        record.push(record_label);
 
         Ok(Tensor::_new(
             array_idx,

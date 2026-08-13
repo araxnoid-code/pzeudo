@@ -7,7 +7,7 @@ pub struct Grad;
 #[derive(Clone, Copy)]
 pub struct NoGrad;
 
-pub trait ReqGradTrait<F> {
+pub trait ReqGradTrait<F>: Clone + Copy {
     fn zeros_grad(shape: &[usize]) -> Option<Array<F>>;
 
     fn into_zeros_grad_storage(

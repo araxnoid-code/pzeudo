@@ -4,7 +4,7 @@ use std::{cell::RefCell, rc::Rc};
 
 pub struct ModuleBuilder<F> {
     pub(crate) storage: Rc<RefCell<ArrayStorage<F>>>,
-    pub(crate) record: Rc<RefCell<Vec<Option<RecordLabel<F>>>>>,
+    pub(crate) record: Rc<RefCell<Record<F>>>,
     pub(crate) rng: SmallRng,
     pub(crate) seed: u64,
 }
@@ -12,7 +12,7 @@ pub struct ModuleBuilder<F> {
 impl<F> ModuleBuilder<F> {
     pub fn new(seed: u64) -> ModuleBuilder<F> {
         let storage = Rc::new(RefCell::new(ArrayStorage::<F>::new(None)));
-        let record = Rc::new(RefCell::new(Vec::new()));
+        let record = Rc::new(RefCell::new(Record::new()));
         let rng = rand::rngs::SmallRng::seed_from_u64(seed);
 
         Self {
@@ -32,7 +32,7 @@ impl<F> ModuleBuilder<F> {
         &self.storage
     }
 
-    pub fn get_record(&self) -> &Rc<RefCell<Vec<Option<RecordLabel<F>>>>> {
+    pub fn get_record(&self) -> &Rc<RefCell<Record<F>>> {
         &self.record
     }
 

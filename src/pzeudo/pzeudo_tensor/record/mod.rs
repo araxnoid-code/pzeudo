@@ -6,3 +6,6 @@ pub use backward::*;
 
 mod record_status;
 pub use record_status::*;
+
+mod record;
+pub use record::*;

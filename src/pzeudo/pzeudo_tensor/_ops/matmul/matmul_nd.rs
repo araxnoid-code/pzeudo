@@ -30,8 +30,8 @@ impl<T, G> Tensor<f32, T, G> {
         );
 
         let mut record = self.get_record().borrow_mut();
-        record.push(Some(record_label));
         let record_status = Some(RecordStatus::Record(record.len()));
+        record.push(record_label);
 
         Ok(Tensor::_new(
             array_idx,
@@ -74,8 +74,8 @@ impl<T, G> Tensor<f64, T, G> {
         );
 
         let mut record = self.get_record().borrow_mut();
-        record.push(Some(record_label));
         let record_status = Some(RecordStatus::Record(record.len()));
+        record.push(record_label);
 
         Ok(Tensor::_new(
             array_idx,

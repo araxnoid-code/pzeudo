@@ -1,8 +1,6 @@
-use std::{cell::RefCell, rc::Rc};
-
-use rand::SeedableRng;
-
 use crate::prelude::*;
+use rand::SeedableRng;
+use std::{cell::RefCell, rc::Rc};
 
 impl<F> Module<F> {
     pub fn new(seed: u64) -> Module<F> {

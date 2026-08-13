@@ -47,6 +47,7 @@ impl<F> ParamsStorage<F> {
 
     pub fn push(&mut self, param: ParamTensor<F>) {
         self.storage.push(param);
+        self.update.push(false);
     }
 
     pub fn set_update(&mut self, idx: usize, status: bool) -> Result<(), PzeudoErr> {

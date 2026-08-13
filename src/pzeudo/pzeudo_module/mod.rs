@@ -8,3 +8,6 @@ pub use epoch::*;
 
 mod model;
 pub use model::*;
+
+mod optim;
+pub use optim::*;

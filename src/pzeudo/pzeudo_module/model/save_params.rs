@@ -1,15 +1,12 @@
 use serde::Serialize;
 
 use crate::prelude::*;
-use std::{cell::RefCell, fs::File, io::Write, rc::Rc};
+use std::{fs::File, io::Write};
 
-pub trait SaveParamsTrait<F>
+pub trait SaveParamsTrait<F>: OptimizerTrait<F>
 where
     F: Serialize,
 {
-    fn get_storage(&self) -> &Rc<RefCell<ArrayStorage<F>>>;
-    fn get_range(&self) -> (usize, usize);
-
     /// ## Save Parameters
     /// Parameters will be saved using serde_json.
     /// parameters stored in the form of a flat array.

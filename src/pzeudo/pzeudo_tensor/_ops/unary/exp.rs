@@ -54,11 +54,12 @@ where
             return Ok(());
         }
 
-        let gradient =
-            storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
-
         if let Some(lhs_grad_idx) = lhs_grad_idx {
+            storage.set_grad_update(lhs_grad_idx, true)?;
             if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
+                let gradient =
+                    storage.get_as_array_ref::<Contiguous>(gradient_idx, ContiguousType::Grad)?;
+
                 let out_value =
                     storage.get_as_array_ref::<Contiguous>(out_idx, ContiguousType::Arr)?;
                 // e^x * gradient

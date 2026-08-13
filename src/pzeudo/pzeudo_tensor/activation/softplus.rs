@@ -63,6 +63,7 @@ where
         }
 
         if let Some(lhs_grad_idx) = array_grad_idx {
+            storage.set_grad_update(lhs_grad_idx, true)?;
             if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
                 let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
                 let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();

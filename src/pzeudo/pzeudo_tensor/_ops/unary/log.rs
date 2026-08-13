@@ -167,11 +167,11 @@ where
             return Ok(());
         }
 
-        let gradient = storage.take_grad(gradient_idx)?;
-        let gradient_ref = gradient.to_array_ref::<Contiguous>();
-
         if let Some(lhs_grad_idx) = lhs_grad_idx {
+            storage.set_grad_update(lhs_grad_idx, true)?;
             if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
+                let gradient = storage.take_grad(gradient_idx)?;
+                let gradient_ref = gradient.to_array_ref::<Contiguous>();
                 // f(x) = log(n, x)
                 // df(x)/x = 1/(x * ln(n)) * gradient = gradient/(x * ln(n))
 
@@ -188,10 +188,9 @@ where
                 }
 
                 storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
+                storage.replace_grad(gradient_idx, gradient)?;
             }
         }
-
-        storage.replace_grad(gradient_idx, gradient)?;
     }
     Ok(())
 }
@@ -212,13 +211,13 @@ where
             return Ok(());
         }
 
-        let gradient = storage.take_grad(gradient_idx)?;
-        let gradient_ref = gradient.to_array_ref::<Contiguous>();
-
         if let Some(lhs_grad_idx) = lhs_grad_idx {
+            storage.set_grad_update(lhs_grad_idx, true)?;
             if !is_no_grad_or_time_not_match_or_no_update(lhs_grad_idx, storage)? {
                 // - f(x) = ln(x)
                 // - df(x)/x = 1 / x * gradient = gradient / x
+                let gradient = storage.take_grad(gradient_idx)?;
+                let gradient_ref = gradient.to_array_ref::<Contiguous>();
 
                 let mut lhs_gradient = storage.take_grad(lhs_grad_idx)?;
                 let mut lhs_gradient_ref = lhs_gradient.to_array_ref_mut::<View>();
@@ -231,10 +230,9 @@ where
                 }
 
                 storage.replace_grad(lhs_grad_idx, lhs_gradient)?;
+                storage.replace_grad(gradient_idx, gradient)?;
             }
         }
-
-        storage.replace_grad(gradient_idx, gradient)?;
     }
     Ok(())
 }

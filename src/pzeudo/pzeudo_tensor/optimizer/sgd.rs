@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use num_traits::Zero;
 use std::{
     cell::RefCell,
     ops::{Mul, SubAssign},
@@ -60,19 +59,5 @@ impl<F> Sgd<F> {
             }
         }
         Ok(())
-    }
-
-    /// will set all gradients in storage params to 0.
-    pub fn zero_grad(&self)
-    where
-        F: Zero,
-    {
-        for permanent in &mut self.storage.borrow_mut().get_params_storage_mut().storage
-            [self.range.0..self.range.1]
-        {
-            if let Some(grad) = &mut permanent.grad {
-                grad.to_zeros();
-            }
-        }
     }
 }

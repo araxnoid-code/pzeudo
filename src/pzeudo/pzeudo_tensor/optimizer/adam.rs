@@ -107,7 +107,7 @@ where
                 )))?;
 
                 let m_arr = self.m.get_mut(idx).ok_or(PzeudoErr::OptimErr(format!(
-                    "Adam::optim. Index {idx} points to an invalid location in the g list."
+                    "Adam::optim. Index {idx} points to an invalid location in the m list."
                 )))?;
 
                 let epsilon = F::from(1e-7).ok_or(PzeudoErr::OptimErr(format!(

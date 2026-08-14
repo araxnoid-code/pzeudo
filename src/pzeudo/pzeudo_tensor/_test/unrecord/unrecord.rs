@@ -1,6 +1,7 @@
-use pzeudo::*;
+use crate::prelude::*;
 
-fn main() {
+#[test]
+fn unrecord_test_1() {
     // // Create a module.
     let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 
@@ -35,13 +36,26 @@ fn main() {
     tensor_d.unrecord().unwrap();
     tensor_e.backward().unwrap();
 
-    println!("{}", tensor_e.grad_to_string().unwrap());
-    println!("{}", tensor_d.grad_to_string().unwrap());
-    println!("{}", tensor_c.grad_to_string().unwrap());
-    println!("{}", tensor_b.grad_to_string().unwrap());
-    println!("{}", tensor_a.grad_to_string().unwrap());
-}
+    tensor_e
+        .grad_vec_eq(&[1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.])
+        .unwrap();
 
+    tensor_d
+        .grad_vec_eq(&[-1., -1., -1., -1., -1., -1., -1., -1., -1., -1., -1., -1.])
+        .unwrap();
+
+    tensor_c
+        .grad_vec_eq(&[1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.])
+        .unwrap();
+
+    tensor_b
+        .grad_vec_eq(&[0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+        .unwrap();
+
+    tensor_a
+        .grad_vec_eq(&[0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+        .unwrap();
+}
 // A------\
 //         \
 // B--------D <- UnRecord

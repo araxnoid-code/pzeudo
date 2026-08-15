@@ -11,4 +11,4 @@
 - Updating Tensor to include the following methods:
   - Tensor::unrecord
   - Tensor::record
-  - Note: These can only be used on Tensor<F, Contiguous, G>; they are not applicable to Tensor Views, as Tensor Views do not possess gradients and do not generate record labels during operations.
+  - Note: These can only be used on `Tensor<F, Contiguous, G>`, they are not applicable to Tensor Views, as Tensor Views do not possess gradients and do not generate record labels during operations.

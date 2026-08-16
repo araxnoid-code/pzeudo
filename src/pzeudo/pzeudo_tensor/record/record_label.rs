@@ -1,5 +1,4 @@
 use crate::StorageType;
-use std::fmt::{Debug, Display};
 
 pub enum RecordLabel<F> {
     // Arithmetic
@@ -45,6 +44,10 @@ pub enum RecordLabel<F> {
         Option<StorageType>,                // own grad
     ),
 
+    // Reduction
+    Sum(Option<StorageType>, Option<StorageType>), // Array Gradient, Gradient
+    SumAxis(Option<StorageType>, Vec<usize>, bool, Option<StorageType>), // ArrayGradient, Reduction Axis, Gradient
+
     // Unary
     Log((StorageType, Option<StorageType>), F, Option<StorageType>),
     Ln((StorageType, Option<StorageType>), Option<StorageType>),
@@ -80,33 +83,34 @@ pub enum RecordLabel<F> {
     ), // (actual, prediction, prediction_grad, grad),
 }
 
-impl<F> Debug for RecordLabel<F>
-where
-    F: Display,
-{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Add(_, _, _) => f.write_str("add record"),
-            Self::Sub(_, _, _) => f.write_str("sub record"),
-            Self::Mul(_, _, _) => f.write_str("mul record"),
-            Self::Div(_, _, _) => f.write_str("div record"),
-            Self::LossMse(_, _, _, _) => f.write_str("Loss Mse record"),
-            Self::LossMae(_, _, _, _) => f.write_str("Loss Mae record"),
-            Self::CrossEntropyLoss(_, _, _, _) => f.write_str("Cross Entropy Loss record"),
-            Self::Matmul2dF32(_, _, _) => f.write_str("Matmul 2d f32 record"),
-            Self::Matmul2dF64(_, _, _) => f.write_str("Matmul 2d f64 record"),
-            Self::MatmulNdF32(_, _, _) => f.write_str("Matmul nd f32 record"),
-            RecordLabel::MatmulNdF64(_, _, _) => f.write_str("Matmul nd f64 record"),
-            Self::Log((_, _), base, _) => f.write_str(&format!("log base {base} record")),
-            RecordLabel::Ln(_, _) => f.write_str(&format!("log natural record")),
-            Self::Powi(_, i, _) => f.write_str(&format!("powi {i} record")),
-            Self::Powf(_, float, _) => f.write_str(&format!("powf {float} record")),
-            Self::Sqrt(_, _) => f.write_str(&format!("sqrt record")),
-            RecordLabel::Softplus(_, _, _) => f.write_str(&format!("softplus record")),
-            Self::Exp(_, _) => f.write_str(&format!("exp record")),
-            Self::Relu(_, _, _) => f.write_str(&format!("relu record")),
-            RecordLabel::Sigmoid(_, _, _) => f.write_str(&format!("sigmoid record")),
-            Self::Tanh(_, _, _) => f.write_str(&format!("tanh record")),
-        }
-    }
-}
+// impl<F> Debug for RecordLabel<F>
+// where
+//     F: Display,
+// {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         match self {
+//             RecordLabel::Reduction(_) =>
+//             Self::Add(_, _, _) => f.write_str("add record"),
+//             Self::Sub(_, _, _) => f.write_str("sub record"),
+//             Self::Mul(_, _, _) => f.write_str("mul record"),
+//             Self::Div(_, _, _) => f.write_str("div record"),
+//             Self::LossMse(_, _, _, _) => f.write_str("Loss Mse record"),
+//             Self::LossMae(_, _, _, _) => f.write_str("Loss Mae record"),
+//             Self::CrossEntropyLoss(_, _, _, _) => f.write_str("Cross Entropy Loss record"),
+//             Self::Matmul2dF32(_, _, _) => f.write_str("Matmul 2d f32 record"),
+//             Self::Matmul2dF64(_, _, _) => f.write_str("Matmul 2d f64 record"),
+//             Self::MatmulNdF32(_, _, _) => f.write_str("Matmul nd f32 record"),
+//             RecordLabel::MatmulNdF64(_, _, _) => f.write_str("Matmul nd f64 record"),
+//             Self::Log((_, _), base, _) => f.write_str(&format!("log base {base} record")),
+//             RecordLabel::Ln(_, _) => f.write_str(&format!("log natural record")),
+//             Self::Powi(_, i, _) => f.write_str(&format!("powi {i} record")),
+//             Self::Powf(_, float, _) => f.write_str(&format!("powf {float} record")),
+//             Self::Sqrt(_, _) => f.write_str(&format!("sqrt record")),
+//             RecordLabel::Softplus(_, _, _) => f.write_str(&format!("softplus record")),
+//             Self::Exp(_, _) => f.write_str(&format!("exp record")),
+//             Self::Relu(_, _, _) => f.write_str(&format!("relu record")),
+//             RecordLabel::Sigmoid(_, _, _) => f.write_str(&format!("sigmoid record")),
+//             Self::Tanh(_, _, _) => f.write_str(&format!("tanh record")),
+//         }
+//     }
+// }

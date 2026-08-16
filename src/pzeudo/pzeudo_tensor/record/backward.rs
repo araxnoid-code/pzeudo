@@ -142,6 +142,14 @@ where
                 tanh_backward(*output_idx, *array_grad_idx, *grad, storage)?;
             }
 
+            RecordLabel::Sum(array_grad, grad) => {
+                sum_backward(*array_grad, *grad, storage)?;
+            }
+
+            RecordLabel::SumAxis(array_grad, axis, keep_dim, grad) => {
+                sum_axis_backward(*array_grad, axis, *keep_dim, *grad, storage)?;
+            }
+
             RecordLabel::LossMse(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
                 mse_backward(
                     *grad,

@@ -1,49 +1,19 @@
 use pzeudo::*;
 
 fn main() {
-    // // Create a module.
     let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 
     let tensor_a = Tensor::from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
-        &[4, 3],
+        &[1., 2., 3., 4., 5., 6.],
+        &[2, 1, 3],
         &module_builder,
         Grad,
     )
     .unwrap();
 
-    let tensor_b = Tensor::from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
-        &[4, 3],
-        &module_builder,
-        Grad,
-    )
-    .unwrap();
+    println!("{}", tensor_a);
 
-    let tensor_c = Tensor::from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
-        &[4, 3],
-        &module_builder,
-        Grad,
-    )
-    .unwrap();
+    let broadcast = tensor_a.broadcast(&[2, 2, 3]).unwrap();
 
-    let mut tensor_d = tensor_a.add(&tensor_b, Grad).unwrap();
-
-    let tensor_e = tensor_c.sub(&tensor_d, Grad).unwrap();
-
-    tensor_d.unrecord().unwrap();
-    tensor_e.backward().unwrap();
-
-    println!("{}", tensor_e.grad_to_string().unwrap());
-    println!("{}", tensor_d.grad_to_string().unwrap());
-    println!("{}", tensor_c.grad_to_string().unwrap());
-    println!("{}", tensor_b.grad_to_string().unwrap());
-    println!("{}", tensor_a.grad_to_string().unwrap());
+    println!("{}", broadcast);
 }
-
-// A------\
-//         \
-// B--------D <- UnRecord
-//           \
-// C----------E

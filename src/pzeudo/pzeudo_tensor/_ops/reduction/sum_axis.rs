@@ -91,7 +91,7 @@ where
                     data: grad_ref.data,
                     offset: grad_ref.offset,
                     shape: &broadcast,
-                    stride: grad_ref.stride,
+                    stride: &shape_to_stride(&broadcast),
                     _array_type: PhantomData::default(),
                 };
 

@@ -191,7 +191,7 @@ pub trait OpsUnary<F>: ArrayTrait<F> {
 
     fn sqrt(&self) -> Result<Array<F>, PzeudoErr>
     where
-        F: Copy + Float,
+        F: Float,
     {
         let metadata = self.get_metadata();
         let len = metadata.shape.iter().product::<usize>();
@@ -213,7 +213,7 @@ pub trait OpsUnary<F>: ArrayTrait<F> {
 
     fn abs(&self) -> Result<Array<F>, PzeudoErr>
     where
-        F: Copy + Float,
+        F: Float,
     {
         let metadata = self.get_metadata();
         let len = metadata.shape.iter().product::<usize>();
@@ -235,13 +235,79 @@ pub trait OpsUnary<F>: ArrayTrait<F> {
 
     fn signum(&self) -> Result<Array<F>, PzeudoErr>
     where
-        F: Copy + Float,
+        F: Float,
     {
         let metadata = self.get_metadata();
         let len = metadata.shape.iter().product::<usize>();
         let mut vec = Vec::with_capacity(len);
         for idx in 0..len {
             let value = self.linear_index(idx)?.signum();
+            vec.push(value);
+        }
+
+        let array = Array {
+            data: vec,
+            offset: 0,
+            shape: metadata.shape.to_vec(),
+            stride: metadata.stride.to_vec(),
+        };
+
+        Ok(array)
+    }
+
+    fn sin(&self) -> Result<Array<F>, PzeudoErr>
+    where
+        F: Float,
+    {
+        let metadata = self.get_metadata();
+        let len = metadata.shape.iter().product::<usize>();
+        let mut vec = Vec::with_capacity(len);
+        for idx in 0..len {
+            let value = self.linear_index(idx)?.sin();
+            vec.push(value);
+        }
+
+        let array = Array {
+            data: vec,
+            offset: 0,
+            shape: metadata.shape.to_vec(),
+            stride: metadata.stride.to_vec(),
+        };
+
+        Ok(array)
+    }
+
+    fn cos(&self) -> Result<Array<F>, PzeudoErr>
+    where
+        F: Float,
+    {
+        let metadata = self.get_metadata();
+        let len = metadata.shape.iter().product::<usize>();
+        let mut vec = Vec::with_capacity(len);
+        for idx in 0..len {
+            let value = self.linear_index(idx)?.cos();
+            vec.push(value);
+        }
+
+        let array = Array {
+            data: vec,
+            offset: 0,
+            shape: metadata.shape.to_vec(),
+            stride: metadata.stride.to_vec(),
+        };
+
+        Ok(array)
+    }
+
+    fn tan(&self) -> Result<Array<F>, PzeudoErr>
+    where
+        F: Float,
+    {
+        let metadata = self.get_metadata();
+        let len = metadata.shape.iter().product::<usize>();
+        let mut vec = Vec::with_capacity(len);
+        for idx in 0..len {
+            let value = self.linear_index(idx)?.tan();
             vec.push(value);
         }
 

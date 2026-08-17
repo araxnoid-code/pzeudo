@@ -51,7 +51,7 @@ where
                     storage,
                 )?;
             }
-            RecordLabel::Matmul2dF32(lhs, rhs, grad) => {
+            Self::Matmul2dF32(lhs, rhs, grad) => {
                 matmul_2d_f32_backward(
                     lhs.0,
                     lhs.1,
@@ -63,7 +63,7 @@ where
                         .ok_or(PzeudoErr::BackwardErr(format!("BackwardTrait::backward. Cannot perform backward on matmul_2d of type f32 because storage is not of type f32")))?,
                 )?;
             }
-            RecordLabel::Matmul2dF64(lhs, rhs, grad) => {
+            Self::Matmul2dF64(lhs, rhs, grad) => {
                 matmul_2d_f64_backward(
                     lhs.0,
                     lhs.1,
@@ -76,7 +76,7 @@ where
                 )?;
             }
 
-            RecordLabel::MatmulNdF32(lhs, rhs, grad) => {
+            Self::MatmulNdF32(lhs, rhs, grad) => {
                 matmul_nd_f32_backward(
                     lhs.0,
                     lhs.1,
@@ -89,7 +89,7 @@ where
                 )?;
             }
 
-            RecordLabel::MatmulNdF64(lhs, rhs, grad) => {
+            Self::MatmulNdF64(lhs, rhs, grad) => {
                 matmul_nd_f64_backward(
                     lhs.0,
                     lhs.1,
@@ -102,11 +102,11 @@ where
                 )?;
             }
 
-            RecordLabel::Log(lhs, base, grad) => {
+            Self::Log(lhs, base, grad) => {
                 log_backward(lhs.0, lhs.1, *grad, *base, storage)?;
             }
 
-            RecordLabel::Ln(lhs, grad) => {
+            Self::Ln(lhs, grad) => {
                 ln_backward(lhs.0, lhs.1, *grad, storage)?;
             }
 
@@ -126,6 +126,18 @@ where
                 exp_backward(lhs.0, lhs.1, *grad, storage)?;
             }
 
+            Self::Sin((array_idx, array_grad_idx), grad) => {
+                sin_backward(*array_idx, *array_grad_idx, *grad, storage)?;
+            }
+
+            Self::Cos((array_idx, array_grad_idx), grad) => {
+                cos_backward(*array_idx, *array_grad_idx, *grad, storage)?;
+            }
+
+            Self::Tan((out_idx, array_grad_idx), grad) => {
+                tan_backward(*out_idx, *array_grad_idx, *grad, storage)?;
+            }
+
             Self::Softplus(array_idx, array_grad_idx, grad) => {
                 softplus_backward(*array_idx, *array_grad_idx, *grad, storage)?;
             }
@@ -138,27 +150,27 @@ where
                 sigmoid_backward(*output_idx, *array_grad_idx, *grad, storage)?;
             }
 
-            RecordLabel::Tanh(output_idx, array_grad_idx, grad) => {
+            Self::Tanh(output_idx, array_grad_idx, grad) => {
                 tanh_backward(*output_idx, *array_grad_idx, *grad, storage)?;
             }
 
-            RecordLabel::Sum(array_grad, grad) => {
+            Self::Sum(array_grad, grad) => {
                 sum_backward(*array_grad, *grad, storage)?;
             }
 
-            RecordLabel::SumAxis(array_grad, axis, keep_dim, grad) => {
+            Self::SumAxis(array_grad, axis, keep_dim, grad) => {
                 sum_axis_backward(*array_grad, axis, *keep_dim, *grad, storage)?;
             }
 
-            RecordLabel::Avg(array_grad, grad) => {
+            Self::Avg(array_grad, grad) => {
                 avg_backward(*array_grad, *grad, storage)?;
             }
 
-            RecordLabel::AvgAxis(array_grad, axis, keep_dim, grad) => {
+            Self::AvgAxis(array_grad, axis, keep_dim, grad) => {
                 avg_axis_backward(*array_grad, axis, *keep_dim, *grad, storage)?;
             }
 
-            RecordLabel::LossMse(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
+            Self::LossMse(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
                 mse_backward(
                     *grad,
                     *actual_idx,

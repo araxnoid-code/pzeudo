@@ -12,6 +12,8 @@ where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Clone + Zero + Float + AddAssign,
 {
+    /// ## Avarage Axis
+    /// Calculating the average of a tensor along an axis.
     pub fn avg_axis<ReqGrad>(
         &self,
         axis: &[usize],

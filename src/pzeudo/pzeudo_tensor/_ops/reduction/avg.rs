@@ -4,6 +4,8 @@ use num_traits::{Float, NumCast, Zero};
 
 use crate::prelude::*;
 
+/// ## Avarage
+/// Averaging a tensor results in a 1D tensor with a single value.
 impl<F, T, G> Tensor<F, T, G>
 where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,

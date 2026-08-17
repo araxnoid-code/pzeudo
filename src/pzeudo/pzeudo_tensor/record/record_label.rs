@@ -57,6 +57,9 @@ pub enum RecordLabel<F> {
     Powf((StorageType, Option<StorageType>), F, Option<StorageType>),
     Sqrt((StorageType, Option<StorageType>), Option<StorageType>),
     Exp((StorageType, Option<StorageType>), Option<StorageType>),
+    Sin((StorageType, Option<StorageType>), Option<StorageType>),
+    Cos((StorageType, Option<StorageType>), Option<StorageType>),
+    Tan((StorageType, Option<StorageType>), Option<StorageType>),
 
     // Activation
     Softplus(StorageType, Option<StorageType>, Option<StorageType>),

@@ -9,3 +9,12 @@ pub use sqrt::*;
 
 mod exp;
 pub use exp::*;
+
+mod sin;
+pub use sin::*;
+
+mod cos;
+pub use cos::*;
+
+mod tan;
+pub use tan::*;

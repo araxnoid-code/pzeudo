@@ -66,6 +66,7 @@ fn sum_axis_test_2() {
         .unwrap();
 }
 
+#[test]
 fn sum_axis_test_3() {
     let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 

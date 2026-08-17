@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use num_traits::{NumCast, One, Zero};
-use std::ops::{AddAssign, Div, MulAssign};
+use std::ops::{AddAssign, Div};
 
 pub trait OpsAvg<F>: OpsSum<F> {
     fn avg(&self) -> Result<Array<F>, PzeudoErr>
@@ -27,7 +27,7 @@ pub trait OpsAvg<F>: OpsSum<F> {
 
     fn avg_axis(&self, axis: &[usize], keep_dim: bool) -> Result<Array<F>, PzeudoErr>
     where
-        F: One + MulAssign + NumCast + AddAssign + Copy + Zero + Div<Output = F>,
+        F: One + NumCast + AddAssign + Copy + Zero + Div<Output = F>,
     {
         let metadata = self.get_metadata();
         let len = NumCast::from(axis.iter().fold(1, |acc, dim| acc * metadata.shape[*dim])).ok_or(

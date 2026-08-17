@@ -150,6 +150,14 @@ where
                 sum_axis_backward(*array_grad, axis, *keep_dim, *grad, storage)?;
             }
 
+            RecordLabel::Avg(array_grad, grad) => {
+                avg_backward(*array_grad, *grad, storage)?;
+            }
+
+            RecordLabel::AvgAxis(array_grad, axis, keep_dim, grad) => {
+                avg_axis_backward(*array_grad, axis, *keep_dim, *grad, storage)?;
+            }
+
             RecordLabel::LossMse(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
                 mse_backward(
                     *grad,

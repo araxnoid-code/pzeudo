@@ -170,6 +170,10 @@ where
                 avg_axis_backward(*array_grad, axis, *keep_dim, *grad, storage)?;
             }
 
+            Self::Flatten(array_grad_idx, to_shape, grad) => {
+                flatten_backward(*array_grad_idx, to_shape, *grad, storage)?;
+            }
+
             Self::LossMse(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
                 mse_backward(
                     *grad,

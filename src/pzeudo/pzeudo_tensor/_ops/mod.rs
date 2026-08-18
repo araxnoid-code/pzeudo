@@ -11,3 +11,6 @@ mod view;
 
 mod reduction;
 pub use reduction::*;
+
+mod flatten;
+pub use flatten::*;

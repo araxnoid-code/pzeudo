@@ -1,7 +1,6 @@
-use std::ops::AddAssign;
-
 use crate::prelude::*;
 use num_traits::Float;
+use std::ops::AddAssign;
 impl<F, T, G> Tensor<F, T, G>
 where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,

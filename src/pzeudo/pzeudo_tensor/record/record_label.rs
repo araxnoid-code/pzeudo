@@ -50,6 +50,9 @@ pub enum RecordLabel<F> {
     Avg(Option<StorageType>, Option<StorageType>),                       // Array Gradient, Gradient
     AvgAxis(Option<StorageType>, Vec<usize>, bool, Option<StorageType>), // ArrayGradient, Reduction Axis, Gradient
 
+    // Flatten
+    Flatten(Option<StorageType>, Vec<usize>, Option<StorageType>),
+
     // Unary
     Log((StorageType, Option<StorageType>), F, Option<StorageType>),
     Ln((StorageType, Option<StorageType>), Option<StorageType>),

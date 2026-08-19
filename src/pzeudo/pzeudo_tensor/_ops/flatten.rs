@@ -68,7 +68,7 @@ where
                 storage.get_as_array_ref_mut::<View>(array_grad_idx, ContiguousType::Grad)?;
 
             let to_shape_grad = grad_ref.to_shape(to_shape)?;
-            array_grad.add_assign(&to_shape_grad);
+            array_grad.add_assign(&to_shape_grad)?;
 
             storage.replace_grad(grad_idx, grad)?;
         }

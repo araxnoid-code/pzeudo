@@ -53,6 +53,9 @@ pub enum RecordLabel<F> {
     // Flatten
     Flatten(Option<StorageType>, Vec<usize>, Option<StorageType>),
 
+    // Concat
+    Concat(Vec<Option<StorageType>>, usize, Option<StorageType>),
+
     // Unary
     Log((StorageType, Option<StorageType>), F, Option<StorageType>),
     Ln((StorageType, Option<StorageType>), Option<StorageType>),

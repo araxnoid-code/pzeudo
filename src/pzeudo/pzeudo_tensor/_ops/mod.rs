@@ -14,3 +14,6 @@ pub use reduction::*;
 
 mod flatten;
 pub use flatten::*;
+
+mod concat;
+pub use concat::*;

@@ -26,42 +26,47 @@ where
     {
         let vector_len = self.len();
         if vector_len == 0 {
-            return Err(PzeudoErr::OpsErr(format!("ConcatVector. Vector kosong")));
+            return Err(PzeudoErr::OpsErr(format!("ConcatVector. Empty Vector")));
         }
 
         let first_shape = &self[0].shape;
         let mut first_storage = self[0].storage.borrow_mut();
-        if axis >= first_shape.len() {
-            return Err(PzeudoErr::OpsErr(format!(
-                "ConcatVector. axis {} melebihi dimensi tensor yang hanya berdimensi {}",
-                axis,
-                first_shape.len()
-            )));
+
+        let mut out_shape = first_shape.to_vec();
+        out_shape[axis] = 0;
+        for v_idx in 0..vector_len {
+            let tensor = self.get(v_idx).ok_or(PzeudoErr::OpsErr(format!(
+                "ConcatVector. The index {} in the vector index points to an invalid location.",
+                v_idx
+            )))?;
+
+            out_shape[axis] += tensor.shape[axis];
         }
 
         let outter_len = first_shape[..axis].iter().product::<usize>();
-        let idx_len = first_shape[axis..].iter().product::<usize>();
-
-        let mut out_shape = first_shape.to_vec();
-        out_shape[axis] *= vector_len;
-
         let mut vec = Vec::with_capacity(out_shape.iter().product::<usize>());
         for o_idx in 0..outter_len {
             for v_idx in 0..vector_len {
+                let tensor = self.get(v_idx).ok_or(PzeudoErr::OpsErr(format!(
+                    "ConcatVector. The index {} in the vector index points to an invalid location.",
+                    v_idx
+                )))?;
+
+                let array = first_storage
+                    .get_as_array_ref::<T>(tensor.get_array_idx(), ContiguousType::Arr)?;
+
+                if axis >= array.shape.len() {
+                    return Err(PzeudoErr::OpsErr(format!(
+                        "ConcatVector. axis {} is greater than the tensor dimension, which is only {}",
+                        axis,
+                        first_shape.len()
+                    )));
+                }
+
+                let idx_len = array.shape[axis..].iter().product::<usize>();
                 for idx in 0..idx_len {
                     let offset = idx + idx_len * o_idx;
-                    let tensor = self.get(v_idx).ok_or(PzeudoErr::OpsErr(format!(
-                        "ConcatVector. index {} pada vector index mengarah pada lokasi yang tidak valid", v_idx
-                    )))?;
 
-                    if first_shape != &tensor.shape {
-                        return Err(PzeudoErr::OpsErr(format!(
-                            "ConcatVector. shape pada tensor tidak sama",
-                        )));
-                    }
-
-                    let array = first_storage
-                        .get_as_array_ref::<T>(tensor.get_array_idx(), ContiguousType::Arr)?;
                     vec.push(array.linear_index(offset)?);
                 }
             }

@@ -3,34 +3,48 @@ use pzeudo::*;
 fn main() {
     let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 
-    let tensor_a = Tensor::from_vector_with_shape(
-        &[
-            1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13., 1., 2., 3., 4., 5., 6., 7., 8., 9.,
-            11., 12., 13.,
-        ],
-        &[2, 2, 2, 3],
-        &module_builder,
-        Grad,
-    )
-    .unwrap();
+    let shape = [1, 3];
+    let vec_a = (0..shape.iter().product::<usize>())
+        .map(|_| 0 as f32)
+        .collect::<Vec<f32>>();
+    let tensor_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    println!("{}", tensor_a);
 
-    let tensor_b = Tensor::from_vector_with_shape(
-        &[10., 10., 10., 12., 12., 12.],
-        &[2, 3],
-        &module_builder,
-        Grad,
-    )
-    .unwrap();
+    let shape = [3, 3];
+    let vec_a = (0..shape.iter().product::<usize>())
+        .map(|_| 1 as f32)
+        .collect::<Vec<f32>>();
+    let tensor_b = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    println!("{}", tensor_b);
 
-    let tensor_sum = tensor_a.sum_axis(&[0, 2], false, Grad).unwrap();
+    let shape = [6, 3];
+    let vec_a = (0..shape.iter().product::<usize>())
+        .map(|_| 2 as f32)
+        .collect::<Vec<f32>>();
+    let tensor_c = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    println!("{}", tensor_c);
 
-    let tensor_mul = tensor_b.mul(&tensor_sum, Grad).unwrap();
-    tensor_mul.backward().unwrap();
+    let shape = [2, 3];
+    let vec_a = (0..shape.iter().product::<usize>())
+        .map(|_| 3 as f32)
+        .collect::<Vec<f32>>();
+    let tensor_d = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    println!("{}", tensor_d);
 
-    tensor_a
-        .grad_vec_eq(&[
-            10., 10., 10., 10., 10., 10., 12., 12., 12., 12., 12., 12., 10., 10., 10., 10., 10.,
-            10., 12., 12., 12., 12., 12., 12.,
+    let concat = vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
+        .tensor_concat(0, Grad)
+        .unwrap();
+    println!("{}", concat);
+    concat
+        .value_vec_eq(&[
+            0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0,
+            2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0,
+            3.0, 3.0,
         ])
+        .unwrap();
+
+    vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
+        .tensor_concat(1, Grad)
+        .map_or(Ok(()), |_| Err("Error on a different test shape off-axis."))
         .unwrap();
 }

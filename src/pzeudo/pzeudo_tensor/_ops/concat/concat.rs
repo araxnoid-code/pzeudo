@@ -2,6 +2,11 @@ use std::ops::AddAssign;
 
 pub use crate::prelude::*;
 
+pub enum ConcatGradStatus {
+    Grad(StorageType, usize),
+    NoGrad(usize),
+}
+
 pub trait ConcatVector<F, T, G> {
     fn _iter(&self) -> std::slice::Iter<'_, Tensor<F, T, G>>;
     fn _len(&self) -> usize;
@@ -30,6 +35,7 @@ pub trait ConcatVector<F, T, G> {
         let mut out_shape = first_shape.to_vec();
         out_shape[axis] = 0;
 
+        let mut grad_idx_list = Vec::with_capacity(vector_len);
         let mut check_shape = Vec::with_capacity(first_shape.len());
         let mut acc = 0;
         for v_idx in 0..vector_len {
@@ -47,6 +53,12 @@ pub trait ConcatVector<F, T, G> {
             }
             check_shape.clear();
 
+            grad_idx_list.push(tensor.get_grad_idx().map_or(
+                ConcatGradStatus::NoGrad(tensor.shape[axis..].iter().product::<usize>()),
+                |grad_idx| {
+                    ConcatGradStatus::Grad(grad_idx, tensor.shape[axis..].iter().product::<usize>())
+                },
+            ));
             acc += tensor.shape[axis];
         }
         out_shape[axis] = acc;
@@ -84,10 +96,6 @@ pub trait ConcatVector<F, T, G> {
         let array = Array::new(vec, 0, shape_to_stride(&out_shape), out_shape.clone());
         let array_idx = first_storage.push(ElementType::Arr(array))?;
 
-        let grad_idx_list = self
-            ._iter()
-            .map(|tensor| tensor.get_grad_idx())
-            .collect::<Vec<Option<StorageType>>>();
         let record_label = RecordLabel::Concat(grad_idx_list, axis, grad_idx);
         let mut record = self._get(0).unwrap().record.borrow_mut();
         let record_status = Some(RecordStatus::Record(record.len()));
@@ -134,6 +142,7 @@ pub trait ConcatVectorRef<F, T, G> {
         let mut out_shape = first_shape.to_vec();
         out_shape[axis] = 0;
 
+        let mut grad_idx_list = Vec::with_capacity(vector_len);
         let mut check_shape = Vec::with_capacity(first_shape.len());
         let mut acc = 0;
         for v_idx in 0..vector_len {
@@ -151,6 +160,12 @@ pub trait ConcatVectorRef<F, T, G> {
             }
             check_shape.clear();
 
+            grad_idx_list.push(tensor.get_grad_idx().map_or(
+                ConcatGradStatus::NoGrad(tensor.shape[axis..].iter().product::<usize>()),
+                |grad_idx| {
+                    ConcatGradStatus::Grad(grad_idx, tensor.shape[axis..].iter().product::<usize>())
+                },
+            ));
             acc += tensor.shape[axis];
         }
         out_shape[axis] = acc;
@@ -188,10 +203,6 @@ pub trait ConcatVectorRef<F, T, G> {
         let array = Array::new(vec, 0, shape_to_stride(&out_shape), out_shape.clone());
         let array_idx = first_storage.push(ElementType::Arr(array))?;
 
-        let grad_idx_list = self
-            ._iter()
-            .map(|tensor| tensor.get_grad_idx())
-            .collect::<Vec<Option<StorageType>>>();
         let record_label = RecordLabel::Concat(grad_idx_list, axis, grad_idx);
         let mut record = self._get(0).unwrap().record.borrow_mut();
         let record_status = Some(RecordStatus::Record(record.len()));
@@ -211,7 +222,7 @@ pub trait ConcatVectorRef<F, T, G> {
 }
 
 pub fn concat_backward<F>(
-    list_arr_grad: &[StorageType],
+    list_arr_grad: &[ConcatGradStatus],
     axis: usize,
     grad_idx: Option<StorageType>,
     storage: &mut ArrayStorage<F>,
@@ -227,27 +238,36 @@ where
         let grad = storage.take_grad(grad_idx)?;
         let grad_ref = grad.to_array_ref::<Contiguous>();
 
-        let first_array =
-            storage.get_as_array_ref::<View>(list_arr_grad[0], ContiguousType::Grad)?;
-        let outter_len = first_array.shape[..axis].iter().product::<usize>();
+        let outter_len = grad_ref.shape[..axis].iter().product::<usize>();
+        let idx_len_1 = grad_ref.shape[axis..].iter().product::<usize>();
 
         for o_idx in 0..outter_len {
+            let mut offset_1 = 0;
             for v_idx in 0..list_arr_grad.len() {
-                if is_no_grad_or_time_not_match_or_no_update(list_arr_grad[v_idx], storage)? {
+                let (storage_type, idx_len_0) = match list_arr_grad[v_idx] {
+                    ConcatGradStatus::Grad(grad, len) => (grad, len),
+                    ConcatGradStatus::NoGrad(len) => {
+                        offset_1 += len;
+                        continue;
+                    }
+                };
+
+                storage.set_grad_update(storage_type, true)?;
+                if is_no_grad_or_time_not_match_or_no_update(storage_type, storage)? {
+                    offset_1 += idx_len_0;
                     continue;
                 };
 
-                let mut array_grad = storage
-                    .get_as_array_ref_mut::<View>(list_arr_grad[v_idx], ContiguousType::Grad)?;
+                let mut array_grad =
+                    storage.get_as_array_ref_mut::<View>(storage_type, ContiguousType::Grad)?;
 
-                let idx_len_0 = array_grad.shape[axis..].iter().product::<usize>();
-                let idx_len_1 = grad_ref.shape[axis..].iter().product::<usize>();
                 for idx in 0..idx_len_0 {
                     let idx_0 = idx + o_idx * idx_len_0;
-                    let idx_1 = idx + v_idx * idx_len_0 + o_idx * idx_len_1;
+                    let idx_1 = idx + offset_1 + o_idx * idx_len_1;
 
                     *array_grad.linear_index_mut(idx_0)? += grad_ref.linear_index(idx_1)?;
                 }
+                offset_1 += idx_len_0;
             }
         }
 

@@ -174,7 +174,9 @@ where
                 flatten_backward(*array_grad_idx, to_shape, *grad, storage)?;
             }
 
-            Self::Concat(_, _, _) => {}
+            Self::Concat(grad_list, axis, grad) => {
+                concat_backward(grad_list, *axis, *grad, storage)?;
+            }
 
             Self::LossMse(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
                 mse_backward(

@@ -1,4 +1,4 @@
-use crate::StorageType;
+use crate::{ConcatGradStatus, StorageType};
 
 pub enum RecordLabel<F> {
     // Arithmetic
@@ -54,7 +54,7 @@ pub enum RecordLabel<F> {
     Flatten(Option<StorageType>, Vec<usize>, Option<StorageType>),
 
     // Concat
-    Concat(Vec<Option<StorageType>>, usize, Option<StorageType>),
+    Concat(Vec<ConcatGradStatus>, usize, Option<StorageType>),
 
     // Unary
     Log((StorageType, Option<StorageType>), F, Option<StorageType>),

@@ -1,3 +1,5 @@
+use std::ops::AddAssign;
+
 pub use crate::prelude::*;
 
 pub trait ConcatVector<F, T, G> {
@@ -206,4 +208,51 @@ pub trait ConcatVectorRef<F, T, G> {
 
         Ok(tensor)
     }
+}
+
+pub fn concat_backward<F>(
+    list_arr_grad: &[StorageType],
+    axis: usize,
+    grad_idx: Option<StorageType>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    F: AddAssign + Copy,
+{
+    if let Some(grad_idx) = grad_idx {
+        if is_no_grad_or_time_not_match_or_no_update(grad_idx, storage)? {
+            return Ok(());
+        };
+
+        let grad = storage.take_grad(grad_idx)?;
+        let grad_ref = grad.to_array_ref::<Contiguous>();
+
+        let first_array =
+            storage.get_as_array_ref::<View>(list_arr_grad[0], ContiguousType::Grad)?;
+        let outter_len = first_array.shape[..axis].iter().product::<usize>();
+
+        for o_idx in 0..outter_len {
+            for v_idx in 0..list_arr_grad.len() {
+                if is_no_grad_or_time_not_match_or_no_update(list_arr_grad[v_idx], storage)? {
+                    continue;
+                };
+
+                let mut array_grad = storage
+                    .get_as_array_ref_mut::<View>(list_arr_grad[v_idx], ContiguousType::Grad)?;
+
+                let idx_len_0 = array_grad.shape[axis..].iter().product::<usize>();
+                let idx_len_1 = grad_ref.shape[axis..].iter().product::<usize>();
+                for idx in 0..idx_len_0 {
+                    let idx_0 = idx + o_idx * idx_len_0;
+                    let idx_1 = idx + v_idx * idx_len_0 + o_idx * idx_len_1;
+
+                    *array_grad.linear_index_mut(idx_0)? += grad_ref.linear_index(idx_1)?;
+                }
+            }
+        }
+
+        storage.replace_grad(grad_idx, grad)?;
+    }
+
+    Ok(())
 }

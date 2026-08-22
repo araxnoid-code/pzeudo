@@ -101,7 +101,7 @@ dependencies = [
 
 [[package]]
 name = "pzeudo"
-version = "0.0.3-dev.2"
+version = "0.0.3-dev.3"
 dependencies = [
  "matrixmultiply",
  "num-traits",

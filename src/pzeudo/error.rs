@@ -1,4 +1,4 @@
-use rand_distr::NormalError;
+use rand_distr::{BernoulliError, NormalError};
 
 #[derive(Debug)]
 pub enum PzeudoErr {
@@ -37,6 +37,7 @@ pub enum PzeudoErr {
 
     // DependenciesErr
     RandDistrNormalErr(NormalError),
+    BernoulliErr(BernoulliError),
     SerdeJsonErr(serde_json::Error),
     IOErr(std::io::Error),
 }

@@ -92,6 +92,9 @@ pub enum RecordLabel<F> {
         Option<StorageType>,
         Option<StorageType>,
     ), // (actual, prediction, prediction_grad, grad),
+
+    // LAYER
+    Dropout(Vec<u8>, F, Option<StorageType>, Option<StorageType>),
 }
 
 // impl<F> Debug for RecordLabel<F>

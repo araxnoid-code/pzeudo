@@ -241,6 +241,7 @@ where
         let outter_len = grad_ref.shape[..axis].iter().product::<usize>();
         let idx_len_1 = grad_ref.shape[axis..].iter().product::<usize>();
 
+        let mut set_update = false;
         for o_idx in 0..outter_len {
             let mut offset_1 = 0;
             for v_idx in 0..list_arr_grad.len() {
@@ -252,7 +253,9 @@ where
                     }
                 };
 
-                storage.set_grad_update(storage_type, true)?;
+                if !set_update {
+                    storage.set_grad_update(storage_type, true)?;
+                }
                 if is_no_grad_or_time_not_match_or_no_update(storage_type, storage)? {
                     offset_1 += idx_len_0;
                     continue;
@@ -269,6 +272,7 @@ where
                 }
                 offset_1 += idx_len_0;
             }
+            set_update = true;
         }
 
         storage.replace_grad(grad_idx, grad)?;

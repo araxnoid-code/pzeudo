@@ -207,6 +207,10 @@ where
                     storage,
                 )?;
             }
+
+            Self::Dropout(mask, q, arr_grad_idx, grad) => {
+                dropout_backward(mask, *q, *arr_grad_idx, *grad, storage)?;
+            }
         }
         Ok(())
     }

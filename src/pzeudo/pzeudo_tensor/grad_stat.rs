@@ -7,8 +7,16 @@ pub struct Grad;
 #[derive(Clone, Copy)]
 pub struct NoGrad;
 
+#[derive(Clone, Copy)]
+pub struct TrainPhase;
+
+#[derive(Clone, Copy)]
+pub struct EvalPhase;
+
 pub trait ReqGradTrait<F>: Clone + Copy {
     fn zeros_grad(shape: &[usize]) -> Option<Array<F>>;
+
+    fn is_grad(self) -> bool;
 
     fn into_zeros_grad_storage(
         self,
@@ -28,6 +36,42 @@ where
 {
     fn zeros_grad(shape: &[usize]) -> Option<Array<F>> {
         Some(Array::zeros(shape))
+    }
+
+    fn is_grad(self) -> bool {
+        true
+    }
+
+    fn into_zeros_grad_storage(
+        self,
+        shape: &[usize],
+        storage: &mut ArrayStorage<F>,
+    ) -> Result<Option<StorageType>, PzeudoErr> {
+        let grad = Array::zeros(shape);
+        let grad_idx = Some(storage.push(ElementType::Grad(grad))?);
+        Ok(grad_idx)
+    }
+
+    fn zeros_grad_storage(
+        shape: &[usize],
+        storage: &mut ArrayStorage<F>,
+    ) -> Result<Option<StorageType>, PzeudoErr> {
+        let grad = Array::zeros(shape);
+        let grad_idx = Some(storage.push(ElementType::Grad(grad))?);
+        Ok(grad_idx)
+    }
+}
+
+impl<F> ReqGradTrait<F> for TrainPhase
+where
+    F: Clone + Zero,
+{
+    fn zeros_grad(shape: &[usize]) -> Option<Array<F>> {
+        Some(Array::zeros(shape))
+    }
+
+    fn is_grad(self) -> bool {
+        true
     }
 
     fn into_zeros_grad_storage(
@@ -56,6 +100,38 @@ where
 {
     fn zeros_grad(_: &[usize]) -> Option<Array<F>> {
         None
+    }
+
+    fn is_grad(self) -> bool {
+        false
+    }
+
+    fn into_zeros_grad_storage(
+        self,
+        _: &[usize],
+        _: &mut ArrayStorage<F>,
+    ) -> Result<Option<StorageType>, PzeudoErr> {
+        Ok(None)
+    }
+
+    fn zeros_grad_storage(
+        _: &[usize],
+        _: &mut ArrayStorage<F>,
+    ) -> Result<Option<StorageType>, PzeudoErr> {
+        Ok(None)
+    }
+}
+
+impl<F> ReqGradTrait<F> for EvalPhase
+where
+    F: Clone + Zero,
+{
+    fn zeros_grad(_: &[usize]) -> Option<Array<F>> {
+        None
+    }
+
+    fn is_grad(self) -> bool {
+        false
     }
 
     fn into_zeros_grad_storage(
@@ -144,5 +220,25 @@ where
             self.storage,
         );
         Ok(tensor)
+    }
+}
+
+pub trait PhaseStatus<F>: ReqGradTrait<F> {
+    fn is_eval(self) -> bool;
+}
+impl<F> PhaseStatus<F> for TrainPhase
+where
+    F: Clone + Zero,
+{
+    fn is_eval(self) -> bool {
+        false
+    }
+}
+impl<F> PhaseStatus<F> for EvalPhase
+where
+    F: Clone + Zero,
+{
+    fn is_eval(self) -> bool {
+        true
     }
 }

@@ -11,6 +11,11 @@ use rand_distr::{Bernoulli, Distribution};
 ///     - example: p=0.7, Consequently, 70 percent of the values or elements will be dropped (at random locations, depending on the Bernoulli distribution and the specified seed).
 /// ## Formula
 /// element * drop_value / (1 - p)
+/// ## Phase
+/// - TrainPhase
+/// Executes a formula based on the Bernoulli distribution and produces a new tensor.
+/// - EvelPhase
+/// It immediately returns a new tensor containing the same array data, state, and record as the previous tensor. The only difference is that the gradient is `None` (the previous tensor remains unaffected).
 pub struct Dropout {
     rng: rand::rngs::SmallRng,
     p: f64,
@@ -34,16 +39,34 @@ impl Dropout {
     ///     - example: p=0.7, Consequently, 70 percent of the values or elements will be dropped (at random locations, depending on the Bernoulli distribution and the specified seed).
     /// ## Formula
     /// element * drop_value / (1 - p)
-    pub fn forward<F, T, G, ReqGrad>(
+    /// ## Phase
+    /// - TrainPhase
+    /// Executes a formula based on the Bernoulli distribution and produces a new tensor.
+    /// - EvelPhase
+    /// It immediately returns a new tensor containing the same array data, state, and record as the previous tensor. The only difference is that the gradient is `None` (the previous tensor remains unaffected).
+    pub fn forward<F, T, G, Phase>(
         &mut self,
-        tensor: Tensor<F, T, G>,
-        requires_grad: ReqGrad,
-    ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
+        tensor: &Tensor<F, T, G>,
+        phase: Phase,
+    ) -> Result<Tensor<F, T, Phase>, PzeudoErr>
     where
         F: Float,
-        ReqGrad: ReqGradTrait<F>,
+        Phase: PhaseStatus<F>,
+        // ReqGrad: ReqGradTrait<F>,
         for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     {
+        if phase.is_eval() {
+            let tensor = Tensor::_new(
+                tensor.get_array_idx(),
+                None,
+                tensor.shape.to_vec(),
+                tensor.record_status,
+                tensor.get_record().clone(),
+                tensor.get_storage().clone(),
+            );
+
+            return Ok(tensor);
+        }
         let len = tensor.shape.iter().product::<usize>();
 
         let bernoulli = Bernoulli::new(self.p).map_err(|err| PzeudoErr::BernoulliErr(err))?;
@@ -74,7 +97,7 @@ impl Dropout {
 
         let result_arr = Array::from_vector_with_shape(&out_vec, &tensor.shape)?;
         let array_idx = storage.push(ElementType::Arr(result_arr))?;
-        let grad_idx = requires_grad.into_zeros_grad_storage(&tensor.shape, &mut storage)?;
+        let grad_idx = phase.into_zeros_grad_storage(&tensor.shape, &mut storage)?;
 
         let mut record = tensor.record.borrow_mut();
         let record_idx = record.len();
@@ -122,7 +145,6 @@ where
             let mut arr_grad_ref = arr_grad.to_array_ref_mut::<View>();
 
             let len = arr_grad_ref.shape.iter().product::<usize>();
-
             for i in 0..len {
                 if mask[i] != 0 {
                     *arr_grad_ref.linear_index_mut(i)? += grad_ref.linear_index(i)? / q;

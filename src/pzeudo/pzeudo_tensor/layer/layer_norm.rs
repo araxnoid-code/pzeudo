@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use num_traits::Float;
-use std::ops::{AddAssign, DivAssign};
+use std::ops::{AddAssign, DivAssign, Mul, SubAssign};
 
 pub struct LayerNorm {}
 
@@ -11,7 +11,8 @@ impl LayerNorm {
         requires_grad: ReqGrad,
     ) -> Result<Tensor<F, T, ReqGrad>, PzeudoErr>
     where
-        for<'a> F: AddAssign + DivAssign + Float,
+        F: AddAssign + DivAssign + Float + SubAssign,
+        for<'a> &'a F: Mul<&'a F, Output = F>,
         ReqGrad: ReqGradTrait<F>,
         for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     {
@@ -24,21 +25,9 @@ impl LayerNorm {
         let array_tensor =
             storage.get_as_array_ref::<T>(tensor.get_array_idx(), ContiguousType::Arr)?;
 
-        let avg = array_tensor.avg_axis(&[axis], true)?;
+        let (avg, var) = array_tensor.avg_and_var_axis(&[axis], true)?;
+
         let avg_broadcast = avg.broadcast(&tensor.shape)?;
-        let mut var = array_tensor.sum_axis_closure(&[axis], true, |idx, x| {
-            let sub = x - avg_broadcast.linear_index(idx)?;
-            Ok(sub * sub)
-        })?;
-
-        let n = F::from(tensor.shape[..axis].iter().product::<usize>()).ok_or(
-            PzeudoErr::LayerErr(format!("LayerNorm::forward. Unable to cast.")),
-        )?;
-
-        for x in &mut var.data {
-            *x /= n;
-        }
-
         let var_broadcast = var.broadcast(&tensor.shape)?;
 
         let len = array_tensor.shape.iter().product::<usize>();

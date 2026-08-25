@@ -26,3 +26,10 @@ where
     for<'a> F: Copy + Sum<&'a F>,
 {
 }
+
+impl<F> OpsVar<F> for Array<F>
+where
+    F: Copy,
+    for<'a> F: Copy + Sum<&'a F>,
+{
+}

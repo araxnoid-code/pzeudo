@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use num_traits::{NumCast, One, Zero};
+use num_traits::{NumCast, Zero};
 use std::ops::{AddAssign, Div};
 
 pub trait OpsAvg<F>: OpsSum<F> {
@@ -9,7 +9,7 @@ pub trait OpsAvg<F>: OpsSum<F> {
     {
         let metadata = self.get_metadata();
         let len = F::from(metadata.shape.iter().product::<usize>()).ok_or(PzeudoErr::OpsErr(
-            String::from("AvgErr. OpsAvg::avg. error while casting data type"),
+            String::from("OpsAvg::avg. error while casting data type"),
         ))?;
 
         let sum = self.sum()?;
@@ -31,9 +31,7 @@ pub trait OpsAvg<F>: OpsSum<F> {
     {
         let metadata = self.get_metadata();
         let len = NumCast::from(axis.iter().fold(1, |acc, dim| acc * metadata.shape[*dim])).ok_or(
-            PzeudoErr::OpsErr(String::from(
-                "AvgErr. OpsAvg::avg. error while casting data type",
-            )),
+            PzeudoErr::OpsErr(String::from("OpsAvg::avg. error while casting data type")),
         )?;
 
         let sum_axis = self.sum_axis(axis, keep_dim)?;

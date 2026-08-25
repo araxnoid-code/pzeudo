@@ -27,7 +27,7 @@ pub trait OpsAvg<F>: OpsSum<F> {
 
     fn avg_axis(&self, axis: &[usize], keep_dim: bool) -> Result<Array<F>, PzeudoErr>
     where
-        F: One + NumCast + AddAssign + Copy + Zero + Div<Output = F>,
+        F: NumCast + AddAssign + Copy + Zero + Div<Output = F>,
     {
         let metadata = self.get_metadata();
         let len = NumCast::from(axis.iter().fold(1, |acc, dim| acc * metadata.shape[*dim])).ok_or(

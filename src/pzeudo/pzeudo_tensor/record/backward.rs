@@ -211,6 +211,8 @@ where
             Self::Dropout(mask, q, arr_grad_idx, grad) => {
                 dropout_backward(mask, *q, *arr_grad_idx, *grad, storage)?;
             }
+
+            Self::LayerNorm(_, _, _, _, _) => {}
         }
         Ok(())
     }

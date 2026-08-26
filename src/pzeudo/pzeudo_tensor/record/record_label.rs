@@ -94,7 +94,14 @@ pub enum RecordLabel<F> {
     ), // (actual, prediction, prediction_grad, grad),
 
     // LAYER
-    Dropout(Vec<u8>, F, Option<StorageType>, Option<StorageType>),
+    Dropout(Vec<u8>, F, Option<StorageType>, Option<StorageType>), // (Mask, p - 1, Array's Grad, Grad)
+    LayerNorm(
+        StorageType,         // Array
+        Option<StorageType>, // Array's Grad
+        Vec<F>,              // avg
+        Vec<F>,              // variance
+        Option<StorageType>, // Grad
+    ),
 }
 
 // impl<F> Debug for RecordLabel<F>

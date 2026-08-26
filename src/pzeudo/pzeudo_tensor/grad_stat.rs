@@ -19,7 +19,7 @@ pub trait ReqGradTrait<F>: Clone + Copy {
     fn is_grad(self) -> bool;
 
     fn into_zeros_grad_storage(
-        self,
+        &self,
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
     ) -> Result<Option<StorageType>, PzeudoErr>;
@@ -43,7 +43,7 @@ where
     }
 
     fn into_zeros_grad_storage(
-        self,
+        &self,
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
     ) -> Result<Option<StorageType>, PzeudoErr> {
@@ -75,7 +75,7 @@ where
     }
 
     fn into_zeros_grad_storage(
-        self,
+        &self,
         shape: &[usize],
         storage: &mut ArrayStorage<F>,
     ) -> Result<Option<StorageType>, PzeudoErr> {
@@ -107,7 +107,7 @@ where
     }
 
     fn into_zeros_grad_storage(
-        self,
+        &self,
         _: &[usize],
         _: &mut ArrayStorage<F>,
     ) -> Result<Option<StorageType>, PzeudoErr> {
@@ -135,7 +135,7 @@ where
     }
 
     fn into_zeros_grad_storage(
-        self,
+        &self,
         _: &[usize],
         _: &mut ArrayStorage<F>,
     ) -> Result<Option<StorageType>, PzeudoErr> {

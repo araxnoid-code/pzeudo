@@ -5,7 +5,7 @@ use std::{
     fmt::{Debug, Display},
     iter::Sum,
     marker::PhantomData,
-    ops::AddAssign,
+    ops::{AddAssign, MulAssign},
     rc::Rc,
 };
 
@@ -59,9 +59,9 @@ impl<F, T, G> Tensor<F, T, G> {
 
     pub fn backward(&self) -> Result<(), PzeudoErr>
     where
-        F: Display,
+        F: Display + Debug,
         ArrayStorage<F>: StorageF32F64,
-        for<'a> F: Clone + One + AddAssign + Float + Sum<&'a F>,
+        for<'a> F: Clone + One + AddAssign + Float + Sum<&'a F> + MulAssign,
         for<'a> ArrayRefMut<'a, F, T>: ArrayTrait<F>,
     {
         let mut storage = self.storage.borrow_mut();

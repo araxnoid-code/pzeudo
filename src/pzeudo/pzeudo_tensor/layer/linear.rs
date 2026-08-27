@@ -25,8 +25,8 @@ use std::ops::{Add, Div};
 pub struct Linear<F> {
     pub(crate) in_features: usize,
     pub(crate) out_features: usize,
-    pub(crate) weight: Tensor<F, Contiguous, Grad>,
-    pub(crate) bias: Tensor<F, Contiguous, Grad>,
+    pub(crate) weight: Tensor<F, Contiguous, ReqGrad>,
+    pub(crate) bias: Tensor<F, Contiguous, ReqGrad>,
 }
 
 impl<F> Linear<F> {
@@ -83,11 +83,11 @@ impl<F> Linear<F> {
             &weight_vector,
             &[in_features, out_features],
             module,
-            Grad,
+            ReqGrad,
         )?;
 
-        let bias: Tensor<F, Contiguous, Grad> =
-            Tensor::param_from_vector_with_shape(&bias_vector, &[out_features], module, Grad)?;
+        let bias: Tensor<F, Contiguous, ReqGrad> =
+            Tensor::param_from_vector_with_shape(&bias_vector, &[out_features], module, ReqGrad)?;
 
         Ok(Self {
             in_features,
@@ -124,11 +124,11 @@ impl<F> Linear<F> {
         self.out_features
     }
 
-    pub fn get_weight(&self) -> &Tensor<F, Contiguous, Grad> {
+    pub fn get_weight(&self) -> &Tensor<F, Contiguous, ReqGrad> {
         &self.weight
     }
 
-    pub fn get_bias(&self) -> &Tensor<F, Contiguous, Grad> {
+    pub fn get_bias(&self) -> &Tensor<F, Contiguous, ReqGrad> {
         &self.bias
     }
 }

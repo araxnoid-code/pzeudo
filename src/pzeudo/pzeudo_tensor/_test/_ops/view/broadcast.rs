@@ -10,7 +10,7 @@ fn broadcast_test_1() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let tensor_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module, Grad).unwrap();
+    let tensor_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module, ReqGrad).unwrap();
 
     let broadcasted_a = tensor_a.broadcast(&[3, 3]).unwrap();
 
@@ -18,9 +18,9 @@ fn broadcast_test_1() {
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let tensor_b = Tensor::from_vector_with_shape(&vec_b, &shape, &module, Grad).unwrap();
+    let tensor_b = Tensor::from_vector_with_shape(&vec_b, &shape, &module, ReqGrad).unwrap();
 
-    let tensor_c = broadcasted_a.mul(&tensor_b, Grad).unwrap();
+    let tensor_c = broadcasted_a.mul(&tensor_b, ReqGrad).unwrap();
 
     tensor_c.backward().unwrap();
 

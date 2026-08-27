@@ -2,10 +2,10 @@ use crate::prelude::*;
 use num_traits::Zero;
 
 #[derive(Clone, Copy)]
-pub struct Grad;
+pub struct ReqGrad;
 
 #[derive(Clone, Copy)]
-pub struct NoGrad;
+pub struct ReqNoGrad;
 
 #[derive(Clone, Copy)]
 pub struct TrainPhase;
@@ -30,7 +30,7 @@ pub trait ReqGradTrait<F>: Clone + Copy {
     ) -> Result<Option<StorageType>, PzeudoErr>;
 }
 
-impl<F> ReqGradTrait<F> for Grad
+impl<F> ReqGradTrait<F> for ReqGrad
 where
     F: Clone + Zero,
 {
@@ -94,7 +94,7 @@ where
     }
 }
 
-impl<F> ReqGradTrait<F> for NoGrad
+impl<F> ReqGradTrait<F> for ReqNoGrad
 where
     F: Clone + Zero,
 {
@@ -150,8 +150,8 @@ where
     }
 }
 
-impl<F> Tensor<F, Contiguous, Grad> {
-    pub fn no_grad(self) -> Result<Tensor<F, Contiguous, NoGrad>, PzeudoErr> {
+impl<F> Tensor<F, Contiguous, ReqGrad> {
+    pub fn no_grad(self) -> Result<Tensor<F, Contiguous, ReqNoGrad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         let storage_type = self.grad_idx.ok_or(PzeudoErr::ReqGradErr(format!(
@@ -185,11 +185,11 @@ impl<F> Tensor<F, Contiguous, Grad> {
     }
 }
 
-impl<F> Tensor<F, Contiguous, NoGrad>
+impl<F> Tensor<F, Contiguous, ReqNoGrad>
 where
     F: Clone + Zero,
 {
-    pub fn with_grad(self) -> Result<Tensor<F, Contiguous, Grad>, PzeudoErr> {
+    pub fn with_grad(self) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr> {
         let mut storage = self.storage.borrow_mut();
 
         self.grad_idx.map_or(Ok(()), |_| {
@@ -207,7 +207,7 @@ where
                 storage.get_params_storage_mut().with_grad(idx, zeros)?;
                 Ok(Some(StorageType::Param(idx)))
             }
-            StorageType::Arr(_, _) => Grad.into_zeros_grad_storage(&self.shape, &mut storage),
+            StorageType::Arr(_, _) => ReqGrad.into_zeros_grad_storage(&self.shape, &mut storage),
         }?;
 
         drop(storage);

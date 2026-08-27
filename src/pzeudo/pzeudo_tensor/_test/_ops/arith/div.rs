@@ -8,15 +8,15 @@ fn div_test_1() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module, Grad).unwrap();
+    let array_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module, ReqGrad).unwrap();
 
     let shape = [2, 3];
     let vec_b = (5..shape.iter().product::<usize>() + 5)
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Tensor::from_vector_with_shape(&vec_b, &shape, &module, Grad).unwrap();
+    let array_b = Tensor::from_vector_with_shape(&vec_b, &shape, &module, ReqGrad).unwrap();
 
-    let div = array_a.div(&array_b, Grad).unwrap();
+    let div = array_a.div(&array_b, ReqGrad).unwrap();
     div.backward().unwrap();
 
     // Check

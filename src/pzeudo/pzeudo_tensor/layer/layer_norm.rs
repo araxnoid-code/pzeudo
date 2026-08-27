@@ -1,17 +1,25 @@
 use crate::prelude::*;
 use num_traits::Float;
-use std::ops::{AddAssign, DivAssign, Mul, MulAssign, SubAssign};
+use std::{
+    fmt::{Debug, Display},
+    iter::Sum,
+    ops::{AddAssign, DivAssign, Mul, MulAssign, SubAssign},
+};
 
 pub struct LayerNorm {}
 
 impl LayerNorm {
+    pub fn new() -> LayerNorm {
+        Self {}
+    }
+
     pub fn forward<F, T, G, ReqGrad>(
         &self,
         tensor: &Tensor<F, T, G>,
         requires_grad: ReqGrad,
     ) -> Result<Tensor<F, T, ReqGrad>, PzeudoErr>
     where
-        F: AddAssign + DivAssign + Float + SubAssign,
+        F: AddAssign + DivAssign + Float + SubAssign + Debug,
         for<'a> &'a F: Mul<&'a F, Output = F>,
         ReqGrad: ReqGradTrait<F>,
         for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
@@ -44,11 +52,21 @@ impl LayerNorm {
         )?))?;
         let grad = requires_grad.into_zeros_grad_storage(&tensor.shape, &mut storage)?;
 
+        let record_idx = if requires_grad.is_grad() {
+            let mut record = tensor.get_record().borrow_mut();
+            let record_idx = RecordStatus::Record(record.len());
+            let record_label = RecordLabel::LayerNorm(norm, tensor.get_grad_idx(), var.data, grad);
+            record.push(record_label);
+            Some(record_idx)
+        } else {
+            None
+        };
+
         let tensor = Tensor::_new(
             norm,
             grad,
             tensor.shape.to_vec(),
-            None,
+            record_idx,
             tensor.get_record().clone(),
             tensor.get_storage().clone(),
         );
@@ -58,15 +76,14 @@ impl LayerNorm {
 }
 
 pub fn layer_norm_backward<F>(
-    array_idx: StorageType,
+    output_arr_idx: StorageType,
     array_grad_idx: Option<StorageType>,
-    avg: &[F],
     var: &[F],
     grad_idx: Option<StorageType>,
     storage: &mut ArrayStorage<F>,
 ) -> Result<(), PzeudoErr>
 where
-    F: Float + AddAssign + MulAssign,
+    for<'a> F: Float + AddAssign + MulAssign + Sum<&'a F> + Display + Debug,
 {
     if let Some(grad_idx) = grad_idx {
         if is_no_grad_or_time_not_match_or_no_update(grad_idx, storage)? {
@@ -82,30 +99,20 @@ where
                 "layer_norm_backwar. tidak dapat melakukan casting pada epsilon."
             )))?;
 
+            let mut arr_grad = storage.take_grad(arr_grad_idx)?;
+            let mut arr_grad_ref = arr_grad.to_array_ref_mut::<View>();
+            let axis = arr_grad_ref.shape.len() - 1;
+
             let grad = storage.take_grad(grad_idx)?;
             let grad_ref = grad.to_array_ref::<Contiguous>();
 
-            let mut arr_grad = storage.take_grad(arr_grad_idx)?;
-            let mut arr_grad_ref = arr_grad.to_array_ref_mut::<View>();
+            let out_array =
+                storage.get_as_array_ref::<Contiguous>(output_arr_idx, ContiguousType::Arr)?;
 
-            let n = F::from(arr_grad_ref.shape[arr_grad_ref.shape.len() - 1]).ok_or(
-                PzeudoErr::BackwardErr(format!(
-                    "layer_norm_backwar. tidak dapat melakukan casting pada n."
-                )),
-            )?;
-
-            let mut stride = shape_to_stride(&arr_grad_ref.shape);
-            stride[arr_grad_ref.shape.len() - 1] = 0;
-
-            let array = storage.get_as_array_ref::<View>(array_idx, ContiguousType::Arr)?;
-
-            let avg_arr: ArrayRef<'_, F, View> = ArrayRef {
-                data: avg,
-                offset: 0,
-                shape: &arr_grad_ref.shape,
-                stride: &stride,
-                _array_type: Default::default(),
-            };
+            let mut s = arr_grad_ref.shape.to_vec();
+            s[axis] = 1;
+            let mut stride = shape_to_stride(&s);
+            stride[axis] = 0;
 
             let var_arr: ArrayRef<'_, F, View> = ArrayRef {
                 data: var,
@@ -115,18 +122,27 @@ where
                 _array_type: Default::default(),
             };
 
-            let len = arr_grad_ref.shape.iter().product::<usize>();
-            let two = F::one() + F::one();
-            for i in 0..len {
-                let mut y = F::one() / (var_arr.linear_index(i)? + epsilon).sqrt();
-                y += -F::one() / ((var_arr.linear_index(i)? + epsilon).sqrt() * n);
+            let avg_grad_mul_arr = &grad_ref.mul(&out_array)?.avg_axis(&[axis], true)?;
+            let avg_grad_ref = grad_ref.avg_axis(&[axis], true)?;
 
-                let a = array.linear_index(i)? - avg_arr.linear_index(i)?;
-                let a = two * a * a;
-                let b = var_arr.linear_index(i)? + epsilon;
-                let b = two * n * b * b.sqrt();
-                y += -a / b;
-                y *= grad_ref.linear_index(i)?;
+            let avg_grad_mul_arr_broadcasted = avg_grad_mul_arr.broadcast(arr_grad_ref.shape)?;
+            let avg_grad_ref_broadcasted = avg_grad_ref.broadcast(arr_grad_ref.shape)?;
+
+            let len = arr_grad_ref.shape.iter().product::<usize>();
+            let one = F::one();
+
+            for i in 0..len {
+                let std = (var_arr.linear_index(i)? + epsilon).sqrt();
+
+                // 1
+                let mut y = one / std * grad_ref.linear_index(i)?;
+
+                // 2
+                y += -avg_grad_ref_broadcasted.linear_index(i)? / std;
+
+                // 3
+                y += -out_array.linear_index(i)? * avg_grad_mul_arr_broadcasted.linear_index(i)?
+                    / std;
 
                 *arr_grad_ref.linear_index_mut(i)? += y;
             }

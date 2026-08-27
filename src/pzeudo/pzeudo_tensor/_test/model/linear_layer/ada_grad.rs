@@ -23,7 +23,7 @@ fn linear_model_test_mse_f32() {
         .map(|x| (*x as f32 + 1.) * 0.001)
         .collect::<Vec<f32>>();
     let dataset =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, Grad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
@@ -31,7 +31,7 @@ fn linear_model_test_mse_f32() {
         .map(|x| *x as f32 + 10.)
         .collect::<Vec<f32>>();
     let actual =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, NoGrad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqNoGrad).unwrap();
 
     let mut module = module_builder.build(model);
     let epoch = EpochBuilder::new(25, (dataset, actual));
@@ -39,9 +39,9 @@ fn linear_model_test_mse_f32() {
     module
         .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
-            let x = model.linear_1.forward(dataset, Grad)?;
-            let y = model.linear_2.forward(&x, Grad)?;
-            let loss = mse(actual, &y, Grad)?;
+            let x = model.linear_1.forward(dataset, ReqGrad)?;
+            let y = model.linear_2.forward(&x, ReqGrad)?;
+            let loss = mse(actual, &y, ReqGrad)?;
             println!("loss: {}\n", loss);
             loss.backward()?;
 
@@ -68,7 +68,7 @@ fn linear_model_test_mse_f64() {
         .map(|x| (*x as f64 + 1.) * 0.001)
         .collect::<Vec<f64>>();
     let dataset =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, NoGrad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqNoGrad).unwrap();
 
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
@@ -76,7 +76,7 @@ fn linear_model_test_mse_f64() {
         .map(|x| *x as f64 + 10.)
         .collect::<Vec<f64>>();
     let actual =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, Grad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqGrad).unwrap();
 
     let epoch = EpochBuilder::new(25, (dataset, actual));
 
@@ -84,9 +84,9 @@ fn linear_model_test_mse_f64() {
     module
         .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
-            let x = model.linear_1.forward(dataset, Grad)?;
-            let y = model.linear_2.forward(&x, Grad)?;
-            let loss = mse(actual, &y, Grad)?;
+            let x = model.linear_1.forward(dataset, ReqGrad)?;
+            let y = model.linear_2.forward(&x, ReqGrad)?;
+            let loss = mse(actual, &y, ReqGrad)?;
             println!("loss: {}\n", loss);
             loss.backward()?;
 
@@ -114,7 +114,7 @@ fn linear_model_test_mae_f32() {
         .map(|x| (*x as f32 + 1.) * 0.001)
         .collect::<Vec<f32>>();
     let dataset =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, Grad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
@@ -122,7 +122,7 @@ fn linear_model_test_mae_f32() {
         .map(|x| *x as f32 + 10.)
         .collect::<Vec<f32>>();
     let actual =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, Grad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqGrad).unwrap();
 
     let epoch = EpochBuilder::new(25, (dataset, actual));
     let mut module = module_builder.build(model);
@@ -130,9 +130,9 @@ fn linear_model_test_mae_f32() {
     module
         .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
-            let x = model.linear_1.forward(dataset, Grad)?;
-            let y = model.linear_2.forward(&x, Grad)?;
-            let loss = mae(actual, &y, Grad)?;
+            let x = model.linear_1.forward(dataset, ReqGrad)?;
+            let y = model.linear_2.forward(&x, ReqGrad)?;
+            let loss = mae(actual, &y, ReqGrad)?;
             println!("loss: {}\n", loss);
             loss.backward()?;
 
@@ -159,7 +159,7 @@ fn linear_model_test_mae_f64() {
         .map(|x| (*x as f64 + 1.) * 0.001)
         .collect::<Vec<f64>>();
     let dataset =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, NoGrad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqNoGrad).unwrap();
 
     let shape = [4, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
@@ -167,7 +167,7 @@ fn linear_model_test_mae_f64() {
         .map(|x| *x as f64 + 10.)
         .collect::<Vec<f64>>();
     let actual =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, NoGrad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqNoGrad).unwrap();
 
     let epoch = EpochBuilder::new(25, (dataset, actual));
     let mut module = module_builder.build(model);
@@ -175,9 +175,9 @@ fn linear_model_test_mae_f64() {
     module
         .epoch(epoch, |epoch, _module, model, (dataset, actual)| {
             println!("epoch: {}", epoch);
-            let x = model.linear_1.forward(dataset, Grad)?;
-            let y = model.linear_2.forward(&x, Grad)?;
-            let loss = mae(actual, &y, Grad)?;
+            let x = model.linear_1.forward(dataset, ReqGrad)?;
+            let y = model.linear_2.forward(&x, ReqGrad)?;
+            let loss = mae(actual, &y, ReqGrad)?;
             println!("loss: {}\n", loss);
             loss.backward()?;
 
@@ -193,8 +193,8 @@ impl Model<f32> {
     fn forward<ReqGrad>(
         &self,
         requires_grad: ReqGrad,
-        dataset: &Tensor<f32, Contiguous, NoGrad>,
-        actual: &Tensor<f32, Contiguous, NoGrad>,
+        dataset: &Tensor<f32, Contiguous, ReqNoGrad>,
+        actual: &Tensor<f32, Contiguous, ReqNoGrad>,
     ) -> Result<Tensor<f32, Contiguous, ReqGrad>, PzeudoErr>
     where
         ReqGrad: ReqGradTrait<f32> + Copy,
@@ -223,7 +223,7 @@ fn linear_model_test_mse_f32_train_eval() {
         .map(|x| (*x as f32 + 1.) * 0.001)
         .collect::<Vec<f32>>();
     let dataset =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, NoGrad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqNoGrad).unwrap();
 
     let shape = [16, 1];
     let vector = Vec::from_iter(0..shape.iter().product::<usize>())
@@ -231,7 +231,7 @@ fn linear_model_test_mse_f32_train_eval() {
         .map(|x| *x as f32 + 10.)
         .collect::<Vec<f32>>();
     let actual =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, NoGrad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqNoGrad).unwrap();
 
     let shape = [16, 1];
     let vector = Vec::from_iter(16..shape.iter().product::<usize>() + 16)
@@ -239,7 +239,7 @@ fn linear_model_test_mse_f32_train_eval() {
         .map(|x| (*x as f32 + 1.) * 0.001)
         .collect::<Vec<f32>>();
     let test =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, NoGrad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqNoGrad).unwrap();
 
     let shape = [16, 1];
     let vector = Vec::from_iter(16..shape.iter().product::<usize>() + 16)
@@ -247,7 +247,7 @@ fn linear_model_test_mse_f32_train_eval() {
         .map(|x| *x as f32 + 10.)
         .collect::<Vec<f32>>();
     let actual_test =
-        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, NoGrad).unwrap();
+        Tensor::param_from_vector_with_shape(&vector, &shape, &module_builder, ReqNoGrad).unwrap();
 
     let epoch = EpochBuilder::new(50, (dataset, test, actual, actual_test));
     let mut module = module_builder.build(model);
@@ -257,14 +257,14 @@ fn linear_model_test_mse_f32_train_eval() {
             epoch,
             |epoch, _module, model, (dataset, test, actual, actual_test)| {
                 println!("epoch: {}", epoch);
-                let loss = model.forward(Grad, dataset, actual)?;
+                let loss = model.forward(ReqGrad, dataset, actual)?;
                 println!("train loss: {}", loss);
                 loss.backward()?;
 
                 model.optim.optim()?;
                 model.optim.zero_grad();
 
-                let loss = model.forward(NoGrad, test, actual_test)?;
+                let loss = model.forward(ReqNoGrad, test, actual_test)?;
                 println!("test loss: {}\n", loss);
                 Ok(())
             },

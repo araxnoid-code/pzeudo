@@ -9,7 +9,7 @@ fn unrecord_test_1() {
         &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[4, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
@@ -17,7 +17,7 @@ fn unrecord_test_1() {
         &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[4, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
@@ -25,13 +25,13 @@ fn unrecord_test_1() {
         &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[4, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
-    let mut tensor_d = tensor_a.add(&tensor_b, Grad).unwrap();
+    let mut tensor_d = tensor_a.add(&tensor_b, ReqGrad).unwrap();
 
-    let tensor_e = tensor_c.sub(&tensor_d, Grad).unwrap();
+    let tensor_e = tensor_c.sub(&tensor_d, ReqGrad).unwrap();
 
     tensor_d.unrecord().unwrap();
     tensor_e.backward().unwrap();

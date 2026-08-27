@@ -1,7 +1,8 @@
 use std::{
+    fmt::{Debug, Display},
     format,
     iter::Sum,
-    ops::{AddAssign, Neg},
+    ops::{AddAssign, MulAssign, Neg},
 };
 
 use num_traits::Float;
@@ -15,7 +16,8 @@ pub trait BackwardTrait<F> {
 impl<F> BackwardTrait<F> for RecordLabel<F>
 where
     ArrayStorage<F>: StorageF32F64,
-    for<'a> F: AddAssign + Copy + Neg<Output = F> + Float + Sum<&'a F>,
+    for<'a> F:
+        AddAssign + Copy + Neg<Output = F> + Float + Sum<&'a F> + MulAssign + Display + Debug,
     for<'a> ArrayRef<'a, F, Contiguous>: OpsBroadcast<F>,
     for<'a> ArrayRef<'a, F, View>: OpsBroadcast<F>,
 {
@@ -212,7 +214,9 @@ where
                 dropout_backward(mask, *q, *arr_grad_idx, *grad, storage)?;
             }
 
-            Self::LayerNorm(_, _, _, _, _) => {}
+            Self::LayerNorm(array_idx, array_grad_idx, var, grad) => {
+                layer_norm_backward(*array_idx, *array_grad_idx, var, *grad, storage)?;
+            }
         }
         Ok(())
     }

@@ -8,7 +8,7 @@ fn sum_axis_test_1() {
         &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[2, 2, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
@@ -16,13 +16,13 @@ fn sum_axis_test_1() {
         &[10., 10., 10., 12., 12., 12.],
         &[2, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
-    let tensor_sum = tensor_a.sum_axis(&[1], false, Grad).unwrap();
+    let tensor_sum = tensor_a.sum_axis(&[1], false, ReqGrad).unwrap();
 
-    let tensor_mul = tensor_b.mul(&tensor_sum, Grad).unwrap();
+    let tensor_mul = tensor_b.mul(&tensor_sum, ReqGrad).unwrap();
     tensor_mul.backward().unwrap();
 
     tensor_a
@@ -41,7 +41,7 @@ fn sum_axis_test_2() {
         ],
         &[2, 2, 2, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
@@ -49,13 +49,13 @@ fn sum_axis_test_2() {
         &[10., 10., 10., 12., 12., 12.],
         &[2, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
-    let tensor_sum = tensor_a.sum_axis(&[0, 2], false, Grad).unwrap();
+    let tensor_sum = tensor_a.sum_axis(&[0, 2], false, ReqGrad).unwrap();
 
-    let tensor_mul = tensor_b.mul(&tensor_sum, Grad).unwrap();
+    let tensor_mul = tensor_b.mul(&tensor_sum, ReqGrad).unwrap();
     tensor_mul.backward().unwrap();
 
     tensor_a
@@ -74,7 +74,7 @@ fn sum_axis_test_3() {
         &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[2, 2, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
@@ -82,13 +82,13 @@ fn sum_axis_test_3() {
         &[10., 10., 10., 12., 12., 12.],
         &[2, 1, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
-    let tensor_sum = tensor_a.sum_axis(&[1], true, Grad).unwrap();
+    let tensor_sum = tensor_a.sum_axis(&[1], true, ReqGrad).unwrap();
 
-    let tensor_mul = tensor_b.mul(&tensor_sum, Grad).unwrap();
+    let tensor_mul = tensor_b.mul(&tensor_sum, ReqGrad).unwrap();
     tensor_mul.backward().unwrap();
 
     tensor_a
@@ -107,7 +107,7 @@ fn sum_axis_test_4() {
         ],
         &[2, 2, 2, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
@@ -115,13 +115,13 @@ fn sum_axis_test_4() {
         &[10., 10., 10., 12., 12., 12.],
         &[1, 2, 1, 3],
         &module_builder,
-        Grad,
+        ReqGrad,
     )
     .unwrap();
 
-    let tensor_sum = tensor_a.sum_axis(&[0, 2], true, Grad).unwrap();
+    let tensor_sum = tensor_a.sum_axis(&[0, 2], true, ReqGrad).unwrap();
 
-    let tensor_mul = tensor_b.mul(&tensor_sum, Grad).unwrap();
+    let tensor_mul = tensor_b.mul(&tensor_sum, ReqGrad).unwrap();
     tensor_mul.backward().unwrap();
 
     tensor_a

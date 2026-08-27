@@ -44,7 +44,7 @@ impl<F, T, G> Tensor<F, T, G> {
         ))
     }
 
-    pub fn t(&self) -> Result<Tensor<F, View, Grad>, PzeudoErr>
+    pub fn t(&self) -> Result<Tensor<F, View, ReqGrad>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
         F: Copy,

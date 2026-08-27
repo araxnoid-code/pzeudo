@@ -99,7 +99,7 @@ pub trait OpsVar<F>: ArrayTrait<F> {
                 sum_squared += metadata.data[index] * metadata.data[index];
             }
             vec_of_sum.push(sum);
-            vec_of_squared_sum.push(sum);
+            vec_of_squared_sum.push(sum_squared);
         }
 
         if !keep_dim {

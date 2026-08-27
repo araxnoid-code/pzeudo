@@ -98,7 +98,6 @@ pub enum RecordLabel<F> {
     LayerNorm(
         StorageType,         // Array
         Option<StorageType>, // Array's Grad
-        Vec<F>,              // avg
         Vec<F>,              // variance
         Option<StorageType>, // Grad
     ),

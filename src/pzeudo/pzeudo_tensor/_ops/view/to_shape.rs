@@ -46,7 +46,7 @@ impl<F, G> Tensor<F, Contiguous, G> {
         ))
     }
 
-    pub fn reshape(&self, shape: &[i32]) -> Result<Tensor<F, View, Grad>, PzeudoErr>
+    pub fn reshape(&self, shape: &[i32]) -> Result<Tensor<F, View, ReqGrad>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, F, Contiguous>: ArrayTrait<F>,
         F: Copy,

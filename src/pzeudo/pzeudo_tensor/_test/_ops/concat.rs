@@ -8,28 +8,32 @@ fn concat_test_1() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 0 as f32)
         .collect::<Vec<f32>>();
-    let tensor_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_a =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 1, 3];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 1 as f32)
         .collect::<Vec<f32>>();
-    let tensor_b = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_b =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 2, 3];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 2 as f32)
         .collect::<Vec<f32>>();
-    let tensor_c = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_c =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 3, 3];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 3 as f32)
         .collect::<Vec<f32>>();
-    let tensor_d = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_d =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let concat = vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(1, Grad)
+        .tensor_concat(1, ReqGrad)
         .unwrap();
     //
 
@@ -45,12 +49,12 @@ fn concat_test_1() {
         .unwrap();
 
     vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(0, Grad)
+        .tensor_concat(0, ReqGrad)
         .map_or(Ok(()), |_| Err("Error on a different test shape off-axis."))
         .unwrap();
 
     vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(2, Grad)
+        .tensor_concat(2, ReqGrad)
         .map_or(Ok(()), |_| Err("Error on a different test shape off-axis."))
         .unwrap();
 }
@@ -63,28 +67,32 @@ fn concat_test_2() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 0 as f32)
         .collect::<Vec<f32>>();
-    let tensor_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_a =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [2, 2, 3];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 1 as f32)
         .collect::<Vec<f32>>();
-    let tensor_b = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_b =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [1, 2, 3];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 2 as f32)
         .collect::<Vec<f32>>();
-    let tensor_c = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_c =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [4, 2, 3];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 3 as f32)
         .collect::<Vec<f32>>();
-    let tensor_d = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_d =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let concat = vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(0, Grad)
+        .tensor_concat(0, ReqGrad)
         .unwrap();
 
     concat
@@ -97,12 +105,12 @@ fn concat_test_2() {
         .unwrap();
 
     vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(1, Grad)
+        .tensor_concat(1, ReqGrad)
         .map_or(Ok(()), |_| Err("Error on a different test shape off-axis."))
         .unwrap();
 
     vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(2, Grad)
+        .tensor_concat(2, ReqGrad)
         .map_or(Ok(()), |_| Err("Error on a different test shape off-axis."))
         .unwrap();
 }
@@ -115,28 +123,32 @@ fn concat_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 0 as f32)
         .collect::<Vec<f32>>();
-    let tensor_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_a =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 2, 3];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 1 as f32)
         .collect::<Vec<f32>>();
-    let tensor_b = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_b =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 2, 2];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 2 as f32)
         .collect::<Vec<f32>>();
-    let tensor_c = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_c =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 2, 4];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 3 as f32)
         .collect::<Vec<f32>>();
-    let tensor_d = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_d =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let concat = vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(2, Grad)
+        .tensor_concat(2, ReqGrad)
         .unwrap();
 
     concat
@@ -149,12 +161,12 @@ fn concat_test_3() {
         .unwrap();
 
     vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(0, Grad)
+        .tensor_concat(0, ReqGrad)
         .map_or(Ok(()), |_| Err("Error on a different test shape off-axis."))
         .unwrap();
 
     vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(1, Grad)
+        .tensor_concat(1, ReqGrad)
         .map_or(Ok(()), |_| Err("Error on a different test shape off-axis."))
         .unwrap();
 }
@@ -167,25 +179,29 @@ fn concat_test_4() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 0 as f32)
         .collect::<Vec<f32>>();
-    let tensor_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_a =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 3, 2];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 1 as f32)
         .collect::<Vec<f32>>();
-    let tensor_b = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_b =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 4, 2];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 2 as f32)
         .collect::<Vec<f32>>();
-    let tensor_c = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_c =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 1, 2];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 3 as f32)
         .collect::<Vec<f32>>();
-    let tensor_d = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_d =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let concat = vec![
         &tensor_a.view().unwrap(),
@@ -193,7 +209,7 @@ fn concat_test_4() {
         &tensor_c.view().unwrap(),
         &tensor_d.view().unwrap(),
     ]
-    .tensor_concat(1, Grad)
+    .tensor_concat(1, ReqGrad)
     .unwrap();
 
     let shape = concat.get_shape().to_vec();
@@ -201,9 +217,10 @@ fn concat_test_4() {
     let vec = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let other_tensor = Tensor::from_vector_with_shape(&vec, &shape, &module_builder, Grad).unwrap();
+    let other_tensor =
+        Tensor::from_vector_with_shape(&vec, &shape, &module_builder, ReqGrad).unwrap();
 
-    let mul = other_tensor.mul(&concat, Grad).unwrap();
+    let mul = other_tensor.mul(&concat, ReqGrad).unwrap();
 
     mul.backward().unwrap();
 
@@ -237,28 +254,32 @@ fn concat_test_5() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 0 as f32)
         .collect::<Vec<f32>>();
-    let tensor_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_a =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 3, 2];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 1 as f32)
         .collect::<Vec<f32>>();
-    let tensor_b = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_b =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 4, 2];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 2 as f32)
         .collect::<Vec<f32>>();
-    let tensor_c = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_c =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let shape = [3, 1, 2];
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|_| 3 as f32)
         .collect::<Vec<f32>>();
-    let tensor_d = Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, Grad).unwrap();
+    let tensor_d =
+        Tensor::from_vector_with_shape(&vec_a, &shape, &module_builder, ReqGrad).unwrap();
 
     let concat = vec![&tensor_a, &tensor_b, &tensor_c, &tensor_d]
-        .tensor_concat(1, Grad)
+        .tensor_concat(1, ReqGrad)
         .unwrap();
 
     let shape = concat.get_shape().to_vec();
@@ -266,10 +287,11 @@ fn concat_test_5() {
     let vec = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let other_tensor = Tensor::from_vector_with_shape(&vec, &shape, &module_builder, Grad).unwrap();
+    let other_tensor =
+        Tensor::from_vector_with_shape(&vec, &shape, &module_builder, ReqGrad).unwrap();
 
     tensor_b.no_grad().unwrap();
-    let mul = other_tensor.mul(&concat, Grad).unwrap();
+    let mul = other_tensor.mul(&concat, ReqGrad).unwrap();
 
     mul.backward().unwrap();
     tensor_a

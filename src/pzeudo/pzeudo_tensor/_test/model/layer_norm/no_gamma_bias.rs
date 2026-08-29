@@ -1,4 +1,6 @@
-use pzeudo::*;
+use crate::prelude::*;
+
+use crate::WeightInit;
 
 // Create a model
 struct Model {
@@ -27,7 +29,8 @@ impl Model {
     }
 }
 
-fn main() {
+#[test]
+fn test_layer_norm_1() {
     // Create a module.
     let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 
@@ -35,7 +38,7 @@ fn main() {
     let mut model_builder = module_builder.model_builder();
     let model = Model {
         linear_1: Linear::new(1, 16, WeightInit::He, &mut model_builder).unwrap(),
-        layer_norm: LayerNorm::new(Some(16), &mut model_builder, ReqGrad).unwrap(),
+        layer_norm: LayerNorm::new(None, &mut model_builder, ReqGrad).unwrap(),
         linear_2: Linear::new(16, 1, WeightInit::He, &mut model_builder).unwrap(),
         optim: Sgd::new(0.01, model_builder).unwrap(),
     };
@@ -90,7 +93,6 @@ fn main() {
                 let loss = model
                     .forward(train_dataset, train_target, TrainPhase)
                     .unwrap();
-                println!("{}", loss);
                 loss.backward()?;
 
                 model.optim.optim()?;

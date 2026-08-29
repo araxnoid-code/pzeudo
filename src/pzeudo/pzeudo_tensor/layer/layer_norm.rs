@@ -37,7 +37,7 @@ impl<F, G> LayerNorm<F, G> {
         &self,
         tensor: &Tensor<F, T, TensorGrad>,
         requires_grad: ReqGrad,
-    ) -> Result<Tensor<F, T, ReqGrad>, PzeudoErr>
+    ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
     where
         F: AddAssign + DivAssign + Float + SubAssign + Debug + MulAssign,
         for<'a> &'a F: Mul<&'a F, Output = F>,
@@ -61,31 +61,9 @@ impl<F, G> LayerNorm<F, G> {
         let len = array_tensor.shape.iter().product::<usize>();
         let mut vec = Vec::with_capacity(len);
 
-        let gamma_broadcasted: Option<ArrayRef<'_, F, Contiguous>> =
-            self.gamma.as_ref().map_or(Ok(None), |gamma| {
-                Ok(Some(storage.get_as_array_ref::<Contiguous>(
-                    gamma.get_array_idx(),
-                    ContiguousType::Arr,
-                )?))
-            })?;
-
-        let beta_broadcasted: Option<ArrayRef<'_, F, Contiguous>> =
-            self.beta.as_ref().map_or(Ok(None), |beta| {
-                Ok(Some(storage.get_as_array_ref::<Contiguous>(
-                    beta.get_array_idx(),
-                    ContiguousType::Arr,
-                )?))
-            })?;
-
         for i in 0..len {
-            let mut y = (array_tensor.linear_index(i)? - avg_broadcast.linear_index(i)?)
+            let y = (array_tensor.linear_index(i)? - avg_broadcast.linear_index(i)?)
                 / (var_broadcast.linear_index(i)? + epsilon).sqrt();
-
-            if let (Some(gamma), Some(beta)) = (&gamma_broadcasted, &beta_broadcasted) {
-                y *= gamma.linear_index(i)?;
-                y += beta.linear_index(i)?;
-            }
-
             vec.push(y);
         }
 
@@ -98,25 +76,14 @@ impl<F, G> LayerNorm<F, G> {
         let record_idx = if requires_grad.is_grad() {
             let mut record = tensor.get_record().borrow_mut();
             let record_idx = RecordStatus::Record(record.len());
-            let record_label = RecordLabel::LayerNorm(
-                norm,
-                tensor.get_grad_idx(),
-                var.data,
-                self.gamma
-                    .as_ref()
-                    .map(|gamma| (gamma.get_array_idx(), gamma.get_grad_idx())),
-                self.beta
-                    .as_ref()
-                    .map(|gamma| (gamma.get_array_idx(), gamma.get_grad_idx())),
-                grad,
-            );
+            let record_label = RecordLabel::LayerNorm(norm, tensor.get_grad_idx(), var.data, grad);
             record.push(record_label);
             Some(record_idx)
         } else {
             None
         };
 
-        let tensor = Tensor::_new(
+        let tensor: Tensor<F, Contiguous, ReqGrad> = Tensor::_new(
             norm,
             grad,
             tensor.shape.to_vec(),
@@ -124,6 +91,13 @@ impl<F, G> LayerNorm<F, G> {
             tensor.get_record().clone(),
             tensor.get_storage().clone(),
         );
+
+        if let (Some(gamma), Some(beta)) = (&self.gamma, &self.beta) {
+            drop(storage);
+            let mul = tensor.mul::<Contiguous, _, _>(gamma, requires_grad)?;
+            let add = mul.add::<Contiguous, _, _>(beta, requires_grad)?;
+            return Ok(add);
+        }
 
         Ok(tensor)
     }
@@ -133,8 +107,6 @@ pub fn layer_norm_backward<F>(
     output_arr_idx: StorageType,
     array_grad_idx: Option<StorageType>,
     var: &[F],
-    gamma: Option<(StorageType, Option<StorageType>)>,
-    beta: Option<(StorageType, Option<StorageType>)>,
     grad_idx: Option<StorageType>,
     storage: &mut ArrayStorage<F>,
 ) -> Result<(), PzeudoErr>
@@ -156,20 +128,6 @@ where
             )))?;
 
             let mut arr_grad = storage.take_grad(arr_grad_idx)?;
-            let gamma_comp = gamma.map_or(Ok(None), |(array_idx, gamma_grad_idx)| {
-                if let Some(gamma_grad_idx) = gamma_grad_idx {
-                    return Ok(Some((storage.take_grad(gamma_grad_idx)?, array_idx)));
-                }
-
-                Ok(None)
-            })?;
-            let beta_comp = beta.map_or(Ok(None), |(array_idx, beta_grad_idx)| {
-                if let Some(beta_grad_idx) = beta_grad_idx {
-                    return Ok(Some((storage.take_grad(beta_grad_idx)?, array_idx)));
-                }
-
-                Ok(None)
-            })?;
 
             let mut arr_grad_ref = arr_grad.to_array_ref_mut::<View>();
             let axis = arr_grad_ref.shape.len() - 1;
@@ -193,32 +151,7 @@ where
                 _array_type: Default::default(),
             };
 
-            let avg_grad_mul_arr =
-                if let (Some((gamma_grad, gamma_idx)), Some((beta_grad, beta_idx))) =
-                    (gamma_comp, beta_comp)
-                {
-                    panic!();
-                    let gamma_array =
-                        storage.get_as_array_ref::<Contiguous>(gamma_idx, ContiguousType::Arr)?;
-
-                    let len = grad_ref.shape.iter().product::<usize>();
-                    let mut vec = Vec::with_capacity(len);
-                    let one = F::one();
-                    for i in 0..len {
-                        let y = (grad_ref.linear_index(i)? + one) * gamma_array.linear_index(i)?;
-                        vec.push(y);
-                    }
-
-                    let array = Array {
-                        data: vec,
-                        offset: 0,
-                        shape: grad_ref.shape.to_vec(),
-                        stride: grad_ref.stride.to_vec(),
-                    };
-                    array.avg_axis(&[axis], true)?
-                } else {
-                    grad_ref.mul(&out_array)?.avg_axis(&[axis], true)?
-                };
+            let avg_grad_mul_arr = grad_ref.mul(&out_array)?.avg_axis(&[axis], true)?;
 
             let avg_grad_ref = grad_ref.avg_axis(&[axis], true)?;
 

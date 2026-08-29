@@ -1,4 +1,4 @@
-use pzeudo::*;
+use crate::prelude::*;
 
 // Create a model
 struct Model {
@@ -27,7 +27,8 @@ impl Model {
     }
 }
 
-fn main() {
+#[test]
+fn test_layer_norm_2() {
     // Create a module.
     let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 

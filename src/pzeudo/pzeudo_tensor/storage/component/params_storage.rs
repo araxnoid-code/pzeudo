@@ -22,11 +22,11 @@ impl<F> ParamsStorage<F> {
         Ok(self.storage
             .get_mut(idx)
             .ok_or(PzeudoErr::StorageErr(format!(
-                "ParamsStorage::take_params_grad. index {idx} points to an invalid location on gradient storage."
+                "ParamsStorage::take_params_grad. index {idx} points to an invalid location."
             )))?.grad
         .take()
         .ok_or(PzeudoErr::StorageErr(format!(
-            "ParamsStorage::take_params_grad. index {idx} points to elements that have the value None in gradient storage."
+            "ParamsStorage::take_params_grad. index {idx} points to elements that have the value None."
         )))?)
     }
 

@@ -214,8 +214,16 @@ where
                 dropout_backward(mask, *q, *arr_grad_idx, *grad, storage)?;
             }
 
-            Self::LayerNorm(array_idx, array_grad_idx, var, grad) => {
-                layer_norm_backward(*array_idx, *array_grad_idx, var, *grad, storage)?;
+            Self::LayerNorm(array_idx, array_grad_idx, var, gamma, beta, grad) => {
+                layer_norm_backward(
+                    *array_idx,
+                    *array_grad_idx,
+                    var,
+                    *gamma,
+                    *beta,
+                    *grad,
+                    storage,
+                )?;
             }
         }
         Ok(())

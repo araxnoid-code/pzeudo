@@ -5,7 +5,7 @@ use crate::WeightInit;
 // Create a model
 struct Model {
     linear_1: Linear<f32>,
-    layer_norm: LayerNorm,
+    layer_norm: LayerNorm<f32, ReqGrad>,
     linear_2: Linear<f32>,
     optim: Sgd<f32>,
 }
@@ -38,7 +38,7 @@ fn test_layer_norm() {
     let mut model_builder = module_builder.model_builder();
     let model = Model {
         linear_1: Linear::new(1, 16, WeightInit::He, &mut model_builder).unwrap(),
-        layer_norm: LayerNorm::new(),
+        layer_norm: LayerNorm::new(None, &mut model_builder, ReqGrad).unwrap(),
         linear_2: Linear::new(16, 1, WeightInit::He, &mut model_builder).unwrap(),
         optim: Sgd::new(0.01, model_builder).unwrap(),
     };

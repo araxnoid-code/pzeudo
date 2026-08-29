@@ -96,10 +96,12 @@ pub enum RecordLabel<F> {
     // LAYER
     Dropout(Vec<u8>, F, Option<StorageType>, Option<StorageType>), // (Mask, p - 1, Array's Grad, Grad)
     LayerNorm(
-        StorageType,         // Array
-        Option<StorageType>, // Array's Grad
-        Vec<F>,              // variance
-        Option<StorageType>, // Grad
+        StorageType,                                // Array
+        Option<StorageType>,                        // Array's Grad
+        Vec<F>,                                     // variance
+        Option<(StorageType, Option<StorageType>)>, // (gamma, gamma_grad)
+        Option<(StorageType, Option<StorageType>)>, // (beta, beta_grad)
+        Option<StorageType>,                        // Grad
     ),
 }
 

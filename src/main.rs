@@ -1,14 +1,11 @@
-use pzeudo::{
-    Contiguous, EpochBuilder, EvalPhase, LayerNorm, Linear, ModuleBuilder, OptimizerTrait,
-    PhaseStatus, PzeudoErr, ReqNoGrad, Sgd, Tensor, TrainPhase, mse,
-};
+use pzeudo::*;
 
 // Create a model
 struct Model {
     linear_1: Linear<f32>,
-    layer_norm: LayerNorm,
+    layer_norm: LayerNorm<f32, ReqGrad>,
     linear_2: Linear<f32>,
-    optim: Sgd<f32>,
+    optim: Adam<f32>,
 }
 
 // forward pass in the model
@@ -18,13 +15,7 @@ impl Model {
         input: &Tensor<f32, Contiguous, ReqNoGrad>,
         target: &Tensor<f32, Contiguous, ReqNoGrad>,
         phase: Phase,
-    ) -> Result<
-        (
-            Tensor<f32, Contiguous, Phase>,
-            Tensor<f32, Contiguous, Phase>,
-        ),
-        PzeudoErr,
-    >
+    ) -> Result<Tensor<f32, Contiguous, Phase>, PzeudoErr>
     where
         Phase: PhaseStatus<f32>,
     {
@@ -32,7 +23,7 @@ impl Model {
         let z = self.layer_norm.forward(&x, phase)?;
         let y = self.linear_2.forward(&z, phase)?;
         let loss = mse(target, &y, phase)?;
-        Ok((loss, x))
+        Ok(loss)
     }
 }
 
@@ -43,10 +34,10 @@ fn main() {
     // To initialize a model that has been created, you need a ModelBuilder.
     let mut model_builder = module_builder.model_builder();
     let model = Model {
-        linear_1: Linear::new(1, 16, pzeudo::WeightInit::He, &mut model_builder).unwrap(),
-        layer_norm: LayerNorm::new(),
-        linear_2: Linear::new(16, 1, pzeudo::WeightInit::He, &mut model_builder).unwrap(),
-        optim: Sgd::new(0.01, model_builder).unwrap(),
+        linear_1: Linear::new(1, 16, WeightInit::He, &mut model_builder).unwrap(),
+        layer_norm: LayerNorm::new(Some(16), &mut model_builder, ReqGrad).unwrap(),
+        linear_2: Linear::new(16, 1, WeightInit::He, &mut model_builder).unwrap(),
+        optim: Adam::new(0.01, model_builder).unwrap(),
     };
 
     // Create training and testing datasets.
@@ -93,22 +84,21 @@ fn main() {
     module
         .epoch(
             epoch_builder,
-            |epoch, _module, model, (train_dataset, train_target, test_dataset, test_target)| {
+            |_epoch, _module, model, (train_dataset, train_target, test_dataset, test_target)| {
                 // training
                 // Use Grad.
                 let loss = model
                     .forward(train_dataset, train_target, TrainPhase)
                     .unwrap();
-                println!("epoch:{}\ntrain_loss:{}", epoch, loss.0);
-                loss.0.backward()?;
+                println!("{}", loss);
+                loss.backward()?;
 
                 model.optim.optim()?;
                 model.optim.zero_grad();
 
                 // testing
                 // Use NoGrad.
-                let loss = model.forward(test_dataset, test_target, EvalPhase).unwrap();
-                println!("test_loss:{}\n", loss.0);
+                let _loss = model.forward(test_dataset, test_target, EvalPhase).unwrap();
 
                 Ok(())
             },

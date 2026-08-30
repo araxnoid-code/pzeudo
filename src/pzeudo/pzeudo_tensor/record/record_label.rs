@@ -101,6 +101,11 @@ pub enum RecordLabel<F> {
         Vec<F>,              // variance
         Option<StorageType>, // Grad
     ),
+    Embedding(
+        Vec<Option<StorageType>>, // Embedding_grads
+        StorageType,              // tensor_array
+        Option<StorageType>,      // grad
+    ),
 }
 
 // impl<F> Debug for RecordLabel<F>

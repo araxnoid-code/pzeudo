@@ -27,8 +27,8 @@ use std::{
 /// let layer_norm = LayerNorm::new(None, &mut model_builder, ReqGrad).unwrap();
 /// // With gamma dan beta
 /// let layer_norm = LayerNorm::new(Some(16), &mut model_builder, ReqGrad).unwrap();
-/// // gamma, 1-dimensional, shape [16]
-/// // beta, 1-dimensional, shape [16]
+/// // gamma, 1-dimensional, shape [16], initialization as a tensor of ones
+/// // beta, 1-dimensional, shape [16], initialization as a tensor of zeros
 /// ```
 pub struct LayerNorm<F, ReqGrad> {
     gamma: Option<Tensor<F, Contiguous, ReqGrad>>,

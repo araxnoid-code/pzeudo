@@ -11,3 +11,4 @@ mod layer_norm;
 pub use layer_norm::*;
 
 mod embedding;
+pub use embedding::*;

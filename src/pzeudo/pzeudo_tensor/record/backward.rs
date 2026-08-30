@@ -217,6 +217,13 @@ where
             Self::LayerNorm(array_idx, array_grad_idx, var, grad) => {
                 layer_norm_backward(*array_idx, *array_grad_idx, var, *grad, storage)?;
             }
+
+            #[allow(unused)]
+            Self::Embedding(embedding_grads, tensor_array, grad) => {
+                return Err(PzeudoErr::BackwardErr(format!(
+                    "BackwardTrait::backward. Embedding Backward is not yet complete."
+                )));
+            }
         }
         Ok(())
     }

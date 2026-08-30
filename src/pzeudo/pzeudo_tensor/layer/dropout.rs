@@ -52,7 +52,6 @@ impl Dropout {
     where
         F: Float,
         Phase: PhaseStatus<F>,
-        // ReqGrad: ReqGradTrait<F>,
         for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     {
         if phase.is_eval() {

@@ -4,24 +4,37 @@ use rand::distr::{Distribution, StandardUniform};
 use rand_distr::{Normal, StandardNormal};
 use std::ops::{Add, Div};
 
-/// ## Linear Layer
+/// # Linear Layer
 /// Accepts 2D input in the form [Batch, Features]. Must be exactly 2D.
 ///
-/// ### formula:
+/// ## formula:
+/// ```
 /// linear = input * weight + bias
+/// ```
 ///
-/// ### Shape specifications:
-/// - input shape: batch×in_features
-/// - weight shape: in_features×out_features
-/// - bias shape: out_features
+/// ## Shape specifications:
+/// ```
+/// input shape: batch×in_features
+/// weight shape: in_features×out_features
+/// bias shape: out_features
+/// ```
 ///
-/// ### Weight Initialization
-/// #### Xavier:
+/// ## Weight Initialization
+/// ### Xavier:
+/// ```
 /// mean    : 0
 /// std_dev : 2/(in_features+out_features)
-/// #### He:
+/// ```
+/// ### He:
+/// ```
 /// mean: 0
 /// std_dev : 2/in_features
+/// ```
+/// ```rust
+/// let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+/// let mut model_builder = module_builder.model_builder();
+/// let linear = Linear::new(1, 16, WeightInit::He, &mut model_builder).unwrap();
+/// ```
 pub struct Linear<F> {
     pub(crate) in_features: usize,
     pub(crate) out_features: usize,

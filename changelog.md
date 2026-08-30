@@ -1,5 +1,5 @@
 ## ChangeLog
-### Version 0.0.3-dev.3
+### Version 0.0.3-dev.2
 ##### Bug Fixes
 - Fixed a bug in the is_no_grad_or_time_not_match_or_no_update function where the update status of an ArrayView pointing to an Array was not being checked.
 

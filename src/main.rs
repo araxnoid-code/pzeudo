@@ -3,7 +3,9 @@ use pzeudo::*;
 // Create a model
 struct Model {
     linear_1: Linear<f32>,
+    // Layer Norm Update
     layer_norm: LayerNorm<f32, ReqGrad>,
+    // Layer Norm Update
     linear_2: Linear<f32>,
     optim: Sgd<f32>,
 }
@@ -33,9 +35,12 @@ fn main() {
 
     // To initialize a model that has been created, you need a ModelBuilder.
     let mut model_builder = module_builder.model_builder();
+
     let model = Model {
         linear_1: Linear::new(1, 16, WeightInit::He, &mut model_builder).unwrap(),
+        // Layer Norm Update
         layer_norm: LayerNorm::new(Some(16), &mut model_builder, ReqGrad).unwrap(),
+        // Layer Norm Update
         linear_2: Linear::new(16, 1, WeightInit::He, &mut model_builder).unwrap(),
         optim: Sgd::new(0.01, model_builder).unwrap(),
     };
@@ -43,14 +48,14 @@ fn main() {
     // Create training and testing datasets.
     // The dataset below is for testing purposes only.
     let train_dataset = Tensor::param_from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8.],
+        &[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0],
         &[8, 1],
         &module_builder,
         ReqNoGrad,
     )
     .unwrap();
     let train_target = Tensor::param_from_vector_with_shape(
-        &[11., 12., 13., 14., 15., 16., 17., 18.],
+        &[11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0],
         &[8, 1],
         &module_builder,
         ReqNoGrad,
@@ -58,14 +63,14 @@ fn main() {
     .unwrap();
 
     let test_dataset = Tensor::param_from_vector_with_shape(
-        &[9., 10., 11., 12., 13., 14., 15., 16.],
+        &[9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0],
         &[8, 1],
         &module_builder,
         ReqNoGrad,
     )
     .unwrap();
     let test_target = Tensor::param_from_vector_with_shape(
-        &[19., 20., 21., 22., 23., 24., 25., 26.],
+        &[19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0],
         &[8, 1],
         &module_builder,
         ReqNoGrad,
@@ -90,7 +95,6 @@ fn main() {
                 let loss = model
                     .forward(train_dataset, train_target, TrainPhase)
                     .unwrap();
-                println!("{}", loss);
                 loss.backward()?;
 
                 model.optim.optim()?;

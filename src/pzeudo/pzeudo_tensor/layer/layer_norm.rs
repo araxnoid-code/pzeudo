@@ -6,6 +6,30 @@ use std::{
     ops::{AddAssign, DivAssign, Mul, MulAssign, SubAssign},
 };
 
+/// # Layer Norm
+/// Normalizing the last axis.
+/// ## formula:
+/// ```
+/// avg = E[x]
+/// variance = E[x^2] - E[x]^2
+/// epsilon = 1e-7
+/// norm = x - avg/sqrt(variance + epsilon)
+/// ```
+/// ## optional gamma and beta
+/// ```
+/// y * gamma + beta
+/// ```
+/// ```rust
+/// let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+/// let mut model_builder = module_builder.model_builder();
+///
+/// // without gamma and beta
+/// let layer_norm = LayerNorm::new(None, &mut model_builder, ReqGrad).unwrap();
+/// // With gamma dan beta
+/// let layer_norm = LayerNorm::new(Some(16), &mut model_builder, ReqGrad).unwrap();
+/// // gamma, 1-dimensional, shape [16]
+/// // beta, 1-dimensional, shape [16]
+/// ```
 pub struct LayerNorm<F, ReqGrad> {
     gamma: Option<Tensor<F, Contiguous, ReqGrad>>,
     beta: Option<Tensor<F, Contiguous, ReqGrad>>,

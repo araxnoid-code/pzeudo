@@ -1,6 +1,6 @@
 use num_traits::Float;
 use rand_distr::{Distribution, Normal, StandardNormal};
-use std::array;
+use std::{array, ops::AddAssign};
 
 use crate::prelude::*;
 
@@ -79,8 +79,7 @@ impl<const NUM: usize, F, Grad> Embedding<NUM, F, Grad> {
 
         let record_status = if requires_grad.is_grad() {
             let mut record = tensor.get_record().borrow_mut();
-            let record_label =
-                RecordLabel::Embedding(embedding_grads, tensor.get_array_idx(), grad_idx);
+            let record_label = RecordLabel::Embedding(embedding_grads, grad_idx);
             let record_idx = RecordStatus::Record(record.len());
             record.push(record_label);
             Some(record_idx)
@@ -99,4 +98,49 @@ impl<const NUM: usize, F, Grad> Embedding<NUM, F, Grad> {
 
         Ok(tensor)
     }
+}
+
+pub fn embedding_backward<F>(
+    embedding_grads: &[Option<StorageType>],
+    grad_idx: Option<StorageType>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    F: AddAssign + Copy,
+{
+    if let Some(grad_idx) = grad_idx {
+        if is_no_grad_or_time_not_match_or_no_update(grad_idx, storage)? {
+            return Ok(());
+        };
+
+        let grad_take = storage.take_grad(grad_idx)?;
+        let grad_ref = grad_take.to_array_ref::<Contiguous>();
+        let embedding_dim = grad_ref.shape[grad_ref.shape.len() - 1];
+
+        for (idx, embedding_grad_idx) in embedding_grads.iter().enumerate() {
+            if let Some(embedding_grad_idx) = embedding_grad_idx {
+                storage.set_grad_update(*embedding_grad_idx, true)?;
+                if is_no_grad_or_time_not_match_or_no_update(*embedding_grad_idx, storage)? {
+                    continue;
+                };
+
+                let array = storage.get_as_array_ref_mut::<Contiguous>(
+                    *embedding_grad_idx,
+                    ContiguousType::Grad,
+                )?;
+
+                let start = idx * embedding_dim;
+                let end = start + embedding_dim;
+                for (array_val, grad_val) in
+                    array.data.iter_mut().zip(grad_ref.data[start..end].iter())
+                {
+                    *array_val += *grad_val;
+                }
+            }
+        }
+
+        storage.replace_grad(grad_idx, grad_take)?;
+    }
+
+    Ok(())
 }

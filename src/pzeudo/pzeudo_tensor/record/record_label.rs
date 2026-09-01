@@ -103,7 +103,6 @@ pub enum RecordLabel<F> {
     ),
     Embedding(
         Vec<Option<StorageType>>, // Embedding_grads
-        StorageType,              // tensor_array
         Option<StorageType>,      // grad
     ),
 }

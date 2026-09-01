@@ -219,10 +219,8 @@ where
             }
 
             #[allow(unused)]
-            Self::Embedding(embedding_grads, tensor_array, grad) => {
-                return Err(PzeudoErr::BackwardErr(format!(
-                    "BackwardTrait::backward. Embedding Backward is not yet complete."
-                )));
+            Self::Embedding(embedding_grads, grad) => {
+                embedding_backward(embedding_grads, *grad, storage)?;
             }
         }
         Ok(())

@@ -21,26 +21,19 @@ impl<F, Grad> Embedding<F, Grad> {
         F: Float,
         StandardNormal: Distribution<F>,
     {
-        let module = model_builder.get_module();
-
-        let zero = F::zero();
-        let one = F::one();
-        let normal = Normal::new(zero, one).map_err(|err| PzeudoErr::RandDistrNormalErr(err))?;
-        let weights = (0..embedding_num)
-            .map(|_| {
-                let mut vec = Vec::with_capacity(embedding_dim);
-                for _ in 0..embedding_dim {
-                    vec.push(normal.sample(&mut module.rng));
-                }
-                Tensor::<_, _, Grad>::param_from_vector_with_shape(
-                    &vec,
-                    &[embedding_dim],
-                    module,
-                    requires_grad,
-                )
-                .unwrap()
-            })
-            .collect();
+        let mut weights = Vec::with_capacity(embedding_num);
+        let normal =
+            Normal::new(F::zero(), F::one()).map_err(|err| PzeudoErr::RandDistrNormalErr(err))?;
+        for _ in 0..embedding_num {
+            let vec = model_builder.get_load_else_generate_vec(embedding_dim, &normal)?;
+            let tensor = Tensor::param_from_vector_with_shape(
+                &vec,
+                &[embedding_dim],
+                model_builder.get_module(),
+                requires_grad,
+            )?;
+            weights.push(tensor);
+        }
 
         Ok(Embedding {
             embedding_dim,

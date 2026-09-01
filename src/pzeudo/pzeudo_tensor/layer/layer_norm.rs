@@ -45,11 +45,28 @@ impl<F, G> LayerNorm<F, G> {
         F: Clone + One + Zero,
         G: ReqGradTrait<F>,
     {
-        let module = model_builder.get_module();
         let (gamma, beta) = if let Some(hidden) = hidden {
-            let gamma = Tensor::param_ones(&[hidden], module, requires_grad)?;
-            let beta = Tensor::param_zeros(&[hidden], module, requires_grad)?;
-            (Some(gamma), Some(beta))
+            if model_builder.is_params_load() {
+                let gamma = model_builder
+                    .get_load_params()?
+                    .ok_or(PzeudoErr::LayerErr(String::from("LayerNorm::new. Unable to retrieve gamma data via load params because load params is undefined.")))?;
+
+                let beta = model_builder
+                    .get_load_params()?
+                    .ok_or(PzeudoErr::LayerErr(String::from("LayerNorm::new. Unable to retrieve beta data via load params because load params is undefined.")))?;
+
+                let module = model_builder.get_module();
+                let gamma =
+                    Tensor::param_from_vector_with_shape(&gamma, &[hidden], module, requires_grad)?;
+                let beta =
+                    Tensor::param_from_vector_with_shape(&beta, &[hidden], module, requires_grad)?;
+                (Some(gamma), Some(beta))
+            } else {
+                let module = model_builder.get_module();
+                let gamma = Tensor::param_ones(&[hidden], module, requires_grad)?;
+                let beta = Tensor::param_zeros(&[hidden], module, requires_grad)?;
+                (Some(gamma), Some(beta))
+            }
         } else {
             (None, None)
         };

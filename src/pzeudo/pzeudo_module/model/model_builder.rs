@@ -29,6 +29,10 @@ impl<'a, F> ModelBuilder<'a, F> {
             .map_or(Ok(None), |load_params| Ok(Some(load_params.get_params()?)))?)
     }
 
+    pub fn is_params_load(&self) -> bool {
+        self.load_params.as_ref().map_or(false, |_| true)
+    }
+
     pub(crate) fn get_load_else_generate_vec(
         &mut self,
         len: usize,
@@ -47,7 +51,7 @@ impl<'a, F> ModelBuilder<'a, F> {
             .collect::<Vec<F>>())
     }
 
-    /// Load Parameters
+    /// # Load Parameters
     /// parameters will be loaded and converted using serde_json.
     /// after using ModelBuilder::load_params, the corresponding ModelBuilder will switch to load params mode instead of generate params.
     /// If the model architecture and parameters loaded in ModelBuilder are not the same, an error may occur.

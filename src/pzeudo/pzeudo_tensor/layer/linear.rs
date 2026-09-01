@@ -8,12 +8,12 @@ use std::ops::{Add, Div};
 /// Accepts 2D input in the form [Batch, Features]. Must be exactly 2D.
 ///
 /// ## formula:
-/// ```
+/// ```sh
 /// linear = input * weight + bias
 /// ```
 ///
 /// ## Shape specifications:
-/// ```
+/// ```sh
 /// input shape: batch×in_features
 /// weight shape: in_features×out_features
 /// bias shape: out_features
@@ -21,16 +21,16 @@ use std::ops::{Add, Div};
 ///
 /// ## Weight Initialization
 /// ### Xavier:
-/// ```
+/// ```sh
 /// mean    : 0
 /// std_dev : 2/(in_features+out_features)
 /// ```
 /// ### He:
-/// ```
+/// ```sh
 /// mean: 0
 /// std_dev : 2/in_features
 /// ```
-/// ```rust
+/// ```rs
 /// let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 /// let mut model_builder = module_builder.model_builder();
 /// let linear = Linear::new(1, 16, WeightInit::He, &mut model_builder).unwrap();

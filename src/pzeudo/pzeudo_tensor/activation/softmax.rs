@@ -1,6 +1,9 @@
-use std::ops::AddAssign;
+use std::{
+    iter::Sum,
+    ops::{AddAssign, Mul, Sub},
+};
 
-use num_traits::Float;
+use num_traits::{Float, Zero};
 
 use crate::prelude::*;
 
@@ -34,15 +37,70 @@ impl<F, T, G> Tensor<F, T, G> {
         )?))?;
         let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
+        let mut storage = tensor.get_record().borrow_mut();
+        let record_idx = Some(RecordStatus::Record(storage.len()));
+        let record_label = RecordLabel::Softmax(
+            tensor.get_array_idx(),
+            tensor.get_grad_idx(),
+            axis,
+            grad_idx,
+        );
+        storage.push(record_label);
+
         let tensor = Tensor::_new(
             array_idx,
             grad_idx,
             shape,
-            None,
+            record_idx,
             tensor.get_record().clone(),
             tensor.get_storage().clone(),
         );
 
         Ok(tensor)
     }
+}
+
+pub fn softmax_backward<F>(
+    output: StorageType,
+    array_grad_idx: Option<StorageType>,
+    axis: usize,
+    grad_idx: Option<StorageType>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    for<'a> F: Copy + Mul<Output = F> + Sum<&'a F> + AddAssign + Zero + Sub<Output = F>,
+{
+    if let Some(grad_idx) = grad_idx {
+        if is_no_grad_or_time_not_match_or_no_update(grad_idx, storage)? {
+            return Ok(());
+        };
+
+        if let Some(array_grad_idx) = array_grad_idx {
+            if is_no_grad_or_time_not_match_or_no_update(array_grad_idx, storage)? {
+                return Ok(());
+            }
+
+            let grad_take = storage.take_grad(grad_idx)?;
+            let grad = grad_take.to_array_ref::<Contiguous>();
+
+            let mut arr_grad_take = storage.take_grad(array_grad_idx)?;
+            let mut arr_grad = arr_grad_take.to_array_ref_mut::<View>();
+
+            let out_arr = storage.get_as_array_ref::<Contiguous>(output, ContiguousType::Arr)?;
+            let out_mul_grad_axis = out_arr
+                .sum_axis_closure(&[axis], true, |idx, out| Ok(out * grad.linear_index(idx)?))?;
+            let out_mul_grad_axis_broadcasted = out_mul_grad_axis.broadcast(out_arr.shape)?;
+
+            let len = arr_grad.shape.iter().product::<usize>();
+            for i in 0..len {
+                *arr_grad.linear_index_mut(i)? += out_arr.linear_index(i)?
+                    * (grad.linear_index(i)? - out_mul_grad_axis_broadcasted.linear_index(i)?);
+            }
+
+            storage.replace_grad(grad_idx, grad_take)?;
+            storage.replace_grad(array_grad_idx, arr_grad_take)?;
+        }
+    }
+
+    Ok(())
 }

@@ -72,6 +72,7 @@ pub enum RecordLabel<F> {
     Relu(StorageType, Option<StorageType>, Option<StorageType>),
     Sigmoid(StorageType, Option<StorageType>, Option<StorageType>),
     Tanh(StorageType, Option<StorageType>, Option<StorageType>),
+    Softmax(StorageType, Option<StorageType>, usize, Option<StorageType>),
 
     // LOSS
     LossMse(

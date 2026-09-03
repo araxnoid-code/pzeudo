@@ -156,6 +156,10 @@ where
                 tanh_backward(*output_idx, *array_grad_idx, *grad, storage)?;
             }
 
+            Self::Softmax(out_idx, arr_grad_idx, axis, grad) => {
+                softmax_backward(*out_idx, *arr_grad_idx, *axis, *grad, storage)?;
+            }
+
             Self::Sum(array_grad, grad) => {
                 sum_backward(*array_grad, *grad, storage)?;
             }

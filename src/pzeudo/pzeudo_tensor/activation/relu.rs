@@ -6,7 +6,7 @@ use num_traits::Float;
 /// ## Relu
 /// relu(x) = max(0, x)
 pub fn relu<F, T, G, ReqGrad>(
-    tensor: Tensor<F, T, G>,
+    tensor: &Tensor<F, T, G>,
     requires_grad: ReqGrad,
 ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
 where

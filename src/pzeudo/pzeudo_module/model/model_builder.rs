@@ -33,6 +33,18 @@ impl<'a, F> ModelBuilder<'a, F> {
         self.load_params.as_ref().map_or(false, |_| true)
     }
 
+    pub(crate) fn get_load_else_generate_zeros(&mut self, len: usize) -> Result<Vec<F>, PzeudoErr>
+    where
+        F: Float,
+        StandardNormal: Distribution<F>,
+    {
+        if let Some(load) = self.get_load_params()? {
+            return Ok(load);
+        }
+
+        Ok(vec![F::zero(); len])
+    }
+
     pub(crate) fn get_load_else_generate_vec(
         &mut self,
         len: usize,

@@ -7,7 +7,7 @@ pub use crate::prelude::*;
 /// ## Tanh
 /// tanh(x) = (e^x-e^-x)/(e^x+e^-x)
 pub fn tanh<F, T, G, ReqGrad>(
-    tensor: Tensor<F, T, G>,
+    tensor: &Tensor<F, T, G>,
     requires_grad: ReqGrad,
 ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
 where

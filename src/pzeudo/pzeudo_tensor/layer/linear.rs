@@ -2,7 +2,10 @@ use crate::prelude::*;
 use num_traits::{Float, NumCast, One, Zero};
 use rand::distr::{Distribution, StandardUniform};
 use rand_distr::{Normal, StandardNormal};
-use std::ops::{Add, Div};
+use std::{
+    fmt::Debug,
+    ops::{Add, Div},
+};
 
 /// # Linear Layer
 /// Accepts 2D input in the form [Batch, Features]. Must be exactly 2D.
@@ -66,7 +69,7 @@ impl<F> Linear<F> {
         model_builder: &mut ModelBuilder<F>,
     ) -> Result<Linear<F>, PzeudoErr>
     where
-        F: Clone + Zero + One + NumCast + Div<Output = F> + Float,
+        F: Clone + Zero + One + NumCast + Div<Output = F> + Float + Debug,
         StandardUniform: Distribution<F>,
         StandardNormal: Distribution<F>,
     {
@@ -89,7 +92,7 @@ impl<F> Linear<F> {
 
         let weight_vector =
             model_builder.get_load_else_generate_vec(in_features * out_features, &normal)?;
-        let bias_vector = model_builder.get_load_else_generate_vec(out_features, &normal)?;
+        let bias_vector = model_builder.get_load_else_generate_zeros(out_features)?;
         let module = model_builder.get_module();
 
         let weight = Tensor::param_from_vector_with_shape(

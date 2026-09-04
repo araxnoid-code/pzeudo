@@ -204,9 +204,9 @@ where
                 )?;
             }
 
-            Self::CrossEntropyLoss(actual_idx, prediction_idx, prediction_grad_idx, grad) => {
+            Self::CrossEntropyLoss(target_idx, prediction_idx, prediction_grad_idx, grad) => {
                 cross_entropy_loss_backward(
-                    *actual_idx,
+                    *target_idx,
                     *prediction_idx,
                     *prediction_grad_idx,
                     *grad,
@@ -222,7 +222,6 @@ where
                 layer_norm_backward(*array_idx, *array_grad_idx, var, *grad, storage)?;
             }
 
-            #[allow(unused)]
             Self::Embedding(embedding_grads, grad) => {
                 embedding_backward(embedding_grads, *grad, storage)?;
             }

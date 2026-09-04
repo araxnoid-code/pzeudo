@@ -193,6 +193,8 @@ pub trait OpsSum<F>: ArrayTrait<F> {
         let len = out_shape.iter().product::<usize>();
         let axis_len = axis_shape.iter().product::<usize>();
         let mut vec = Vec::with_capacity(len);
+
+        let mut index_count = 0;
         for i in 0..len {
             let mut offset = metadata.offset;
             for ((out_shape, out_stride), meta_stride) in out_shape
@@ -215,7 +217,9 @@ pub trait OpsSum<F>: ArrayTrait<F> {
 
                     index += permute * metadata.stride[*axis];
                 }
-                sum += f(ii, metadata.data[index])?;
+
+                sum += f(index_count, metadata.data[index])?;
+                index_count += 1;
             }
             vec.push(sum);
         }

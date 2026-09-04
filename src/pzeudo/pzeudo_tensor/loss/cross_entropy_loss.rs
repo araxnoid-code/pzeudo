@@ -2,7 +2,7 @@ use crate::prelude::*;
 use num_traits::{Float, NumCast};
 use std::{
     iter::Sum,
-    ops::{Add, AddAssign, Div, MulAssign, Neg},
+    ops::{Add, AddAssign, Div, MulAssign, Neg, SubAssign},
 };
 
 /// ## Cross Entropy Loss
@@ -13,20 +13,21 @@ use std::{
 /// - The result of H(p,q) will be summed into a scalar (since pzeudo does not yet support 0D tensors/scalars, it returns a 1D tensor containing a single value).
 /// - The backward pass using cross_entropy_loss_backward computes gradients only for the prediction.
 pub fn cross_entropy_loss<F, T, J, LhsGrad, RhsGrad, ReqGrad>(
-    actual: Tensor<F, T, LhsGrad>,
-    prediction: Tensor<F, J, RhsGrad>,
+    target: &Tensor<F, T, LhsGrad>,
+    prediction: &Tensor<F, J, RhsGrad>,
     requieres_grad: ReqGrad,
 ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
 where
     ReqGrad: ReqGradTrait<F>,
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     for<'a> ArrayRef<'a, F, J>: ArrayTrait<F>,
-    for<'a> F: NumCast + Copy + Add<Output = F> + Float + Sum<&'a F> + AddAssign + MulAssign,
+    for<'a> F:
+        NumCast + Copy + Add<Output = F> + Float + Sum<&'a F> + AddAssign + MulAssign + SubAssign,
 {
     let mut storage = prediction.get_storage().borrow_mut();
 
     let actual_array =
-        storage.get_as_array_ref::<T>(actual.get_array_idx(), ContiguousType::Arr)?;
+        storage.get_as_array_ref::<T>(target.get_array_idx(), ContiguousType::Arr)?;
     let pred_array =
         storage.get_as_array_ref::<J>(prediction.get_array_idx(), ContiguousType::Arr)?;
 
@@ -45,18 +46,17 @@ where
 
     let mut sum = F::zero();
     for i in 0..len {
-        let act = actual_array.linear_index(i)?;
+        let target = actual_array.linear_index(i)?;
         let pred = pred_array.linear_index(i)?;
-        sum += act * (pred + epsilon).ln();
+        sum -= target * (pred + epsilon).ln();
     }
-    sum *= -F::one();
 
     let loss_array = Array::from_vector(&[sum]);
     let array_idx = storage.push(ElementType::Arr(loss_array))?;
     let grad_idx = requieres_grad.into_zeros_grad_storage(&[1], &mut storage)?;
 
     let record_label = RecordLabel::CrossEntropyLoss(
-        actual.get_array_idx(),
+        target.get_array_idx(),
         prediction.get_array_idx(),
         prediction.get_grad_idx(),
         grad_idx,
@@ -82,7 +82,7 @@ where
 /// - p: target probability
 /// - q: prediction probability
 pub fn cross_entropy_loss_backward<F>(
-    actual_idx: StorageType,
+    target_idx: StorageType,
     prediction_idx: StorageType,
     prediction_grad_idx: Option<StorageType>,
     gradient_idx: Option<StorageType>,
@@ -106,8 +106,8 @@ where
                 let mut prediction_grad = storage.take_grad(prediction_grad_idx)?;
                 let mut prediction_grad_ref = prediction_grad.to_array_ref_mut::<View>();
 
-                let actual_value =
-                    storage.get_as_array_ref::<View>(actual_idx, ContiguousType::Arr)?;
+                let target_value =
+                    storage.get_as_array_ref::<View>(target_idx, ContiguousType::Arr)?;
                 let prediction_value =
                     storage.get_as_array_ref::<View>(prediction_idx, ContiguousType::Arr)?;
 
@@ -115,9 +115,9 @@ where
                     "cross_entropy_loss_backward. cannot cast data type epsilon"
                 )))?;
 
-                let len = actual_value.shape.iter().product::<usize>();
+                let len = target_value.shape.iter().product::<usize>();
                 for i in 0..len {
-                    let p = actual_value.linear_index(i)?;
+                    let p = target_value.linear_index(i)?;
                     let q = prediction_value.linear_index(i)?;
                     let y = -p / (q + epsilon) * grad_val;
                     *prediction_grad_ref.linear_index_mut(i)? += y;

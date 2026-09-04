@@ -7,7 +7,7 @@ pub use crate::prelude::*;
 /// ## Sigmoid
 /// sigmoid(x) = 1/(1+e^{-x})
 pub fn sigmoid<F, T, G, ReqGrad>(
-    tensor: Tensor<F, T, G>,
+    tensor: &Tensor<F, T, G>,
     requires_grad: ReqGrad,
 ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
 where

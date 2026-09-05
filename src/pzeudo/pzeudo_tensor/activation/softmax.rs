@@ -8,6 +8,8 @@ use num_traits::{Float, Zero};
 
 use crate::prelude::*;
 
+// # Softmax
+// softmax(x) = e^x/∑e^x
 pub fn softmax<F, J, TensorGrad, ReqGrad>(
     tensor: &Tensor<F, J, TensorGrad>,
     axis: usize,
@@ -54,6 +56,7 @@ where
     Ok(tensor)
 }
 
+// dsoftmax(x)/dx = y(g  - ∑gy)
 pub fn softmax_backward<F>(
     output: StorageType,
     array_grad_idx: Option<StorageType>,

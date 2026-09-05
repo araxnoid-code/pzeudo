@@ -79,3 +79,5 @@ Since the names `Grad` and `NoGrad` are also used in several enums, the names of
 - OpsVar::avg_and_var_axis
 - ModelBuilder::is_params_load
 - ModelBuilder::get_load_else_generate_zeros
+
+see development progress: [0.0.3_plan.md](./0.0.3_plan.md)

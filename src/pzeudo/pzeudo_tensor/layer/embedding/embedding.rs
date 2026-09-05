@@ -4,6 +4,16 @@ use std::ops::AddAssign;
 
 use crate::prelude::*;
 
+/// # Embedding
+/// ```md
+/// embedding_num = The number of weights to be made
+/// embedding_dim = The length of the weight parameters to be created
+/// ```
+/// Initialization using a normal distribution with:
+/// ```md
+/// mean = 0
+/// std_dev = 1
+/// ```
 pub struct Embedding<F, Grad> {
     embedding_dim: usize,
     weights: Vec<Tensor<F, Contiguous, Grad>>,

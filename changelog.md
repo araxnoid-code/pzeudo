@@ -1,10 +1,92 @@
-## ChangeLog
+# ChangeLog
+## Version 0.0.3
+### Adding TrainPhase and EvalPhase structs
+- TrainPhase
+  - also implements ReqGradTrait.
+  - The function is proportional to Grad.
+- EvalPhase
+  - also implements ReqGradTrait.
+  - The function is proportional to NoGrad.
+  
+This phase can function as either Grad or NoGrad, making it useful for certain methods. It also adds clarity to the model phase.
 
-### Version 0.0.3-dev.2
-##### Bug Fixes
+### Adding a Dropout Layer
+using an inverted dropout
+- p: probability of a zero value
+    - example: p=0.7, Consequently, 70 percent of the values or elements will be dropped (at random locations, depending on the Bernoulli distribution and the specified seed).
+#### Formula
+element * drop_value / (1 - p)
+#### Phase
+- TrainPhase
+Executes a formula based on the Bernoulli distribution and produces a new tensor.
+- EvelPhase
+It immediately returns a new tensor containing the same array data, state, and record as the previous tensor. The only difference is that the gradient is `None` (the previous tensor remains unaffected).
+
+### Adding a LayerNorm Layer
+Normalizing the last axis.
+#### formula:
+```
+avg = E[x]
+variance = E[x^2] - E[x]^2
+epsilon = 1e-7
+norm = x - avg/sqrt(variance + epsilon)
+```
+#### optional gamma and beta
+```
+y * gamma + beta
+```
+```rs
+// ...
+let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+let mut model_builder = module_builder.model_builder();
+// without gamma and beta
+let layer_norm = LayerNorm::new(None, &mut model_builder, ReqGrad).unwrap();
+// With gamma dan beta
+let layer_norm = LayerNorm::new(Some(16), &mut model_builder, ReqGrad).unwrap();
+// gamma, 1-dimensional, shape [16], initialization as a tensor of ones
+// beta, 1-dimensional, shape [16], initialization as a tensor of zeros
+```
+
+### Adding a Embedding Layer
+```
+embedding_num = The number of weights to be made
+embedding_dim = The length of the weight parameters to be created
+```
+Initialization using a normal distribution with:
+```
+mean = 0
+std_dev = 1
+```
+
+### Adding the Softmax activation function
+Forward
+```
+softmax(x) = e^x/∑e^x
+```
+
+Backward
+```
+dsoftmax(x)/dx = y(g  - ∑gy)
+```
+
+### Changes to bias initialization in the Linear Layer
+Bias initialization in the linear layer initially followed the initialization used for weights via the `WeightInit` enum. Now, biases will be initialized directly to 0.
+
+### renamed Grad and NoGrad to ReqGrad and ReqNoGrad.
+Since the names `Grad` and `NoGrad` are also used in several enums, the names of the `Grad` and `NoGrad` structs have been changed to avoid misuse.
+
+### Adding supporting methods and traits
+- OpsSum::sum_axis_closure
+- OpsVar::avg_and_var_axis
+- ModelBuilder::is_params_load
+- ModelBuilder::get_load_else_generate_zeros
+
+
+## Version 0.0.3-dev.2
+### Bug Fixes
 - Fixed a bug in the is_no_grad_or_time_not_match_or_no_update function where the update status of an ArrayView pointing to an Array was not being checked.
 
-##### New
+### New
 - Added reduction methods, including:
   - Tensor::sum
   - Tensor::sum_axis
@@ -22,7 +104,7 @@
   - ConcatVectorRef::tensor_concat
     - Used for vectors or arrays storing tensor references.
     
-### Version 0.0.3-dev.1
+## Version 0.0.3-dev.1
 - Development of the 'unrecord' concept:
   - This feature allows a record label to be skipped during gradient calculation, this ensures that the entire backward chain associated with that label receives no updates (calculations are bypassed), even though the record label's backward function is executed (no_update).
 
@@ -38,12 +120,12 @@
   - Note: These can only be used on `Tensor<F, Contiguous, G>`, they are not applicable to Tensor Views, as Tensor Views do not possess gradients and do not generate record labels during operations.
 
 
-### Version 0.0.2
-##### BUG FIXES
+## Version 0.0.2
+### BUG FIXES
 - Fixed an bug where the ArrayStorage::get_grad_storage_mut method was incorrectly returning ArrayStorage.
 
-##### Update
-###### Internal
+### Update
+#### Internal
 - Added mechanisms to take and replace gradients for:
   - GradStorage
     - GradStorage::take_grad
@@ -58,7 +140,7 @@
     - ArrayStorage::take_grad
     - ArrayStorage::replace_grad
 
-###### Optimize
+#### Optimize
 - take_replace: pzeudo utilizes ArrayStorage to store arrays and gradients (which are also represented as arrays). However, backpropagation requires the gradient array to be mutable, simultaneously borrowing other arrays from storage previously caused borrowing conflicts. Consequently, in version 0.0.1 and earlier, it was necessary to clone the data or perform operations that allocated new, owned temporary data before the gradient could be updated. In this version, the storage supports a take operation on the gradient, effectively transferring ownership of it. Since the gradient's mutability is no longer tied to the storage, it can be borrowed directly, allowing backward computation to proceed alongside other arrays borrowed from the storage simultaneously. Once the gradient has been "taken" it must be "replaced" back into its original index.
 
 - Optimizing. Optimization achieved by combining several operations that would otherwise require multiple allocations into a single operation that performs a single allocation to store the output.
@@ -88,13 +170,13 @@
   - optimizing softplus
 
 
-### Version 0.0.2-dev.1
-##### BUG FIXES
+## Version 0.0.2-dev.1
+### BUG FIXES
 - Fixed a bug where the array was not being replaced at the empty index location in GradStorage::grad_push.
 - Fixed a bug where the array was not being replaced at the empty index location in ArrStorage::push_arr.
 - Fixed a bug where epoch records were not cleared upon epoch completion; the Module::epoch method now clears record data after each epoch finishes.
 
-##### Main Update
+### Main Update
 - rename permanent to params
 - permanent_storage to params_storage
 - permanent_tensor to params_tensor
@@ -177,13 +259,13 @@
   - the model that uses load parameters must be the same as the model that uses save parameters, because the save and load methods used are really affected by the order in the storage array.
 
 
-### Version 0.0.1
-##### BUG FIXES
+## Version 0.0.1
+### BUG FIXES
 - Fixed a bug in matmul_nd f32 and f64, namely an error in dimension slicing that caused incorrect index access.
 
 - fix mean square error (mse) due to formula error in mse_backward.
 
-##### Update
+### Update
 - Changes to ArrayStorage
   - ArrayStorage now has three components
     - permanent_storage: used to store array pairs (array as value and array as grad) that are not intended for deletion.
@@ -237,13 +319,13 @@
   - update the function Module::epoch which will accept a function that will return Result<O, PzeudoErr>, O is a generic type.
 
 
-### Version 0.0.1-dev.6
-##### fix bugs
+## Version 0.0.1-dev.6
+### fix bugs
 - Fixed a bug in Array::matmul_2d due to an offset error.
 
 - Fixed an issue with the get_broadcast_dim function that wasn't returning broadcast dimensions sequentially.
 
-##### New
+### New
 - Added Auto-broadcast to Calculations
   - Add
   - Sub
@@ -280,7 +362,7 @@
   - Due to this change, the structure that stores array indexes has undergone changes in how it stores indexes and handles output from storage, but the flow of most of the structure remains unchanged.
 
 
-### Version 0.0.1-dev.5
+## Version 0.0.1-dev.5
 - Added new array types, namely ArrayRef and ArrayRefMut
   - ArrayRef is a form of array that is only used for wrapping data and metadata, in contrast to ArrayRef which has its own metadata, ArrayRef metadata is borrowed from other array metadata.
   - ArrayRefMut is a mutable form of Array, allowing mutability for using OpsAssign.
@@ -311,7 +393,7 @@
     - zeros
     - ones
 
-### Version 0.0.1-dev.4
+## Version 0.0.1-dev.4
 - Focus on developing an array (named pzeudo_num) that will be used in deep learning. Deep learning itself hasn't been created yet.
 - pzeudo_num development.
   - Array (Core)

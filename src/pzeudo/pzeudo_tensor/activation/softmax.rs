@@ -39,10 +39,10 @@ where
     )?))?;
     let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
-    let mut storage = tensor.get_record().borrow_mut();
-    let record_idx = Some(RecordStatus::Record(storage.len()));
+    let mut record = tensor.get_record().borrow_mut();
+    let record_idx = Some(RecordStatus::Record(record.len()));
     let record_label = RecordLabel::Softmax(array_idx, tensor.get_grad_idx(), axis, grad_idx);
-    storage.push(record_label);
+    record.push(record_label);
 
     let tensor = Tensor::_new(
         array_idx,

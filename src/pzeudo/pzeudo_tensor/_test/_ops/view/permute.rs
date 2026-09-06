@@ -11,7 +11,7 @@ fn permute_test_1() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let tensor_a = Tensor::from_vector_with_shape(&vec_a, &shape, &module, ReqGrad).unwrap();
+    let tensor_a = Tensor::from_vector_with_shape(vec_a, &shape, &module, ReqGrad).unwrap();
     println!("tensor a");
     println!("{}", tensor_a);
 
@@ -22,7 +22,7 @@ fn permute_test_1() {
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let tensor_b = Tensor::from_vector_with_shape(&vec_b, &shape, &module, ReqGrad).unwrap();
+    let tensor_b = Tensor::from_vector_with_shape(vec_b, &shape, &module, ReqGrad).unwrap();
     println!("tensor b\n{}", tensor_b);
 
     let tensor_c = permute_a.mul(&tensor_b, ReqGrad).unwrap();

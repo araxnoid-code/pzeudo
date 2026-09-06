@@ -44,14 +44,14 @@ fn test_layer_norm_2() {
     // Create training and testing datasets.
     // The dataset below is for testing purposes only.
     let train_dataset = Tensor::param_from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8.],
+        vec![1., 2., 3., 4., 5., 6., 7., 8.],
         &[8, 1],
         &module_builder,
         ReqNoGrad,
     )
     .unwrap();
     let train_target = Tensor::param_from_vector_with_shape(
-        &[11., 12., 13., 14., 15., 16., 17., 18.],
+        vec![11., 12., 13., 14., 15., 16., 17., 18.],
         &[8, 1],
         &module_builder,
         ReqNoGrad,
@@ -59,14 +59,14 @@ fn test_layer_norm_2() {
     .unwrap();
 
     let test_dataset = Tensor::param_from_vector_with_shape(
-        &[9., 10., 11., 12., 13., 14., 15., 16.],
+        vec![9., 10., 11., 12., 13., 14., 15., 16.],
         &[8, 1],
         &module_builder,
         ReqNoGrad,
     )
     .unwrap();
     let test_target = Tensor::param_from_vector_with_shape(
-        &[19., 20., 21., 22., 23., 24., 25., 26.],
+        vec![19., 20., 21., 22., 23., 24., 25., 26.],
         &[8, 1],
         &module_builder,
         ReqNoGrad,

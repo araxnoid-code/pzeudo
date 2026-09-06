@@ -8,13 +8,13 @@ fn div_test_1() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.10)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
     array_a
         .div(&array_b)
         .map_or(Ok(()), |_| Err("Test 1.1 Error"))
@@ -29,13 +29,13 @@ fn div_test_2() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [32];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.10)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
 
     let array_c = array_a / array_b;
     let check = vec_a
@@ -50,13 +50,13 @@ fn div_test_2() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [32, 16, 8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.10)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
 
     let array_c = array_a / array_b;
     let check = vec_a
@@ -71,13 +71,13 @@ fn div_test_2() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [32, 24, 8, 16, 8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.10)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
 
     let array_c = array_a / array_b;
     let check = vec_a
@@ -96,7 +96,7 @@ fn div_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 10.;
 
     let array_c = array_a.div_scalar(scalar).unwrap();
@@ -107,7 +107,7 @@ fn div_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 20.;
 
     let array_c = array_a.scalar_div(scalar).unwrap();
@@ -119,7 +119,7 @@ fn div_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 25.;
 
     let array_c = array_a.div_scalar(scalar).unwrap();
@@ -130,7 +130,7 @@ fn div_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 25.;
 
     let array_c = array_a.scalar_div(scalar).unwrap();
@@ -142,7 +142,7 @@ fn div_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 32.;
 
     let array_c = array_a.div_scalar(scalar).unwrap();
@@ -153,7 +153,7 @@ fn div_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 32.;
 
     let array_c = array_a.scalar_div(scalar).unwrap();

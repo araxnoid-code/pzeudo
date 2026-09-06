@@ -57,9 +57,9 @@ impl<F, G> LayerNorm<F, G> {
 
                 let module = model_builder.get_module();
                 let gamma =
-                    Tensor::param_from_vector_with_shape(&gamma, &[hidden], module, requires_grad)?;
+                    Tensor::param_from_vector_with_shape(gamma, &[hidden], module, requires_grad)?;
                 let beta =
-                    Tensor::param_from_vector_with_shape(&beta, &[hidden], module, requires_grad)?;
+                    Tensor::param_from_vector_with_shape(beta, &[hidden], module, requires_grad)?;
                 (Some(gamma), Some(beta))
             } else {
                 let module = model_builder.get_module();
@@ -109,7 +109,7 @@ impl<F, G> LayerNorm<F, G> {
         }
 
         let norm = storage.push(ElementType::Arr(Array::from_vector_with_shape(
-            &vec,
+            vec,
             &tensor.shape,
         )?))?;
         let grad = requires_grad.into_zeros_grad_storage(&tensor.shape, &mut storage)?;

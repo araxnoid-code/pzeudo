@@ -31,11 +31,11 @@ fn classification_test_1() {
         })
         .collect::<Vec<f32>>();
     let train =
-        Tensor::param_from_vector_with_shape(&train_vec, &[64, 1], &module_builder, ReqNoGrad)
+        Tensor::param_from_vector_with_shape(train_vec, &[64, 1], &module_builder, ReqNoGrad)
             .unwrap();
 
     let target =
-        Tensor::param_from_vector_with_shape(&vec_test, &[64, 2], &module_builder, ReqNoGrad)
+        Tensor::param_from_vector_with_shape(vec_test, &[64, 2], &module_builder, ReqNoGrad)
             .unwrap();
 
     let mut module = module_builder.build(model);

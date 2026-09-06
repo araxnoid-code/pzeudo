@@ -37,7 +37,7 @@ impl<F, Grad> Embedding<F, Grad> {
         for _ in 0..embedding_num {
             let vec = model_builder.get_load_else_generate_vec(embedding_dim, &normal)?;
             let tensor = Tensor::param_from_vector_with_shape(
-                &vec,
+                vec,
                 &[embedding_dim],
                 model_builder.get_module(),
                 requires_grad,
@@ -68,7 +68,6 @@ impl<F, Grad> Embedding<F, Grad> {
 
         let tensor_array =
             storage.get_as_array_ref::<T>(tensor.get_array_idx(), ContiguousType::Arr)?;
-        // println!("test");
 
         let mut embedding_grads = Vec::with_capacity(len);
         let mut vec = Vec::with_capacity(len);
@@ -80,7 +79,7 @@ impl<F, Grad> Embedding<F, Grad> {
             embedding_grads.push(self.weights[idx].get_grad_idx());
         }
 
-        let array = Array::from_vector_with_shape(&vec, &n_shape)?;
+        let array = Array::from_vector_with_shape(vec, &n_shape)?;
         let array_idx = storage.push(ElementType::Arr(array))?;
         let grad_idx = requires_grad.into_zeros_grad_storage(&n_shape, &mut storage)?;
 

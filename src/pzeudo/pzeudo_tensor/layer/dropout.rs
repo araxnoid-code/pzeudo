@@ -94,7 +94,7 @@ impl Dropout {
             out_vec.push(y);
         }
 
-        let result_arr = Array::from_vector_with_shape(&out_vec, &tensor.shape)?;
+        let result_arr = Array::from_vector_with_shape(out_vec, &tensor.shape)?;
         let array_idx = storage.push(ElementType::Arr(result_arr))?;
         let grad_idx = phase.into_zeros_grad_storage(&tensor.shape, &mut storage)?;
 

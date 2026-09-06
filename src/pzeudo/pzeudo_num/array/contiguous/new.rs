@@ -25,7 +25,7 @@ impl<F> Array<F> {
         }
     }
 
-    pub fn from_vector_with_shape(vector: &[F], shape: &[usize]) -> Result<Array<F>, PzeudoErr>
+    pub fn from_slice_with_shape(vector: &[F], shape: &[usize]) -> Result<Array<F>, PzeudoErr>
     where
         F: Clone,
     {
@@ -40,6 +40,24 @@ impl<F> Array<F> {
         let stride = shape_to_stride(shape);
         Ok(Self {
             data: vector.to_vec(),
+            offset: 0,
+            shape: shape.to_vec(),
+            stride,
+        })
+    }
+
+    pub fn from_vector_with_shape(vector: Vec<F>, shape: &[usize]) -> Result<Array<F>, PzeudoErr> {
+        if vector.len() != shape.iter().product::<usize>() {
+            return Err(PzeudoErr::ArrayErr(format!(
+                "Array::from_vector_with_shape. Cannot create array because a vector of size {} cannot be stored in shape {:?}",
+                vector.len(),
+                shape
+            )));
+        }
+
+        let stride = shape_to_stride(shape);
+        Ok(Self {
+            data: vector,
             offset: 0,
             shape: shape.to_vec(),
             stride,

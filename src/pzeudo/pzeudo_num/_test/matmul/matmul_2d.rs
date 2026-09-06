@@ -10,13 +10,13 @@ fn matmul_2d_test_1_f32() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.1 ERROR. NOT 2-DIMENSIONAL"))
@@ -26,13 +26,13 @@ fn matmul_2d_test_1_f32() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.2 ERROR. NOT 2-DIMENSIONAL"))
@@ -42,13 +42,13 @@ fn matmul_2d_test_1_f32() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [8, 3];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.3 ERROR. NOT 2-DIMENSIONAL"))
@@ -58,13 +58,13 @@ fn matmul_2d_test_1_f32() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [2, 8, 3];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.4 ERROR. NOT 2-DIMENSIONAL"))
@@ -75,13 +75,13 @@ fn matmul_2d_test_1_f32() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [3, 8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.1 ERROR. NOT `m×k x k×n`"))
@@ -96,13 +96,13 @@ fn matmul_2d_test_1_f64() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.1 ERROR. NOT 2-DIMENSIONAL"))
@@ -112,13 +112,13 @@ fn matmul_2d_test_1_f64() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.2 ERROR. NOT 2-DIMENSIONAL"))
@@ -128,13 +128,13 @@ fn matmul_2d_test_1_f64() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [8, 3];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.3 ERROR. NOT 2-DIMENSIONAL"))
@@ -144,13 +144,13 @@ fn matmul_2d_test_1_f64() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [2, 8, 3];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.4 ERROR. NOT 2-DIMENSIONAL"))
@@ -161,13 +161,13 @@ fn matmul_2d_test_1_f64() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
 
     let shape = [3, 8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     array_a
         .matmul_2d(&array_b)
         .map_or(Ok(()), |_| Err("TEST 1.1 ERROR. NOT `m×k x k×n`"))
@@ -181,13 +181,13 @@ fn matmul_2d_test_2() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [8, 12];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
 
     let result = array_a.matmul_2d(&array_b).unwrap();
 
@@ -217,13 +217,13 @@ fn matmul_2d_test_2() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [7, 29];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
 
     let result = array_a.matmul_2d(&array_b).unwrap();
 
@@ -256,7 +256,7 @@ fn matmul_2d_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
     let permute = array_a.permute(&[2, 1, 0]).unwrap(); // [32, 16, 4]
     let slice = permute.slice(&[r(16..24), r(7..15), r(..)]).unwrap();
     let view_a = slice.index(&[8]).unwrap();
@@ -266,7 +266,7 @@ fn matmul_2d_test_3() {
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     let reshape = array_b.reshape(&[32, 8, -1]).unwrap(); // [32, 4, 16]
     let t = reshape.t(); // [16, 4, 32]
     let permute = t.permute(&[0, 2, 1]).unwrap();
@@ -304,7 +304,7 @@ fn matmul_2d_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
     let permute = array_a.permute(&[2, 1, 0]).unwrap(); // [32, 16, 4]
     let slice = permute.slice(&[r(16..24), r(7..15), r(..)]).unwrap();
     let view_a = slice.index(&[8]).unwrap();
@@ -314,7 +314,7 @@ fn matmul_2d_test_3() {
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f64)
         .collect::<Vec<f64>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_vector_with_shape(vec_b, &shape).unwrap();
     let reshape = array_b.reshape(&[32, 8, -1]).unwrap(); // [32, 4, 16]
     let t = reshape.t(); // [16, 4, 32]
     let permute = t.permute(&[0, 2, 1]).unwrap();

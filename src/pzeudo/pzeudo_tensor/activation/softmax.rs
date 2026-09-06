@@ -35,7 +35,7 @@ where
     }
 
     let array_idx = storage.push(ElementType::Arr(Array::from_vector_with_shape(
-        &vec, &shape,
+        vec, &shape,
     )?))?;
     let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 

@@ -9,13 +9,13 @@ fn add_test_1() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.10)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
     array_a
         .add(&array_b)
         .map_or(Ok(()), |_| Err("Test 1.1 Error"))
@@ -30,13 +30,13 @@ fn add_test_2() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [32];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.10)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
 
     let array_c = array_a + array_b;
     let check = vec_a
@@ -51,13 +51,13 @@ fn add_test_2() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [32, 16, 8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.10)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
 
     let array_c = array_a + array_b;
     let check = vec_a
@@ -72,13 +72,13 @@ fn add_test_2() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
 
     let shape = [32, 24, 8, 16, 8];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.10)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
 
     let array_c = array_a + array_b;
     let check = vec_a
@@ -97,7 +97,7 @@ fn add_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 20.;
 
     let array_c = array_a.add_scalar(scalar).unwrap();
@@ -108,7 +108,7 @@ fn add_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 20.;
 
     let array_c = array_a.scalar_add(scalar).unwrap();
@@ -120,7 +120,7 @@ fn add_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 25.;
 
     let array_c = array_a.add_scalar(scalar).unwrap();
@@ -131,7 +131,7 @@ fn add_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 25.;
 
     let array_c = array_a.scalar_add(scalar).unwrap();
@@ -143,7 +143,7 @@ fn add_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 32.;
 
     let array_c = array_a.add_scalar(scalar).unwrap();
@@ -154,7 +154,7 @@ fn add_test_3() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     let scalar = 32.;
 
     let array_c = array_a.scalar_add(scalar).unwrap();
@@ -170,14 +170,14 @@ fn add_test_4() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     println!("{}", array_a);
 
     let shape = [1];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.10)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
     println!("{}", array_b);
 
     let check = vec_a.iter().map(|x| x + 0.10).collect::<Vec<f32>>();
@@ -189,14 +189,14 @@ fn add_test_4() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     println!("{}", array_a);
 
     let shape = [1];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.11)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
     println!("{}", array_b);
 
     let check = vec_a.iter().map(|x| x + 0.11).collect::<Vec<f32>>();
@@ -208,14 +208,14 @@ fn add_test_4() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     println!("{}", array_a);
 
     let shape = [1, 1];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.12)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
     println!("{}", array_b);
 
     let check = vec_a.iter().map(|x| x + 0.12).collect::<Vec<f32>>();
@@ -227,14 +227,14 @@ fn add_test_4() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     println!("{}", array_a);
 
     let shape = [1, 3, 1];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32 + 0.5)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
     println!("{}", array_b);
 
     let result = array_a.add(&array_b).unwrap();
@@ -257,14 +257,14 @@ fn add_test_4() {
     let vec_a = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_a = Array::from_vector_with_shape(&vec_a, &shape).unwrap();
+    let array_a = Array::from_slice_with_shape(&vec_a, &shape).unwrap();
     println!("{}", array_a);
 
     let shape = [8, 1, 5, 1];
     let vec_b = (0..shape.iter().product::<usize>())
         .map(|idx| idx as f32)
         .collect::<Vec<f32>>();
-    let array_b = Array::from_vector_with_shape(&vec_b, &shape).unwrap();
+    let array_b = Array::from_slice_with_shape(&vec_b, &shape).unwrap();
     println!("{}", array_b);
 
     let result = array_a.add(&array_b).unwrap();

@@ -30,7 +30,7 @@ where
         let y = (exp - inv_exp) / (exp + inv_exp);
         vec.push(y);
     }
-    let result = Array::from_vector_with_shape(&vec, &shape)?;
+    let result = Array::from_vector_with_shape(vec, &shape)?;
 
     let array_idx = storage.push(ElementType::Arr(result))?;
     let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;

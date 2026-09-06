@@ -5,7 +5,7 @@ fn sum_axis_test_1() {
     let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 
     let tensor_a = Tensor::from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
+        vec![1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[2, 2, 3],
         &module_builder,
         ReqGrad,
@@ -13,7 +13,7 @@ fn sum_axis_test_1() {
     .unwrap();
 
     let tensor_b = Tensor::from_vector_with_shape(
-        &[10., 10., 10., 12., 12., 12.],
+        vec![10., 10., 10., 12., 12., 12.],
         &[2, 3],
         &module_builder,
         ReqGrad,
@@ -35,7 +35,7 @@ fn sum_axis_test_2() {
     let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 
     let tensor_a = Tensor::from_vector_with_shape(
-        &[
+        vec![
             1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13., 1., 2., 3., 4., 5., 6., 7., 8., 9.,
             11., 12., 13.,
         ],
@@ -46,7 +46,7 @@ fn sum_axis_test_2() {
     .unwrap();
 
     let tensor_b = Tensor::from_vector_with_shape(
-        &[10., 10., 10., 12., 12., 12.],
+        vec![10., 10., 10., 12., 12., 12.],
         &[2, 3],
         &module_builder,
         ReqGrad,
@@ -71,7 +71,7 @@ fn sum_axis_test_3() {
     let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 
     let tensor_a = Tensor::from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
+        vec![1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[2, 2, 3],
         &module_builder,
         ReqGrad,
@@ -79,7 +79,7 @@ fn sum_axis_test_3() {
     .unwrap();
 
     let tensor_b = Tensor::from_vector_with_shape(
-        &[10., 10., 10., 12., 12., 12.],
+        vec![10., 10., 10., 12., 12., 12.],
         &[2, 1, 3],
         &module_builder,
         ReqGrad,
@@ -101,7 +101,7 @@ fn sum_axis_test_4() {
     let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 
     let tensor_a = Tensor::from_vector_with_shape(
-        &[
+        vec![
             1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13., 1., 2., 3., 4., 5., 6., 7., 8., 9.,
             11., 12., 13.,
         ],
@@ -112,7 +112,7 @@ fn sum_axis_test_4() {
     .unwrap();
 
     let tensor_b = Tensor::from_vector_with_shape(
-        &[10., 10., 10., 12., 12., 12.],
+        vec![10., 10., 10., 12., 12., 12.],
         &[1, 2, 1, 3],
         &module_builder,
         ReqGrad,

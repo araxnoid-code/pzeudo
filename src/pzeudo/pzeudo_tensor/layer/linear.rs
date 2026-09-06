@@ -96,14 +96,14 @@ impl<F> Linear<F> {
         let module = model_builder.get_module();
 
         let weight = Tensor::param_from_vector_with_shape(
-            &weight_vector,
+            weight_vector,
             &[in_features, out_features],
             module,
             ReqGrad,
         )?;
 
         let bias: Tensor<F, Contiguous, ReqGrad> =
-            Tensor::param_from_vector_with_shape(&bias_vector, &[out_features], module, ReqGrad)?;
+            Tensor::param_from_vector_with_shape(bias_vector, &[out_features], module, ReqGrad)?;
 
         Ok(Self {
             in_features,

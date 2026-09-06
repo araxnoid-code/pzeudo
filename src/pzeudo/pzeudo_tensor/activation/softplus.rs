@@ -24,7 +24,7 @@ where
         vec.push(y);
     }
 
-    let result = Array::from_vector_with_shape(&vec, array.shape)?;
+    let result = Array::from_vector_with_shape(vec, array.shape)?;
     let shape = result.shape.to_vec();
 
     let array_idx = storage.push(ElementType::Arr(result))?;

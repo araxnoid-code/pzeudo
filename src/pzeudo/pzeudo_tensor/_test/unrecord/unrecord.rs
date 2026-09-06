@@ -6,7 +6,7 @@ fn unrecord_test_1() {
     let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
 
     let tensor_a = Tensor::from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
+        vec![1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[4, 3],
         &module_builder,
         ReqGrad,
@@ -14,7 +14,7 @@ fn unrecord_test_1() {
     .unwrap();
 
     let tensor_b = Tensor::from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
+        vec![1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[4, 3],
         &module_builder,
         ReqGrad,
@@ -22,7 +22,7 @@ fn unrecord_test_1() {
     .unwrap();
 
     let tensor_c = Tensor::from_vector_with_shape(
-        &[1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
+        vec![1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
         &[4, 3],
         &module_builder,
         ReqGrad,

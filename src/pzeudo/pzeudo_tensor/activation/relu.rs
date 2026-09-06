@@ -24,7 +24,7 @@ where
         let x = array.linear_index(i)?;
         output.push(x.max(F::zero()));
     }
-    let result = Array::from_vector_with_shape(&output, &shape)?;
+    let result = Array::from_vector_with_shape(output, &shape)?;
 
     let array_idx = storage.push(ElementType::Arr(result))?;
     let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;

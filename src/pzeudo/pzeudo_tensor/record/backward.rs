@@ -26,9 +26,20 @@ where
             Self::Add(lhs, rhs, grad) => {
                 add_backward(*grad, lhs.1, lhs.2.as_ref(), rhs.1, rhs.2.as_ref(), storage)?;
             }
+            Self::AddScalar(arr_grad_idx, grad) => {
+                add_scalar_backward(*arr_grad_idx, *grad, storage)?;
+            }
+
             Self::Sub(lhs, rhs, grad) => {
                 sub_backward(*grad, lhs.1, lhs.2.as_ref(), rhs.1, rhs.2.as_ref(), storage)?;
             }
+            Self::ScalarSub(arr_grad_idx, grad) => {
+                scalar_sub_backward(*arr_grad_idx, *grad, storage)?;
+            }
+            Self::SubScalar(arr_grad_idx, grad) => {
+                sub_scalar_backward(*arr_grad_idx, *grad, storage)?;
+            }
+
             Self::Div(lhs, rhs, grad) => {
                 div_backward(
                     *grad,

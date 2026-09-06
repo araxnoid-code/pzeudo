@@ -52,6 +52,152 @@ impl<F, T, G> Tensor<F, T, G> {
             self.storage.clone(),
         ))
     }
+
+    pub fn sub_scalar<OutGrad>(
+        &self,
+        lhs_scalar: F,
+        requires_grad: OutGrad,
+    ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
+    where
+        OutGrad: ReqGradTrait<F>,
+        for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
+        F: Copy + Sub<Output = F>,
+    {
+        let mut storage = self.storage.borrow_mut();
+
+        let arr = storage
+            .get_as_array_ref::<T>(self.array_idx, ContiguousType::Arr)?
+            .sub_scalar(lhs_scalar)?;
+        let shape = arr.shape.to_vec();
+
+        let array_idx = storage.push(ElementType::Arr(arr))?;
+        let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
+
+        let mut record = self.get_record().borrow_mut();
+        let record_label = RecordLabel::AddScalar(self.get_grad_idx(), grad_idx);
+        let record_idx = RecordStatus::Record(record.len());
+        record.push(record_label);
+
+        let tensor = Tensor::_new(
+            array_idx,
+            grad_idx,
+            shape,
+            Some(record_idx),
+            self.get_record().clone(),
+            self.get_storage().clone(),
+        );
+
+        Ok(tensor)
+    }
+
+    pub fn scalar_sub<OutGrad>(
+        &self,
+        rhs_scalar: F,
+        requires_grad: OutGrad,
+    ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
+    where
+        OutGrad: ReqGradTrait<F>,
+        for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
+        F: Copy + Sub<Output = F>,
+    {
+        let mut storage = self.storage.borrow_mut();
+
+        let arr = storage
+            .get_as_array_ref::<T>(self.array_idx, ContiguousType::Arr)?
+            .scalar_sub(rhs_scalar)?;
+        let shape = arr.shape.to_vec();
+
+        let array_idx = storage.push(ElementType::Arr(arr))?;
+        let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
+
+        let mut record = self.get_record().borrow_mut();
+        let record_label = RecordLabel::AddScalar(self.get_grad_idx(), grad_idx);
+        let record_idx = RecordStatus::Record(record.len());
+        record.push(record_label);
+
+        let tensor = Tensor::_new(
+            array_idx,
+            grad_idx,
+            shape,
+            Some(record_idx),
+            self.get_record().clone(),
+            self.get_storage().clone(),
+        );
+
+        Ok(tensor)
+    }
+}
+
+pub fn sub_scalar_backward<F>(
+    arr_grad_idx: Option<StorageType>,
+    grad_idx: Option<StorageType>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    F: Copy + AddAssign,
+{
+    if let Some(grad_idx) = grad_idx {
+        if is_no_grad_or_time_not_match_or_no_update(grad_idx, storage)? {
+            return Ok(());
+        };
+
+        if let Some(arr_grad_idx) = arr_grad_idx {
+            storage.set_grad_update(arr_grad_idx, true)?;
+            if is_no_grad_or_time_not_match_or_no_update(arr_grad_idx, storage)? {
+                return Ok(());
+            };
+
+            let grad_take = storage.take_grad(grad_idx)?;
+            let grad = grad_take.to_array_ref::<Contiguous>();
+
+            let mut arr_grad =
+                storage.get_as_array_ref_mut::<View>(grad_idx, ContiguousType::Grad)?;
+            let len = arr_grad.shape.iter().product::<usize>();
+            for i in 0..len {
+                *arr_grad.linear_index_mut(i)? += grad.linear_index(i)?;
+            }
+
+            storage.replace_grad(grad_idx, grad_take)?;
+        }
+    }
+
+    Ok(())
+}
+
+pub fn scalar_sub_backward<F>(
+    arr_grad_idx: Option<StorageType>,
+    grad_idx: Option<StorageType>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    F: Copy + AddAssign + Neg<Output = F>,
+{
+    if let Some(grad_idx) = grad_idx {
+        if is_no_grad_or_time_not_match_or_no_update(grad_idx, storage)? {
+            return Ok(());
+        };
+
+        if let Some(arr_grad_idx) = arr_grad_idx {
+            storage.set_grad_update(arr_grad_idx, true)?;
+            if is_no_grad_or_time_not_match_or_no_update(arr_grad_idx, storage)? {
+                return Ok(());
+            };
+
+            let grad_take = storage.take_grad(grad_idx)?;
+            let grad = grad_take.to_array_ref::<Contiguous>();
+
+            let mut arr_grad =
+                storage.get_as_array_ref_mut::<View>(grad_idx, ContiguousType::Grad)?;
+            let len = arr_grad.shape.iter().product::<usize>();
+            for i in 0..len {
+                *arr_grad.linear_index_mut(i)? += -grad.linear_index(i)?;
+            }
+
+            storage.replace_grad(grad_idx, grad_take)?;
+        }
+    }
+
+    Ok(())
 }
 
 pub fn sub_backward<F>(

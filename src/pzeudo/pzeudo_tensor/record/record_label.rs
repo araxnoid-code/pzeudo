@@ -7,6 +7,8 @@ pub enum RecordLabel<F> {
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)
         Option<StorageType>,                                    // own Grad
     ),
+    AddScalar(Option<StorageType>, Option<StorageType>), // array_grad, grad
+
     Div(
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Lhs(arr, Grad)
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)
@@ -22,6 +24,9 @@ pub enum RecordLabel<F> {
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)
         Option<StorageType>,                                    // own Grad
     ),
+    SubScalar(Option<StorageType>, Option<StorageType>), // array_grad, grad
+    ScalarSub(Option<StorageType>, Option<StorageType>), // array_grad, grad
+
     // Matmul
     Matmul2dF32(
         (StorageType, Option<StorageType>), // Lhs(arr, grad)

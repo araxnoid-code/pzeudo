@@ -4,7 +4,7 @@ use crate::prelude::*;
 
 #[test]
 fn tensor_matmul_nd_f32_test() {
-    let module = ModuleBuilder::new(42);
+    let module = ModuleBuilder::new(42).build(NoneModel);
 
     let shape = [2, 3, 4, 5];
     let vec_a = (0..shape.iter().product::<usize>())
@@ -54,7 +54,7 @@ fn tensor_matmul_nd_f32_test() {
 
 #[test]
 fn tensor_matmul_nd_f64_test() {
-    let module = ModuleBuilder::new(42);
+    let module = ModuleBuilder::new(42).build(NoneModel);
 
     let shape = [2, 3, 4, 5];
     let vec_a = (0..shape.iter().product::<usize>())

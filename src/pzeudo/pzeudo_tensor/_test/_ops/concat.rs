@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 #[test]
 fn concat_test_1() {
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let shape = [3, 4, 3];
     let vec_a = (0..shape.iter().product::<usize>())
@@ -57,7 +57,7 @@ fn concat_test_1() {
 
 #[test]
 fn concat_test_2() {
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let shape = [3, 2, 3];
     let vec_a = (0..shape.iter().product::<usize>())
@@ -109,7 +109,7 @@ fn concat_test_2() {
 
 #[test]
 fn concat_test_3() {
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let shape = [3, 2, 1];
     let vec_a = (0..shape.iter().product::<usize>())
@@ -161,7 +161,7 @@ fn concat_test_3() {
 
 #[test]
 fn concat_test_4() {
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let shape = [3, 2, 2];
     let vec_a = (0..shape.iter().product::<usize>())
@@ -232,7 +232,7 @@ fn concat_test_4() {
 
 #[test]
 fn concat_test_5() {
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let shape = [3, 2, 2];
     let vec_a = (0..shape.iter().product::<usize>())

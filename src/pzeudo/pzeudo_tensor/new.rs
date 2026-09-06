@@ -46,9 +46,9 @@ impl<F, G> Tensor<F, Contiguous, G>
 where
     G: ReqGradTrait<F>,
 {
-    pub fn ones(
+    pub fn ones<M>(
         shape: &[usize],
-        module: &ModuleBuilder<F>,
+        module: &Module<F, M>,
         requires_grad: G,
     ) -> Result<Tensor<F, Contiguous, G>, PzeudoErr>
     where
@@ -63,8 +63,8 @@ where
         let tensor = Tensor {
             array_idx,
             grad_idx,
-            storage: module.storage.clone(),
-            record: module.record.clone(),
+            storage: module.get_storage().clone(),
+            record: module.get_record().clone(),
             record_status: None,
             shape: shape.to_vec(),
             _array_type: Default::default(),
@@ -73,10 +73,10 @@ where
         Ok(tensor)
     }
 
-    pub fn from_slice_with_shape(
+    pub fn from_slice_with_shape<M>(
         vec: &[F],
         shape: &[usize],
-        module: &ModuleBuilder<F>,
+        module: &Module<F, M>,
         requires_grad: G,
     ) -> Result<Tensor<F, Contiguous, G>, PzeudoErr>
     where
@@ -93,8 +93,8 @@ where
         let tensor = Tensor {
             array_idx,
             grad_idx,
-            storage: module.storage.clone(),
-            record: module.record.clone(),
+            storage: module.get_storage().clone(),
+            record: module.get_record().clone(),
             record_status: None,
             shape: shape.to_vec(),
             _array_type: Default::default(),
@@ -103,10 +103,10 @@ where
         Ok(tensor)
     }
 
-    pub fn from_vector_with_shape(
+    pub fn from_vector_with_shape<M>(
         vec: Vec<F>,
         shape: &[usize],
-        module: &ModuleBuilder<F>,
+        module: &Module<F, M>,
         requires_grad: G,
     ) -> Result<Tensor<F, Contiguous, G>, PzeudoErr>
     where
@@ -123,8 +123,8 @@ where
         let tensor = Tensor {
             array_idx,
             grad_idx,
-            storage: module.storage.clone(),
-            record: module.record.clone(),
+            storage: module.get_storage().clone(),
+            record: module.get_record().clone(),
             record_status: None,
             shape: shape.to_vec(),
             _array_type: Default::default(),
@@ -133,9 +133,9 @@ where
         Ok(tensor)
     }
 
-    pub fn from_array(
+    pub fn from_array<M>(
         array: Array<F>,
-        module: &ModuleBuilder<F>,
+        module: &Module<F, M>,
         requires_grad: G,
     ) -> Result<Tensor<F, Contiguous, G>, PzeudoErr>
     where

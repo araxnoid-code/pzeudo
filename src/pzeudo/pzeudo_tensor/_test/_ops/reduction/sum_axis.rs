@@ -2,7 +2,7 @@ use crate::prelude::*;
 
 #[test]
 fn sum_axis_test_1() {
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let tensor_a = Tensor::from_vector_with_shape(
         vec![1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
@@ -32,7 +32,7 @@ fn sum_axis_test_1() {
 
 #[test]
 fn sum_axis_test_2() {
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let tensor_a = Tensor::from_vector_with_shape(
         vec![
@@ -68,7 +68,7 @@ fn sum_axis_test_2() {
 
 #[test]
 fn sum_axis_test_3() {
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let tensor_a = Tensor::from_vector_with_shape(
         vec![1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],
@@ -98,7 +98,7 @@ fn sum_axis_test_3() {
 
 #[test]
 fn sum_axis_test_4() {
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let tensor_a = Tensor::from_vector_with_shape(
         vec![

@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[test]
 fn unrecord_test_1() {
     // // Create a module.
-    let module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let module_builder = ModuleBuilder::new(42).build(NoneModel);
 
     let tensor_a = Tensor::from_vector_with_shape(
         vec![1., 2., 3., 4., 5., 6., 7., 8., 9., 11., 12., 13.],

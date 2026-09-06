@@ -1,1 +1,1 @@
-pub struct NoneModel {}
+pub struct NoneModel;

@@ -4,6 +4,13 @@ use num_traits::Float;
 
 use crate::prelude::*;
 
+/// # softmax_cross_entropy
+/// ```md
+/// softmax_cross_entropy(target, logit) = -∑target * ln(e^logit / (epsilon + ∑e^logit))
+/// epsilon = 1e-7
+/// ```
+/// - The result of mse will be summed into a scalar (since pzeudo does not yet support 0D tensors/scalars, it returns a 1D tensor containing a single value).
+/// - The backward pass using softmax_cross_entropy_backward computes gradients only for the prediction.
 pub fn softmax_cross_entropy<F, T, J, LhsGrad, RhsGrad, ReqGrad>(
     target: &Tensor<F, T, LhsGrad>,
     logit: &Tensor<F, J, RhsGrad>,
@@ -21,6 +28,14 @@ where
     let target_array =
         storage.get_as_array_ref::<T>(target.get_array_idx(), ContiguousType::Arr)?;
     let logit_array = storage.get_as_array_ref::<J>(logit.get_array_idx(), ContiguousType::Arr)?;
+
+    if target_array.shape != logit_array.shape {
+        return Err(PzeudoErr::LossErr(format!(
+            "cross_entropy_loss. actual shape: {:?}, predicted shape: {:?}. The shape of both tensors must be the same",
+            target_array.shape, logit_array.shape
+        )));
+    }
+
     let len = logit_array.shape.iter().product::<usize>();
 
     let exp_axis = logit_array.sum_axis_closure(&[axis], true, |_, x| Ok(x.exp()))?;
@@ -77,6 +92,9 @@ where
     Ok(tensor)
 }
 
+/// ```md
+/// dsoftmax_cross_entropy(target, logit)/dlogit = (softmax(logit) - target) * gradient
+/// ```
 pub fn softmax_cross_entropy_backward<F>(
     softmax: &[F],
     target: StorageType,

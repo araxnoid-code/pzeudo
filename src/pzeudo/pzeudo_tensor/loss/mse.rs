@@ -7,9 +7,11 @@ use std::{
     vec,
 };
 
-/// ## Mean Squared Error
-/// - mse = 1/n * ∑(target - prediction)^2
-/// - n: The total number of elements in the tensor.
+/// # Mean Squared Error
+/// ```md
+/// mse = 1/n * ∑(target - prediction)^2
+/// n = The total number of elements in the tensor.
+/// ```
 /// - The result of mse will be summed into a scalar (since pzeudo does not yet support 0D tensors/scalars, it returns a 1D tensor containing a single value).
 /// - The backward pass using mse_backward computes gradients only for the prediction.
 pub fn mse<F, T, J, LhsGrad, RhsGrad, ReqGrad>(

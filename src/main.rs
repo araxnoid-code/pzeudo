@@ -63,9 +63,6 @@ fn main() {
             let d = relu(&c, ReqGrad)?;
             let e = model.linear_c.forward(&d, ReqGrad)?;
 
-            // let prop = softmax(&e, 1, ReqGrad)?;
-
-            // let loss = cross_entropy_loss(target, &prop, ReqGrad)?;
             let loss = softmax_cross_entropy(target, &e, 1, ReqGrad)?;
             println!("loss: {}", loss);
             loss.backward()?;

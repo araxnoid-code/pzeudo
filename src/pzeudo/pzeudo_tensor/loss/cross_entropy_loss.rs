@@ -5,11 +5,13 @@ use std::{
     ops::{Add, AddAssign, Div, MulAssign, Neg, SubAssign},
 };
 
-/// ## Cross Entropy Loss
-/// - H(p,q) = -∑p * ln(q + epsilon)
-/// - epsilon = 1e-7
-/// - p: target probability
-/// - q: prediction probability
+/// # Cross Entropy Loss
+/// ```md
+/// H(p,q) = -∑p * ln(q + epsilon)
+/// epsilon = 1e-7
+/// p = target probability
+/// q = prediction probability
+/// ```
 /// - The result of H(p,q) will be summed into a scalar (since pzeudo does not yet support 0D tensors/scalars, it returns a 1D tensor containing a single value).
 /// - The backward pass using cross_entropy_loss_backward computes gradients only for the prediction.
 pub fn cross_entropy_loss<F, T, J, LhsGrad, RhsGrad, ReqGrad>(

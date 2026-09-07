@@ -60,3 +60,56 @@ fn classification_test_1() {
         })
         .unwrap();
 }
+
+#[test]
+fn classification_test_2() {
+    let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
+    let mut model_builder = module_builder.model_builder();
+    let model = Model {
+        linear_a: Linear::new(1, 8, WeightInit::He, &mut model_builder).unwrap(),
+        linear_b: Linear::new(8, 2, WeightInit::He, &mut model_builder).unwrap(),
+        optim: Adam::new(1., model_builder).unwrap(),
+    };
+
+    let mut vec_test = vec![];
+    let train_vec = (0..64)
+        .map(|i| {
+            if (i % 2) == 0 {
+                vec_test.push(0.);
+                vec_test.push(1.);
+            } else {
+                vec_test.push(1.);
+                vec_test.push(0.);
+            };
+
+            i as f32 / 32.
+        })
+        .collect::<Vec<f32>>();
+    let train =
+        Tensor::param_from_vector_with_shape(train_vec, &[64, 1], &module_builder, ReqNoGrad)
+            .unwrap();
+
+    let target =
+        Tensor::param_from_vector_with_shape(vec_test, &[64, 2], &module_builder, ReqNoGrad)
+            .unwrap();
+
+    let mut module = module_builder.build(model);
+    let epoch_builder = EpochBuilder::new(100, (train, target));
+
+    module
+        .epoch(epoch_builder, |_epoch, _module, model, (train, target)| {
+            let a = model.linear_a.forward(train, ReqGrad)?;
+            let b = softplus(&a, ReqGrad)?;
+            let c = model.linear_b.forward(&b, ReqGrad)?;
+
+            let loss = softmax_cross_entropy(target, &c, 1, ReqGrad)?;
+
+            loss.backward()?;
+
+            model.optim.optim()?;
+            model.optim.zero_grad();
+
+            Ok(())
+        })
+        .unwrap();
+}

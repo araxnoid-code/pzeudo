@@ -14,11 +14,16 @@ pub enum RecordLabel<F> {
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)
         Option<StorageType>,                                    // own Grad
     ),
+    DivScalar(F, Option<StorageType>, Option<StorageType>), // Scalar, array_grad, grad
+    ScalarDiv(F, StorageType, Option<StorageType>, Option<StorageType>), // Scalar, tensor_array, tensor_array_grad, grad
+
     Mul(
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Lhs(arr, Grad)
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)
         Option<StorageType>,                                    // own Grad
     ),
+    MulScalar(F, Option<StorageType>, Option<StorageType>), // Scalar, array_grad, grad
+
     Sub(
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Lhs(arr, Grad)
         (StorageType, Option<StorageType>, Option<Vec<usize>>), // Rhs(arr, grad)

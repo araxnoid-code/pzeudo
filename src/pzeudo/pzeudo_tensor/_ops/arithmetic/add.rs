@@ -54,7 +54,7 @@ impl<F, T, G> Tensor<F, T, G> {
 
     pub fn add_scalar<OutGrad>(
         &self,
-        lhs_scalar: F,
+        rhs_scalar: F,
         requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
@@ -66,7 +66,7 @@ impl<F, T, G> Tensor<F, T, G> {
 
         let arr = storage
             .get_as_array_ref::<T>(self.array_idx, ContiguousType::Arr)?
-            .add_scalar(lhs_scalar)?;
+            .add_scalar(rhs_scalar)?;
         let shape = arr.shape.to_vec();
 
         let array_idx = storage.push(ElementType::Arr(arr))?;
@@ -91,7 +91,7 @@ impl<F, T, G> Tensor<F, T, G> {
 
     pub fn scalar_add<OutGrad>(
         &self,
-        rhs_scalar: F,
+        lhs_scalar: F,
         requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
@@ -103,7 +103,7 @@ impl<F, T, G> Tensor<F, T, G> {
 
         let arr = storage
             .get_as_array_ref::<T>(self.array_idx, ContiguousType::Arr)?
-            .scalar_add(rhs_scalar)?;
+            .scalar_add(lhs_scalar)?;
         let shape = arr.shape.to_vec();
 
         let array_idx = storage.push(ElementType::Arr(arr))?;
@@ -150,7 +150,7 @@ where
             let grad = grad_take.to_array_ref::<Contiguous>();
 
             let mut arr_grad =
-                storage.get_as_array_ref_mut::<View>(grad_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(arr_grad_idx, ContiguousType::Grad)?;
             let len = arr_grad.shape.iter().product::<usize>();
             for i in 0..len {
                 *arr_grad.linear_index_mut(i)? += grad.linear_index(i)?;

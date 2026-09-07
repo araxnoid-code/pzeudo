@@ -52,6 +52,13 @@ where
                     storage,
                 )?;
             }
+            Self::DivScalar(scalar, arr_grad_idx, grad) => {
+                div_scalar_backward(*scalar, *arr_grad_idx, *grad, storage)?;
+            }
+            Self::ScalarDiv(scalar, array_idx, array_grad_idx, grad) => {
+                scalar_div_backward(*scalar, *array_idx, *array_grad_idx, *grad, storage)?;
+            }
+
             Self::Mul(lhs, rhs, grad) => {
                 mul_backward(
                     *grad,
@@ -64,6 +71,10 @@ where
                     storage,
                 )?;
             }
+            Self::MulScalar(scalar, arr_grad_idx, grad) => {
+                mul_scalar_backward(*scalar, *arr_grad_idx, *grad, storage)?;
+            }
+
             Self::Matmul2dF32(lhs, rhs, grad) => {
                 matmul_2d_f32_backward(
                     lhs.0,

@@ -55,7 +55,7 @@ impl<F, T, G> Tensor<F, T, G> {
 
     pub fn sub_scalar<OutGrad>(
         &self,
-        lhs_scalar: F,
+        rhs_scalar: F,
         requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
@@ -67,14 +67,14 @@ impl<F, T, G> Tensor<F, T, G> {
 
         let arr = storage
             .get_as_array_ref::<T>(self.array_idx, ContiguousType::Arr)?
-            .sub_scalar(lhs_scalar)?;
+            .sub_scalar(rhs_scalar)?;
         let shape = arr.shape.to_vec();
 
         let array_idx = storage.push(ElementType::Arr(arr))?;
         let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
         let mut record = self.get_record().borrow_mut();
-        let record_label = RecordLabel::AddScalar(self.get_grad_idx(), grad_idx);
+        let record_label = RecordLabel::SubScalar(self.get_grad_idx(), grad_idx);
         let record_idx = RecordStatus::Record(record.len());
         record.push(record_label);
 
@@ -92,7 +92,7 @@ impl<F, T, G> Tensor<F, T, G> {
 
     pub fn scalar_sub<OutGrad>(
         &self,
-        rhs_scalar: F,
+        lhs_scalar: F,
         requires_grad: OutGrad,
     ) -> Result<Tensor<F, Contiguous, OutGrad>, PzeudoErr>
     where
@@ -104,14 +104,14 @@ impl<F, T, G> Tensor<F, T, G> {
 
         let arr = storage
             .get_as_array_ref::<T>(self.array_idx, ContiguousType::Arr)?
-            .scalar_sub(rhs_scalar)?;
+            .scalar_sub(lhs_scalar)?;
         let shape = arr.shape.to_vec();
 
         let array_idx = storage.push(ElementType::Arr(arr))?;
         let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
         let mut record = self.get_record().borrow_mut();
-        let record_label = RecordLabel::AddScalar(self.get_grad_idx(), grad_idx);
+        let record_label = RecordLabel::ScalarSub(self.get_grad_idx(), grad_idx);
         let record_idx = RecordStatus::Record(record.len());
         record.push(record_label);
 
@@ -151,7 +151,7 @@ where
             let grad = grad_take.to_array_ref::<Contiguous>();
 
             let mut arr_grad =
-                storage.get_as_array_ref_mut::<View>(grad_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(arr_grad_idx, ContiguousType::Grad)?;
             let len = arr_grad.shape.iter().product::<usize>();
             for i in 0..len {
                 *arr_grad.linear_index_mut(i)? += grad.linear_index(i)?;
@@ -187,7 +187,7 @@ where
             let grad = grad_take.to_array_ref::<Contiguous>();
 
             let mut arr_grad =
-                storage.get_as_array_ref_mut::<View>(grad_idx, ContiguousType::Grad)?;
+                storage.get_as_array_ref_mut::<View>(arr_grad_idx, ContiguousType::Grad)?;
             let len = arr_grad.shape.iter().product::<usize>();
             for i in 0..len {
                 *arr_grad.linear_index_mut(i)? += -grad.linear_index(i)?;

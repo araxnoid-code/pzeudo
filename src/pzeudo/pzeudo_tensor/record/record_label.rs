@@ -103,6 +103,12 @@ pub enum RecordLabel<F> {
         Option<StorageType>,
         Option<StorageType>,
     ), // (actual, prediction, prediction_grad, grad),
+    SoftmaxCrossEntropy(
+        Vec<F>,              // Softmax
+        StorageType,         // Target
+        Option<StorageType>, // logit_grad
+        Option<StorageType>, // grad
+    ),
 
     // LAYER
     Dropout(Vec<u8>, F, Option<StorageType>, Option<StorageType>), // (Mask, p - 1, Array's Grad, Grad)

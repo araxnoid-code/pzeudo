@@ -236,6 +236,10 @@ where
                 )?;
             }
 
+            Self::SoftmaxCrossEntropy(softmax, target, logit_grad, grad) => {
+                softmax_cross_entropy_backward(softmax, *target, *logit_grad, *grad, storage)?;
+            }
+
             Self::Dropout(mask, q, arr_grad_idx, grad) => {
                 dropout_backward(mask, *q, *arr_grad_idx, *grad, storage)?;
             }

@@ -16,7 +16,7 @@ fn embedding_test_1() {
         // Embedding
         embedding: Embedding::new(10, 16, &mut model_builder, ReqGrad).unwrap(),
         // Embedding
-        linear: Linear::new(16, 1, WeightInit::He, &mut model_builder).unwrap(),
+        linear: Linear::new(16, 1, WeightInit::HeIn, &mut model_builder).unwrap(),
         optim: Adam::new(0.01, model_builder).unwrap(),
     };
 

@@ -1,4 +1,6 @@
-pub enum WeightInit {
+pub enum WeightInit<F> {
     Xavier,
-    He,
+    HeIn,
+    HeOut,
+    Costum(F, F),
 }

@@ -12,8 +12,8 @@ fn linear_model_test_mse_f32() {
 
     let mut create_model = module_builder.model_builder();
     let model = Model {
-        linear_1: Linear::new(1, 4, WeightInit::He, &mut create_model).unwrap(),
-        linear_2: Linear::new(4, 1, WeightInit::He, &mut create_model).unwrap(),
+        linear_1: Linear::new(1, 4, WeightInit::HeIn, &mut create_model).unwrap(),
+        linear_2: Linear::new(4, 1, WeightInit::HeIn, &mut create_model).unwrap(),
         optim: Adam::new(0.0001, create_model).unwrap(),
     };
 
@@ -57,8 +57,8 @@ fn linear_model_test_mse_f64() {
     let mut module = ModuleBuilder::<f64>::new(42);
     let mut create_model = module.model_builder();
     let model = Model {
-        linear_1: Linear::new(1, 4, WeightInit::He, &mut create_model).unwrap(),
-        linear_2: Linear::new(4, 1, WeightInit::He, &mut create_model).unwrap(),
+        linear_1: Linear::new(1, 4, WeightInit::HeIn, &mut create_model).unwrap(),
+        linear_2: Linear::new(4, 1, WeightInit::HeIn, &mut create_model).unwrap(),
         optim: Adam::new(0.0001, create_model).unwrap(),
     };
 
@@ -101,8 +101,8 @@ fn linear_model_test_mae_f32() {
     let mut create_model = module.model_builder();
 
     let model = Model {
-        linear_1: Linear::new(1, 4, WeightInit::He, &mut create_model).unwrap(),
-        linear_2: Linear::new(4, 1, WeightInit::He, &mut create_model).unwrap(),
+        linear_1: Linear::new(1, 4, WeightInit::HeIn, &mut create_model).unwrap(),
+        linear_2: Linear::new(4, 1, WeightInit::HeIn, &mut create_model).unwrap(),
         optim: Adam::new(0.0001, create_model).unwrap(),
     };
 
@@ -208,8 +208,8 @@ fn linear_model_test_mse_f32_train_eval() {
     let mut create_model = module.model_builder();
 
     let model = Model {
-        linear_1: Linear::new(1, 16, WeightInit::He, &mut create_model).unwrap(),
-        linear_2: Linear::new(16, 1, WeightInit::He, &mut create_model).unwrap(),
+        linear_1: Linear::new(1, 16, WeightInit::HeIn, &mut create_model).unwrap(),
+        linear_2: Linear::new(16, 1, WeightInit::HeIn, &mut create_model).unwrap(),
         optim: Adam::new(0.01, create_model).unwrap(),
     };
 

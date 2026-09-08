@@ -37,9 +37,9 @@ fn test_layer_norm_1() {
     // To initialize a model that has been created, you need a ModelBuilder.
     let mut model_builder = module_builder.model_builder();
     let model = Model {
-        linear_1: Linear::new(1, 16, WeightInit::He, &mut model_builder).unwrap(),
+        linear_1: Linear::new(1, 16, WeightInit::HeIn, &mut model_builder).unwrap(),
         layer_norm: LayerNorm::new(None, &mut model_builder, ReqGrad).unwrap(),
-        linear_2: Linear::new(16, 1, WeightInit::He, &mut model_builder).unwrap(),
+        linear_2: Linear::new(16, 1, WeightInit::HeIn, &mut model_builder).unwrap(),
         optim: Sgd::new(0.01, model_builder).unwrap(),
     };
 

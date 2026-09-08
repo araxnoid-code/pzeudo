@@ -62,10 +62,13 @@ impl<F> Linear<F> {
     /// #### He:
     /// - mean: 0
     /// - std_dev : 2/in_features
+    /// #### Costum(m, s)
+    /// - mean      : m
+    /// - std_dev   : s
     pub fn new(
         in_features: usize,
         out_features: usize,
-        weight_init: WeightInit,
+        weight_init: WeightInit<F>,
         model_builder: &mut ModelBuilder<F>,
     ) -> Result<Linear<F>, PzeudoErr>
     where
@@ -73,22 +76,31 @@ impl<F> Linear<F> {
         StandardUniform: Distribution<F>,
         StandardNormal: Distribution<F>,
     {
-        let std = match weight_init {
-            WeightInit::He => {
+        let (mean, std) = match weight_init {
+            WeightInit::HeIn => (
+                F::zero(),
                 (F::one() + F::one())
                     / F::from(in_features).ok_or(PzeudoErr::LayerErr(format!(
                         "Linear::new. Cannot perform data type casting on in_feature."
-                    )))?
-            }
-            WeightInit::Xavier => {
+                    )))?,
+            ),
+            WeightInit::HeOut => (
+                F::zero(),
+                (F::one() + F::one())
+                    / F::from(out_features).ok_or(PzeudoErr::LayerErr(format!(
+                        "Linear::new. Cannot perform data type casting on in_feature."
+                    )))?,
+            ),
+            WeightInit::Xavier => (
+                F::zero(),
                 (F::one() + F::one())
                     / F::from(in_features + out_features).ok_or(PzeudoErr::LayerErr(format!(
                         "Linear::new. Cannot perform data type casting on in_feature."
-                    )))?
-            }
+                    )))?,
+            ),
+            WeightInit::Costum(mean, std) => (mean, std),
         };
-        let normal =
-            Normal::new(F::zero(), std).map_err(|err| PzeudoErr::RandDistrNormalErr(err))?;
+        let normal = Normal::new(mean, std).map_err(|err| PzeudoErr::RandDistrNormalErr(err))?;
 
         let weight_vector =
             model_builder.get_load_else_generate_vec(in_features * out_features, &normal)?;

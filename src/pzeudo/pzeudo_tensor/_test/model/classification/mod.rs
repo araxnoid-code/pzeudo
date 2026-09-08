@@ -11,8 +11,8 @@ fn classification_test_1() {
     let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
     let mut model_builder = module_builder.model_builder();
     let model = Model {
-        linear_a: Linear::new(1, 8, WeightInit::He, &mut model_builder).unwrap(),
-        linear_b: Linear::new(8, 2, WeightInit::He, &mut model_builder).unwrap(),
+        linear_a: Linear::new(1, 8, WeightInit::HeIn, &mut model_builder).unwrap(),
+        linear_b: Linear::new(8, 2, WeightInit::HeIn, &mut model_builder).unwrap(),
         optim: Adam::new(1., model_builder).unwrap(),
     };
 
@@ -66,8 +66,8 @@ fn classification_test_2() {
     let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
     let mut model_builder = module_builder.model_builder();
     let model = Model {
-        linear_a: Linear::new(1, 8, WeightInit::He, &mut model_builder).unwrap(),
-        linear_b: Linear::new(8, 2, WeightInit::He, &mut model_builder).unwrap(),
+        linear_a: Linear::new(1, 8, WeightInit::HeIn, &mut model_builder).unwrap(),
+        linear_b: Linear::new(8, 2, WeightInit::HeIn, &mut model_builder).unwrap(),
         optim: Adam::new(1., model_builder).unwrap(),
     };
 

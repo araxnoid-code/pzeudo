@@ -60,7 +60,7 @@ where
         "mse. Unable to cast on length type"
     )))?;
 
-    let loss_array = Array::from_vector(&[sum]);
+    let loss_array = Array::from_vector(vec![sum]);
     let array_idx = storage.push(ElementType::Arr(loss_array))?;
     let grad_idx = requires_grad.into_zeros_grad_storage(&[1], &mut storage)?;
 

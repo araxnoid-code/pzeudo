@@ -46,7 +46,7 @@ where
     }
     sum /= F::from(len).ok_or(PzeudoErr::LossErr(format!("mae. cannot cast to data type")))?;
 
-    let loss_array = Array::from_vector(&[sum]);
+    let loss_array = Array::from_vector(vec![sum]);
     let array_idx = storage.push(ElementType::Arr(loss_array))?;
     let grad_idx = require_grad.into_zeros_grad_storage(&[1], &mut storage)?;
 

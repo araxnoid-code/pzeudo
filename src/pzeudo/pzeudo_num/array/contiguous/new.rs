@@ -12,7 +12,20 @@ impl<F> Array<F> {
         }
     }
 
-    pub fn from_vector(vector: &[F]) -> Array<F>
+    pub fn from_vector(vector: Vec<F>) -> Array<F>
+    where
+        F: Clone,
+    {
+        let shape = vector.len();
+        Self {
+            data: vector,
+            offset: 0,
+            shape: vec![shape],
+            stride: vec![1],
+        }
+    }
+
+    pub fn from_slice(vector: &[F]) -> Array<F>
     where
         F: Clone,
     {

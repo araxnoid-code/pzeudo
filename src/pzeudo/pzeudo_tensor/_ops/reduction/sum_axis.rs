@@ -92,6 +92,7 @@ where
                     offset: grad_ref.offset,
                     shape: &broadcast,
                     stride: &shape_to_stride(&broadcast),
+                    contiguous: true,
                     _array_type: PhantomData::default(),
                 };
 

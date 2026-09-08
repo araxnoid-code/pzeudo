@@ -304,6 +304,7 @@ where
                             offset: 0,
                             shape: lhs_value.shape,
                             stride: lhs_value.stride,
+                            contiguous: true,
                             _array_type: PhantomData::default(),
                         };
 

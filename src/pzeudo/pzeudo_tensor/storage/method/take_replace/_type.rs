@@ -16,6 +16,7 @@ impl<F> TakeType<F> {
                 offset: array.offset,
                 shape: &array.shape,
                 stride: &array.stride,
+                contiguous: true,
                 _array_type: PhantomData::default(),
             },
             TakeType::Metadata(array, metadata) => ArrayRef {
@@ -23,6 +24,7 @@ impl<F> TakeType<F> {
                 offset: metadata.offset,
                 shape: &metadata.shape,
                 stride: &metadata.stride,
+                contiguous: false,
                 _array_type: PhantomData::default(),
             },
         }
@@ -35,6 +37,7 @@ impl<F> TakeType<F> {
                 offset: array.offset,
                 shape: &array.shape,
                 stride: &array.stride,
+                contiguous: true,
                 _array_type: PhantomData::default(),
             },
             TakeType::Metadata(array, metadata) => ArrayRefMut {
@@ -42,6 +45,7 @@ impl<F> TakeType<F> {
                 offset: metadata.offset,
                 shape: &metadata.shape,
                 stride: &metadata.stride,
+                contiguous: false,
                 _array_type: PhantomData::default(),
             },
         }

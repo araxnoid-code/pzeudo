@@ -28,6 +28,7 @@ impl<F> ArrayStorage<F> {
                     offset: array.offset,
                     shape: &array.shape,
                     stride: &array.stride,
+                    contiguous: true,
                     _array_type: Default::default(),
                 });
             }
@@ -39,6 +40,7 @@ impl<F> ArrayStorage<F> {
                         offset: array.offset,
                         shape: &array.shape,
                         stride: &array.stride,
+                        contiguous: true,
                         _array_type: Default::default(),
                     });
                 }
@@ -55,6 +57,7 @@ impl<F> ArrayStorage<F> {
                         offset: grad.offset,
                         shape: &grad.shape,
                         stride: &grad.stride,
+                        contiguous: true,
                         _array_type: Default::default(),
                     });
                 }
@@ -83,6 +86,7 @@ impl<F> ArrayStorage<F> {
                             offset: view.offset,
                             shape: &view.shape,
                             stride: &view.stride,
+                            contiguous: false,
                             _array_type: Default::default(),
                         });
                     }
@@ -94,6 +98,7 @@ impl<F> ArrayStorage<F> {
                                 offset: view.offset,
                                 shape: &view.shape,
                                 stride: &view.stride,
+                                contiguous: false,
                                 _array_type: Default::default(),
                             });
                         }
@@ -110,6 +115,7 @@ impl<F> ArrayStorage<F> {
                                 offset: view.offset,
                                 shape: &view.shape,
                                 stride: &view.stride,
+                                contiguous: false,
                                 _array_type: Default::default(),
                             });
                         }
@@ -146,6 +152,7 @@ impl<F> ArrayStorage<F> {
                     offset: array.offset,
                     shape: &array.shape,
                     stride: &array.stride,
+                    contiguous: true,
                     _array_type: Default::default(),
                 });
             }
@@ -157,6 +164,7 @@ impl<F> ArrayStorage<F> {
                         offset: array.offset,
                         shape: &array.shape,
                         stride: &array.stride,
+                        contiguous: true,
                         _array_type: Default::default(),
                     });
                 }
@@ -173,6 +181,7 @@ impl<F> ArrayStorage<F> {
                         offset: grad.offset,
                         shape: &grad.shape,
                         stride: &grad.stride,
+                        contiguous: true,
                         _array_type: Default::default(),
                     });
                 }
@@ -201,6 +210,7 @@ impl<F> ArrayStorage<F> {
                             offset: view.offset,
                             shape: &view.shape,
                             stride: &view.stride,
+                            contiguous: false,
                             _array_type: Default::default(),
                         });
                     }
@@ -212,6 +222,7 @@ impl<F> ArrayStorage<F> {
                                 offset: view.offset,
                                 shape: &view.shape,
                                 stride: &view.stride,
+                                contiguous: false,
                                 _array_type: Default::default(),
                             });
                         }
@@ -228,6 +239,7 @@ impl<F> ArrayStorage<F> {
                                 offset: view.offset,
                                 shape: &view.shape,
                                 stride: &view.stride,
+                                contiguous: false,
                                 _array_type: Default::default(),
                             });
                         }

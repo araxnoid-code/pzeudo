@@ -189,6 +189,7 @@ where
                 offset: 0,
                 shape: &arr_grad_ref.shape,
                 stride: &stride,
+                contiguous: false,
                 _array_type: Default::default(),
             };
 

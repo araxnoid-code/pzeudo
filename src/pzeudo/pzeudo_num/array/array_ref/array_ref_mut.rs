@@ -7,6 +7,7 @@ pub struct ArrayRefMut<'a, F, T> {
     pub(crate) offset: usize,
     pub(crate) stride: &'a [usize],
     pub(crate) shape: &'a [usize],
+    pub(crate) contiguous: bool,
     pub(crate) _array_type: PhantomData<T>,
 }
 

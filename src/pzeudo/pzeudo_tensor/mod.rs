@@ -38,5 +38,8 @@ pub use activation::*;
 mod grad_stat;
 pub use grad_stat::*;
 
+mod algebraic;
+pub use algebraic::*;
+
 #[cfg(test)]
 mod _test;

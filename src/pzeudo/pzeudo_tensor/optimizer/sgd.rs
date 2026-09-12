@@ -55,7 +55,10 @@ impl<F> Sgd<F> {
             [self.range.0..self.range.1]
         {
             if let Some(grad) = &param.grad {
-                param.array.sub_assign(&grad.mul_scalar(self.lr)?)?;
+                let len: usize = grad.shape.iter().product();
+                for i in 0..len {
+                    *param.array.linear_index_mut(i)? -= grad.linear_index(i)? * self.lr;
+                }
             }
         }
         Ok(())

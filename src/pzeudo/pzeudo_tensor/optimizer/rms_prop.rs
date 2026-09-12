@@ -85,14 +85,61 @@ where
                 let one = F::one();
 
                 let len = g_arr.shape.iter().product::<usize>();
+                let q = one - self.hyperparameter;
                 for i in 0..len {
                     let g = g_arr.linear_index_mut(i)?;
                     let grad = grad.linear_index(i)?;
 
                     *g *= self.hyperparameter;
-                    *g += (one - self.hyperparameter) * (grad * grad);
+                    *g += (q) * (grad * grad);
 
                     let update = self.lr / (*g + epsilon).sqrt() * grad;
+                    *param.array.linear_index_mut(i)? -= update;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// ## formula:
+    /// - w_new = w_old - lr/√(g_new + eps) * grad(w_old)
+    /// - g_new = hyperparameter * g_old + (1 - hyperparameter)  * grad(w_old)^2
+    /// - hyperparameter = 0.9(default). Modify via RMSProp::set hyperparameter.
+    /// - eps = 1e-7
+    pub fn alg_optim(&mut self) -> Result<(), PzeudoErr>
+    where
+        F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign + AlgebraicAble,
+    {
+        for (idx, param) in &mut self.storage.borrow_mut().get_params_storage_mut().storage
+            [self.range.0..self.range.1]
+            .iter_mut()
+            .enumerate()
+        {
+            if let Some(grad) = &param.grad {
+                let g_arr = self.g.get_mut(idx).ok_or(PzeudoErr::OptimErr(format!(
+                    "RMSProp::optim. Index {idx} points to an invalid location in the g list."
+                )))?;
+                let epsilon = F::from(1e-7).ok_or(PzeudoErr::OptimErr(format!(
+                    "RMSProp::optim. Unable to cast data type for epsilon 1e-7."
+                )))?;
+                let one = F::one();
+
+                let len = g_arr.shape.iter().product::<usize>();
+                let q = one - self.hyperparameter;
+                for i in 0..len {
+                    let g = g_arr.linear_index_mut(i)?;
+                    let grad = grad.linear_index(i)?;
+
+                    let new_g = g
+                        ._algebraic_mul(self.hyperparameter)
+                        ._algebraic_add(q._algebraic_mul(grad._algebraic_mul(grad)));
+                    *g = new_g;
+
+                    let update = self
+                        .lr
+                        ._algebraic_div(new_g._algebraic_add(epsilon).sqrt())
+                        ._algebraic_mul(grad);
+
                     *param.array.linear_index_mut(i)? -= update;
                 }
             }

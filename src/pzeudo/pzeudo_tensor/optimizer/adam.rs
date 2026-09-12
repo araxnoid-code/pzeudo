@@ -202,7 +202,10 @@ where
                         ._algebraic_div(one._algebraic_sub(self.hyperparameter_g.powi(self.t)));
 
                     // update
-                    *param.array.linear_index_mut(i)? -= self.lr / (g_hat + epsilon).sqrt() * m_hat;
+                    *param.array.linear_index_mut(i)? -= self
+                        .lr
+                        ._algebraic_div((g_hat + epsilon).sqrt())
+                        ._algebraic_mul(m_hat);
                 }
             }
         }

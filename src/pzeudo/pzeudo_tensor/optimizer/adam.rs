@@ -116,18 +116,20 @@ where
                 let one = F::one();
 
                 let len = g_arr.shape.iter().product::<usize>();
+                let q_m = one - self.hyperparameter_m;
+                let q_g = one - self.hyperparameter_g;
                 for i in 0..len {
                     let grad = grad.linear_index(i)?;
                     // m
                     let m = m_arr.linear_index_mut(i)?;
                     *m *= self.hyperparameter_m;
-                    *m += (one - self.hyperparameter_m) * grad;
+                    *m += (q_m) * grad;
                     let m_hat = *m / (one - self.hyperparameter_m.powi(self.t));
 
                     // g
                     let g = g_arr.linear_index_mut(i)?;
                     *g *= self.hyperparameter_g;
-                    *g += (one - self.hyperparameter_g) * (grad * grad);
+                    *g += (q_g) * (grad * grad);
                     let g_hat = *g / (one - self.hyperparameter_g.powi(self.t));
 
                     // update
@@ -174,15 +176,16 @@ where
                 let one = F::one();
 
                 let len = g_arr.shape.iter().product::<usize>();
+                let q_m = one - self.hyperparameter_m;
+                let q_g = one - self.hyperparameter_g;
                 for i in 0..len {
                     let grad = grad.linear_index(i)?;
                     // m
                     let m = m_arr.linear_index_mut(i)?;
 
-                    let m_new = m._algebraic_mul(self.hyperparameter_m)._algebraic_add(
-                        one._algebraic_sub(self.hyperparameter_m)
-                            ._algebraic_mul(grad),
-                    );
+                    let m_new = m
+                        ._algebraic_mul(self.hyperparameter_m)
+                        ._algebraic_add(q_m._algebraic_mul(grad));
                     *m = m_new;
 
                     let m_hat = m_new
@@ -190,10 +193,9 @@ where
 
                     // g
                     let g = g_arr.linear_index_mut(i)?;
-                    let g_new = g._algebraic_mul(self.hyperparameter_g)._algebraic_add(
-                        one._algebraic_sub(self.hyperparameter_g)
-                            ._algebraic_mul(grad._algebraic_mul(grad)),
-                    );
+                    let g_new = g
+                        ._algebraic_mul(self.hyperparameter_g)
+                        ._algebraic_add(q_g._algebraic_mul(grad._algebraic_mul(grad)));
                     *g = g_new;
 
                     let g_hat = g_new

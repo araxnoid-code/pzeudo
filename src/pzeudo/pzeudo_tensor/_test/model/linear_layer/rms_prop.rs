@@ -300,7 +300,7 @@ fn linear_model_test_alg_optim() {
             println!("loss: {}\n", loss);
             loss.backward()?;
 
-            model.optim.optim()?;
+            model.optim.alg_optim()?;
             model.optim.zero_grad();
             Ok(())
         })

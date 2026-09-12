@@ -83,15 +83,17 @@ where
     }
 
     /// ## formula:
-    /// - w_new = w_old - lr/√(g_hat + eps) * m_hat
-    /// - g_new = hyperparameter_g * g_old + (1 - hyperparameter_g)  * grad(w_old)^2
-    /// - g_hat = g_new/(1 - hyperparameter_g^i)
-    /// - m_new = hyperparameter_m * m_old + (1 - hyperparameter_m) * grad(w_old)
-    /// - m_hat = m_new/(1 - hyperparameter_m^i)
-    /// - hyperparameter_m = 0.9(default) Modify via Adam::set_hyperparameter_m
-    /// - hyperparameter_g = 0.99(default) Modify via Adam::set_hyperparameter_g
-    /// - i = iteration
-    /// - eps = 1e-7
+    /// ```md
+    /// w_new = w_old - lr/√(g_hat + eps) * m_hat
+    /// g_new = hyperparameter_g * g_old + (1 - hyperparameter_g)  * grad(w_old)^2
+    /// g_hat = g_new/(1 - hyperparameter_g^i)
+    /// m_new = hyperparameter_m * m_old + (1 - hyperparameter_m) * grad(w_old)
+    /// m_hat = m_new/(1 - hyperparameter_m^i)
+    /// hyperparameter_m = 0.9(default) Modify via Adam::set_hyperparameter_m
+    /// hyperparameter_g = 0.99(default) Modify via Adam::set_hyperparameter_g
+    /// i = iteration
+    /// eps = 1e-7
+    /// ```
     pub fn optim(&mut self) -> Result<(), PzeudoErr>
     where
         F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign,
@@ -143,15 +145,18 @@ where
     }
 
     /// ## formula:
-    /// - w_new = w_old - lr/√(g_hat + eps) * m_hat
-    /// - g_new = hyperparameter_g * g_old + (1 - hyperparameter_g)  * grad(w_old)^2
-    /// - g_hat = g_new/(1 - hyperparameter_g^i)
-    /// - m_new = hyperparameter_m * m_old + (1 - hyperparameter_m) * grad(w_old)
-    /// - m_hat = m_new/(1 - hyperparameter_m^i)
-    /// - hyperparameter_m = 0.9(default) Modify via Adam::set_hyperparameter_m
-    /// - hyperparameter_g = 0.99(default) Modify via Adam::set_hyperparameter_g
-    /// - i = iteration
-    /// - eps = 1e-7
+    /// uses algebraic methods in its operations. The operations are non-deterministic.
+    /// ```md
+    /// w_new = w_old - lr/√(g_hat + eps) * m_hat
+    /// g_new = hyperparameter_g * g_old + (1 - hyperparameter_g)  * grad(w_old)^2
+    /// g_hat = g_new/(1 - hyperparameter_g^i)
+    /// m_new = hyperparameter_m * m_old + (1 - hyperparameter_m) * grad(w_old)
+    /// m_hat = m_new/(1 - hyperparameter_m^i)
+    /// hyperparameter_m = 0.9(default) Modify via Adam::set_hyperparameter_m
+    /// hyperparameter_g = 0.99(default) Modify via Adam::set_hyperparameter_g
+    /// i = iteration
+    /// eps = 1e-7
+    /// ```
     pub fn alg_optim(&mut self) -> Result<(), PzeudoErr>
     where
         F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign + AlgebraicAble,

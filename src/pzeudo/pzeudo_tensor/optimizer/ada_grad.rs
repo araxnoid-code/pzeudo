@@ -53,9 +53,12 @@ where
     }
 
     /// ## formula:
-    /// - w_new = w_old - lr/√(g_new + e) * grad(w_old)
-    /// - g_new = g_old * grad(w_old)^2
-    /// - e = 1e-7
+    /// uses algebraic methods in its operations. The operations are non-deterministic.
+    /// ```md
+    /// w_new = w_old - lr/√(g_new + e) * grad(w_old)
+    /// g_new = g_old * grad(w_old)^2
+    /// e = 1e-7
+    /// ```
     pub fn optim(&mut self) -> Result<(), PzeudoErr>
     where
         F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign,
@@ -80,6 +83,47 @@ where
                     *g += grad * grad;
 
                     let update = self.lr / (*g + epsilon).sqrt() * grad;
+                    *param.array.linear_index_mut(i)? -= update;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// ## formula:
+    /// uses algebraic methods in its operations. The operations are non-deterministic.
+    /// ```md
+    /// w_new = w_old - lr/√(g_new + e) * grad(w_old)
+    /// g_new = g_old * grad(w_old)^2
+    /// e = 1e-7
+    /// ```
+    pub fn alg_optim(&mut self) -> Result<(), PzeudoErr>
+    where
+        F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign + AlgebraicAble,
+    {
+        for (idx, param) in &mut self.storage.borrow_mut().get_params_storage_mut().storage
+            [self.range.0..self.range.1]
+            .iter_mut()
+            .enumerate()
+        {
+            if let Some(grad) = &param.grad {
+                let g_arr = self.g.get_mut(idx).ok_or(PzeudoErr::OptimErr(format!(
+                    "AdaGrad::optim. Index {idx} points to an invalid location in the g list."
+                )))?;
+                let epsilon = F::from(1e-7).ok_or(PzeudoErr::OptimErr(format!(
+                    "AdaGrad::optim. Unable to cast data type for epsilon 1e-7."
+                )))?;
+
+                let len = g_arr.shape.iter().product::<usize>();
+                for i in 0..len {
+                    let g = g_arr.linear_index_mut(i)?;
+                    let grad = grad.linear_index(i)?;
+                    *g += grad * grad;
+
+                    let update = self
+                        .lr
+                        ._algebraic_div((*g + epsilon).sqrt())
+                        ._algebraic_add(grad);
                     *param.array.linear_index_mut(i)? -= update;
                 }
             }

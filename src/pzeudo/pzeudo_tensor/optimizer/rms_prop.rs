@@ -62,10 +62,12 @@ where
     }
 
     /// ## formula:
-    /// - w_new = w_old - lr/√(g_new + eps) * grad(w_old)
-    /// - g_new = hyperparameter * g_old + (1 - hyperparameter)  * grad(w_old)^2
-    /// - hyperparameter = 0.9(default). Modify via RMSProp::set hyperparameter.
-    /// - eps = 1e-7
+    /// ```
+    /// w_new = w_old - lr/√(g_new + eps) * grad(w_old)
+    /// g_new = hyperparameter * g_old + (1 - hyperparameter)  * grad(w_old)^2
+    /// hyperparameter = 0.9(default). Modify via RMSProp::set hyperparameter.
+    /// eps = 1e-7
+    /// ```
     pub fn optim(&mut self) -> Result<(), PzeudoErr>
     where
         F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign,
@@ -102,10 +104,13 @@ where
     }
 
     /// ## formula:
-    /// - w_new = w_old - lr/√(g_new + eps) * grad(w_old)
-    /// - g_new = hyperparameter * g_old + (1 - hyperparameter)  * grad(w_old)^2
-    /// - hyperparameter = 0.9(default). Modify via RMSProp::set hyperparameter.
-    /// - eps = 1e-7
+    /// uses algebraic methods in its operations. The operations are non-deterministic.
+    /// ```md
+    /// w_new = w_old - lr/√(g_new + eps) * grad(w_old)
+    /// g_new = hyperparameter * g_old + (1 - hyperparameter)  * grad(w_old)^2
+    /// hyperparameter = 0.9(default). Modify via RMSProp::set hyperparameter.
+    /// eps = 1e-7
+    /// ```
     pub fn alg_optim(&mut self) -> Result<(), PzeudoErr>
     where
         F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign + AlgebraicAble,

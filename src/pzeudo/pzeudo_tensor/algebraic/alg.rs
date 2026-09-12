@@ -1,4 +1,4 @@
-pub(crate) trait AlgebraicAble {
+pub trait AlgebraicAble {
     fn _algebraic_add(self, rhs: Self) -> Self
     where
         Self: Sized;

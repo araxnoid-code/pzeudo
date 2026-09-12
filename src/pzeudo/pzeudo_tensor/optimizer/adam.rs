@@ -139,4 +139,73 @@ where
         self.t += 1;
         Ok(())
     }
+
+    /// ## formula:
+    /// - w_new = w_old - lr/√(g_hat + eps) * m_hat
+    /// - g_new = hyperparameter_g * g_old + (1 - hyperparameter_g)  * grad(w_old)^2
+    /// - g_hat = g_new/(1 - hyperparameter_g^i)
+    /// - m_new = hyperparameter_m * m_old + (1 - hyperparameter_m) * grad(w_old)
+    /// - m_hat = m_new/(1 - hyperparameter_m^i)
+    /// - hyperparameter_m = 0.9(default) Modify via Adam::set_hyperparameter_m
+    /// - hyperparameter_g = 0.99(default) Modify via Adam::set_hyperparameter_g
+    /// - i = iteration
+    /// - eps = 1e-7
+    pub fn alg_optim(&mut self) -> Result<(), PzeudoErr>
+    where
+        F: Mul<Output = F> + Copy + SubAssign + MulAssign + AddAssign + AlgebraicAble,
+    {
+        for (idx, param) in &mut self.storage.borrow_mut().get_params_storage_mut().storage
+            [self.range.0..self.range.1]
+            .iter_mut()
+            .enumerate()
+        {
+            if let Some(grad) = &param.grad {
+                let g_arr = self.g.get_mut(idx).ok_or(PzeudoErr::OptimErr(format!(
+                    "Adam::optim. Index {idx} points to an invalid location in the g list."
+                )))?;
+
+                let m_arr = self.m.get_mut(idx).ok_or(PzeudoErr::OptimErr(format!(
+                    "Adam::optim. Index {idx} points to an invalid location in the m list."
+                )))?;
+
+                let epsilon = F::from(1e-7).ok_or(PzeudoErr::OptimErr(format!(
+                    "Adam::optim. Unable to cast data type for epsilon 1e-7."
+                )))?;
+                let one = F::one();
+
+                let len = g_arr.shape.iter().product::<usize>();
+                for i in 0..len {
+                    let grad = grad.linear_index(i)?;
+                    // m
+                    let m = m_arr.linear_index_mut(i)?;
+
+                    let m_new = m._algebraic_mul(self.hyperparameter_m)._algebraic_add(
+                        one._algebraic_sub(self.hyperparameter_m)
+                            ._algebraic_mul(grad),
+                    );
+                    *m = m_new;
+
+                    let m_hat = m_new
+                        ._algebraic_div(one._algebraic_sub(self.hyperparameter_m.powi(self.t)));
+
+                    // g
+                    let g = g_arr.linear_index_mut(i)?;
+                    let g_new = g._algebraic_mul(self.hyperparameter_g)._algebraic_add(
+                        one._algebraic_sub(self.hyperparameter_g)
+                            ._algebraic_mul(grad._algebraic_mul(grad)),
+                    );
+                    *g = g_new;
+
+                    let g_hat = g_new
+                        ._algebraic_div(one._algebraic_sub(self.hyperparameter_g.powi(self.t)));
+
+                    // update
+                    *param.array.linear_index_mut(i)? -= self.lr / (g_hat + epsilon).sqrt() * m_hat;
+                }
+            }
+        }
+
+        self.t += 1;
+        Ok(())
+    }
 }

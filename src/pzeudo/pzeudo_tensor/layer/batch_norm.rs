@@ -79,7 +79,7 @@ where
         let (avg, var) = array.avg_and_var_axis(&axis_dim, true)?;
 
         let avg_broadcasted = avg.broadcast(&shape)?;
-        let var_broadcasted = avg.broadcast(&shape)?;
+        let var_broadcasted = var.broadcast(&shape)?;
 
         let len = shape.iter().product::<usize>();
         let epsilon = F::from(1e-7).ok_or(PzeudoErr::LayerErr(String::from(
@@ -89,7 +89,7 @@ where
         for i in 0..len {
             let array_val = array.linear_index(i)?;
             let avg_val = avg_broadcasted.linear_index(i)?;
-            let var_val = avg_broadcasted.linear_index(i)?;
+            let var_val = var_broadcasted.linear_index(i)?;
 
             let y = (avg_val - array_val) / (var_val + epsilon).sqrt();
             vec.push(y);

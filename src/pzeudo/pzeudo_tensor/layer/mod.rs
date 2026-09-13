@@ -12,3 +12,6 @@ pub use layer_norm::*;
 
 mod embedding;
 pub use embedding::*;
+
+mod batch_norm;
+pub use batch_norm::*;

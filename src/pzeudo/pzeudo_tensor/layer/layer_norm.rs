@@ -30,20 +30,18 @@ use std::{
 /// // gamma, 1-dimensional, shape [16], initialization as a tensor of ones
 /// // beta, 1-dimensional, shape [16], initialization as a tensor of zeros
 /// ```
-pub struct LayerNorm<F, ReqGrad> {
+pub struct LayerNorm<F> {
     gamma: Option<Tensor<F, Contiguous, ReqGrad>>,
     beta: Option<Tensor<F, Contiguous, ReqGrad>>,
 }
 
-impl<F, G> LayerNorm<F, G> {
+impl<F> LayerNorm<F> {
     pub fn new(
         hidden: Option<usize>,
         model_builder: &mut ModelBuilder<F>,
-        requires_grad: G,
-    ) -> Result<LayerNorm<F, G>, PzeudoErr>
+    ) -> Result<LayerNorm<F>, PzeudoErr>
     where
         F: Clone + One + Zero,
-        G: ReqGradTrait<F>,
     {
         let (gamma, beta) = if let Some(hidden) = hidden {
             if model_builder.is_params_load() {
@@ -57,14 +55,13 @@ impl<F, G> LayerNorm<F, G> {
 
                 let module = model_builder.get_module();
                 let gamma =
-                    Tensor::param_from_vector_with_shape(gamma, &[hidden], module, requires_grad)?;
-                let beta =
-                    Tensor::param_from_vector_with_shape(beta, &[hidden], module, requires_grad)?;
+                    Tensor::param_from_vector_with_shape(gamma, &[hidden], module, ReqGrad)?;
+                let beta = Tensor::param_from_vector_with_shape(beta, &[hidden], module, ReqGrad)?;
                 (Some(gamma), Some(beta))
             } else {
                 let module = model_builder.get_module();
-                let gamma = Tensor::param_ones(&[hidden], module, requires_grad)?;
-                let beta = Tensor::param_zeros(&[hidden], module, requires_grad)?;
+                let gamma = Tensor::param_ones(&[hidden], module, ReqGrad)?;
+                let beta = Tensor::param_zeros(&[hidden], module, ReqGrad)?;
                 (Some(gamma), Some(beta))
             }
         } else {

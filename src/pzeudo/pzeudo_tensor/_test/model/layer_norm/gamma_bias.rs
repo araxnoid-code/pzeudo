@@ -3,7 +3,8 @@ use crate::prelude::*;
 // Create a model
 struct Model {
     linear_1: Linear<f32>,
-    layer_norm: LayerNorm<f32, ReqGrad>,
+    layer_norm: LayerNorm<f32>,
+
     linear_2: Linear<f32>,
     optim: Sgd<f32>,
 }
@@ -36,7 +37,7 @@ fn test_layer_norm_2() {
     let mut model_builder = module_builder.model_builder();
     let model = Model {
         linear_1: Linear::new(1, 16, WeightInit::HeIn, &mut model_builder).unwrap(),
-        layer_norm: LayerNorm::new(Some(16), &mut model_builder, ReqGrad).unwrap(),
+        layer_norm: LayerNorm::new(Some(16), &mut model_builder).unwrap(),
         linear_2: Linear::new(16, 1, WeightInit::HeIn, &mut model_builder).unwrap(),
         optim: Sgd::new(0.01, model_builder).unwrap(),
     };

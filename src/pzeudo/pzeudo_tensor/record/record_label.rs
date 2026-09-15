@@ -122,6 +122,17 @@ pub enum RecordLabel<F> {
         Vec<Option<StorageType>>, // Embedding_grads
         Option<StorageType>,      // grad
     ),
+    BatchNorm(
+        Option<StorageType>, // arr_gradient_idx
+        StorageType,         //output_idx
+        Vec<F>,              // var
+        StorageType,         // gamma_idx
+        StorageType,         // gamma_grad_idx
+        StorageType,         // beta_idx
+        StorageType,         // beta_grad_idx
+        usize,               // channel
+        Option<StorageType>, // grad_idx
+    ),
 }
 
 // impl<F> Debug for RecordLabel<F>

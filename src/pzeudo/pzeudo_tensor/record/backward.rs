@@ -251,6 +251,31 @@ where
             Self::Embedding(embedding_grads, grad) => {
                 embedding_backward(embedding_grads, *grad, storage)?;
             }
+
+            Self::BatchNorm(
+                arr_gradient_idx,
+                output_idx,
+                var,
+                gamma_idx,
+                gamma_grad_idx,
+                beta_idx,
+                beta_grad_idx,
+                channel,
+                grad_idx,
+            ) => {
+                batch_norm_backward(
+                    *arr_gradient_idx,
+                    *output_idx,
+                    var,
+                    *gamma_idx,
+                    *gamma_grad_idx,
+                    *beta_idx,
+                    *beta_grad_idx,
+                    *channel,
+                    *grad_idx,
+                    storage,
+                )?;
+            }
         }
         Ok(())
     }

@@ -1,4 +1,7 @@
-use std::ops::{AddAssign, Div, DivAssign, Mul, Sub, SubAssign};
+use std::{
+    fmt::Debug,
+    ops::{AddAssign, Div, DivAssign, Mul, Sub, SubAssign},
+};
 
 use num_traits::{Float, NumCast, One, Zero};
 
@@ -48,7 +51,7 @@ where
 
     pub fn forward<T, G, ReqGrad>(
         &self,
-        tensor: Tensor<F, T, G>,
+        tensor: &Tensor<F, T, G>,
         requires_grad: ReqGrad,
     ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
     where
@@ -59,7 +62,8 @@ where
             + NumCast
             + SubAssign
             + Sub<Output = F>
-            + Float,
+            + Float
+            + Debug,
         for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
         for<'a> &'a F: Mul<Output = F>,
         ReqGrad: ReqGradTrait<F>,
@@ -77,6 +81,7 @@ where
 
             axis_dim.push(i);
         }
+
         let (avg, var) = array.avg_and_var_axis(&axis_dim, true)?;
 
         let avg_broadcasted = avg.broadcast(&shape)?;
@@ -103,7 +108,7 @@ where
             let avg_val = avg_broadcasted.linear_index(i)?;
             let var_val = var_broadcasted.linear_index(i)?;
 
-            let y = (avg_val - array_val) / (var_val + epsilon).sqrt();
+            let y = (array_val - avg_val) / (var_val + epsilon).sqrt();
             vec.push(y * gamma_broadcasted.linear_index(i)? + beta_broadcasted.linear_index(i)?);
         }
 
@@ -112,11 +117,31 @@ where
         )?))?;
         let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
+        let record_idx = if requires_grad.is_grad() {
+            let record_label: RecordLabel<F> = RecordLabel::BatchNorm(
+                tensor.get_grad_idx(),
+                array_idx,
+                var.data,
+                self.gamma.get_array_idx(),
+                self.gamma.get_grad_idx().unwrap(),
+                self.beta.get_array_idx(),
+                self.beta.get_grad_idx().unwrap(),
+                self.channel,
+                grad_idx,
+            );
+            let mut record = tensor.get_record().borrow_mut();
+            let record_idx = RecordStatus::Record(record.len());
+            record.push(record_label);
+            Some(record_idx)
+        } else {
+            None
+        };
+
         let tensor = Tensor::_new(
             array_idx,
             grad_idx,
             shape,
-            None,
+            record_idx,
             tensor.get_record().clone(),
             tensor.get_storage().clone(),
         );
@@ -126,7 +151,7 @@ where
 }
 
 pub fn batch_norm_backward<F>(
-    arr_grdient_idx: Option<StorageType>,
+    arr_gradient_idx: Option<StorageType>,
     output_idx: StorageType,
     var_vec: &[F],
     gamma_idx: StorageType,
@@ -145,7 +170,7 @@ where
             return Ok(());
         };
 
-        if let Some(arr_gradient_idx) = arr_grdient_idx {
+        if let Some(arr_gradient_idx) = arr_gradient_idx {
             storage.set_grad_update(arr_gradient_idx, true)?;
             if is_no_grad_or_time_not_match_or_no_update(arr_gradient_idx, storage)? {
                 return Ok(());

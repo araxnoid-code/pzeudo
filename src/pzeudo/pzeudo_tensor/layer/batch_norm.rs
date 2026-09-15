@@ -1,5 +1,5 @@
 use std::{
-    fmt::Debug,
+    fmt::{Debug, Display},
     ops::{AddAssign, Div, DivAssign, Mul, Sub, SubAssign},
 };
 
@@ -163,7 +163,7 @@ pub fn batch_norm_backward<F>(
     storage: &mut ArrayStorage<F>,
 ) -> Result<(), PzeudoErr>
 where
-    F: Mul<Output = F> + Copy + AddAssign + Sub<Output = F> + Div<Output = F> + Float,
+    F: Mul<Output = F> + Copy + AddAssign + Sub<Output = F> + Div<Output = F> + Float + Debug,
 {
     if let Some(grad_idx) = grad_idx {
         if is_no_grad_or_time_not_match_or_no_update(grad_idx, storage)? {
@@ -204,7 +204,11 @@ where
 
             // SCALE
             // Making adjustments to the tensor scale in batch norm
-            let mut scale_broadcasted_stride = shape_to_stride(shape);
+            let mut broadcasted_shape = vec![1; shape.len()];
+            broadcasted_shape[channel] = shape[channel];
+
+            let mut scale_broadcasted_stride = shape_to_stride(&broadcasted_shape);
+
             for i in 0..shape.len() {
                 if i == channel {
                     continue;

@@ -1,6 +1,7 @@
-use pzeudo::{BatchNorm, ModuleBuilder, NoneModel, ReqGrad, Tensor};
+use crate::prelude::*;
 
-fn main() {
+#[test]
+fn test_batch_norm_2() {
     let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
     let mut model_builder = module_builder.model_builder();
     let batch_norm = BatchNorm::new(1, 3, &mut model_builder).unwrap();

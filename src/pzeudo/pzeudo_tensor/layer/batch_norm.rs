@@ -1,16 +1,19 @@
+pub use crate::prelude::*;
+use num_traits::{Float, NumCast, One, Zero};
 use std::{
-    fmt::{Debug, Display},
+    fmt::Debug,
     ops::{AddAssign, Div, DivAssign, Mul, Sub, SubAssign},
 };
-
-use num_traits::{Float, NumCast, One, Zero};
-
-pub use crate::prelude::*;
 
 pub struct BatchNorm<F> {
     gamma: Tensor<F, Contiguous, ReqGrad>,
     beta: Tensor<F, Contiguous, ReqGrad>,
     channel: usize,
+    channel_size: usize,
+    // VAL
+    running_avg: Array<F>,
+    running_var: Array<F>,
+    momentum: F,
 }
 
 impl<F> BatchNorm<F>
@@ -19,26 +22,31 @@ where
 {
     pub fn new(
         channel: usize,
-        hidden: usize,
+        channel_size: usize,
         model_builder: &mut ModelBuilder<F>,
-    ) -> Result<BatchNorm<F>, PzeudoErr> {
+    ) -> Result<BatchNorm<F>, PzeudoErr>
+    where
+        F: NumCast,
+    {
         let (gamma, beta) = if model_builder.is_params_load() {
             let gamma = model_builder
                 .get_load_params()?
-                .ok_or(PzeudoErr::LayerErr(String::from("LayerNorm::new. Unable to retrieve gamma data via load params because load params is undefined.")))?;
+                .ok_or(PzeudoErr::LayerErr(String::from("BatchNorm::new. Unable to retrieve gamma data via load params because load params is undefined.")))?;
 
             let beta = model_builder
                 .get_load_params()?
-                .ok_or(PzeudoErr::LayerErr(String::from("LayerNorm::new. Unable to retrieve beta data via load params because load params is undefined.")))?;
+                .ok_or(PzeudoErr::LayerErr(String::from("BatchNorm::new. Unable to retrieve beta data via load params because load params is undefined.")))?;
 
             let module = model_builder.get_module();
-            let gamma = Tensor::param_from_vector_with_shape(gamma, &[hidden], module, ReqGrad)?;
-            let beta = Tensor::param_from_vector_with_shape(beta, &[hidden], module, ReqGrad)?;
+            let gamma =
+                Tensor::param_from_vector_with_shape(gamma, &[channel_size], module, ReqGrad)?;
+            let beta =
+                Tensor::param_from_vector_with_shape(beta, &[channel_size], module, ReqGrad)?;
             (gamma, beta)
         } else {
             let module = model_builder.get_module();
-            let gamma = Tensor::param_ones(&[hidden], module, ReqGrad)?;
-            let beta = Tensor::param_zeros(&[hidden], module, ReqGrad)?;
+            let gamma = Tensor::param_ones(&[channel_size], module, ReqGrad)?;
+            let beta = Tensor::param_zeros(&[channel_size], module, ReqGrad)?;
             (gamma, beta)
         };
 
@@ -46,11 +54,18 @@ where
             beta,
             gamma,
             channel,
+            channel_size,
+            // VAL
+            momentum: F::from(0.1).ok_or(PzeudoErr::LayerErr(String::from(
+                "BatchNorm::new. Can't cast data type on momentum",
+            )))?,
+            running_avg: Array::from_vector(vec![F::zero(); channel_size]),
+            running_var: Array::from_vector(vec![F::one(); channel_size]),
         })
     }
 
     pub fn forward<T, G, ReqGrad>(
-        &self,
+        &mut self,
         tensor: &Tensor<F, T, G>,
         requires_grad: ReqGrad,
     ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
@@ -68,85 +83,174 @@ where
         for<'a> &'a F: Mul<Output = F>,
         ReqGrad: ReqGradTrait<F>,
     {
+        // ARRAY
         let mut storage = tensor.get_storage().borrow_mut();
         let array = storage.get_as_array_ref::<T>(tensor.get_array_idx(), ContiguousType::Arr)?;
         let shape = array.shape.to_vec();
 
-        let mut axis_dim = vec![];
+        // ERROR VALIDATION
+        if shape.len() <= 1 {
+            return Err(PzeudoErr::LayerErr(format!(
+                "BatchNorm::forward. Unable to execute 1D Array with BatchNorm",
+            )));
+        }
 
-        for i in 0..shape.len() {
-            if i == self.channel {
-                continue;
+        if self.channel >= shape.len() {
+            return Err(PzeudoErr::LayerErr(format!(
+                "BatchNorm::forward. Channel pada BatchNorm bernilai {}, tensor hanya berdimensi {}",
+                self.channel,
+                shape.len(),
+            )));
+        }
+
+        if shape[self.channel] != self.channel_size {
+            return Err(PzeudoErr::LayerErr(format!(
+                "BatchNorm::forward. The channel size in the tensor is {}, but the channel_size initialized in BatchNorm is {}",
+                shape[self.channel], self.channel_size
+            )));
+        }
+
+        // COMPUTE
+        if requires_grad.is_grad() {
+            let mut axis_dim = vec![];
+            for i in 0..shape.len() {
+                if i == self.channel {
+                    continue;
+                }
+
+                axis_dim.push(i);
             }
 
-            axis_dim.push(i);
-        }
+            let (avg, var) = array.avg_and_var_axis(&axis_dim, true)?;
+            let avg_broadcasted = avg.broadcast(&shape)?;
+            let var_broadcasted = var.broadcast(&shape)?;
 
-        let (avg, var) = array.avg_and_var_axis(&axis_dim, true)?;
+            let mut scale_shape = vec![1; shape.len()];
+            scale_shape[self.channel] = shape[self.channel];
+            let gamma = storage
+                .get_as_array_ref::<Contiguous>(self.gamma.get_array_idx(), ContiguousType::Arr)?;
+            let beta = storage
+                .get_as_array_ref::<Contiguous>(self.beta.get_array_idx(), ContiguousType::Arr)?;
+            let gamma_to_shape = gamma.to_shape(&scale_shape)?;
+            let gamma_broadcasted = gamma_to_shape.broadcast(&shape)?;
+            let beta_to_shape = beta.to_shape(&scale_shape)?;
+            let beta_broadcasted = beta_to_shape.broadcast(&shape)?;
 
-        let avg_broadcasted = avg.broadcast(&shape)?;
-        let var_broadcasted = var.broadcast(&shape)?;
+            let len = shape.iter().product::<usize>();
+            let epsilon = F::from(1e-7).ok_or(PzeudoErr::LayerErr(String::from(
+                "BatchNorm::forward. Can't cast data type on epsilon",
+            )))?;
+            let mut vec = Vec::with_capacity(len);
+            for i in 0..len {
+                let array_val = array.linear_index(i)?;
+                let avg_val = avg_broadcasted.linear_index(i)?;
+                let var_val = var_broadcasted.linear_index(i)?;
 
-        let mut scale_shape = vec![1; shape.len()];
-        scale_shape[self.channel] = shape[self.channel];
-        let gamma = storage
-            .get_as_array_ref::<Contiguous>(self.gamma.get_array_idx(), ContiguousType::Arr)?;
-        let beta = storage
-            .get_as_array_ref::<Contiguous>(self.beta.get_array_idx(), ContiguousType::Arr)?;
-        let gamma_to_shape = gamma.to_shape(&scale_shape)?;
-        let gamma_broadcasted = gamma_to_shape.broadcast(&shape)?;
-        let beta_to_shape = beta.to_shape(&scale_shape)?;
-        let beta_broadcasted = beta_to_shape.broadcast(&shape)?;
+                let y = (array_val - avg_val) / (var_val + epsilon).sqrt();
+                vec.push(
+                    y * gamma_broadcasted.linear_index(i)? + beta_broadcasted.linear_index(i)?,
+                );
+            }
 
-        let len = shape.iter().product::<usize>();
-        let epsilon = F::from(1e-7).ok_or(PzeudoErr::LayerErr(String::from(
-            "BatchNorm::forward. Can't cast data type on epsilon",
-        )))?;
-        let mut vec = Vec::with_capacity(len);
-        for i in 0..len {
-            let array_val = array.linear_index(i)?;
-            let avg_val = avg_broadcasted.linear_index(i)?;
-            let var_val = var_broadcasted.linear_index(i)?;
+            let array_idx = storage.push(ElementType::Arr(Array::from_vector_with_shape(
+                vec, &shape,
+            )?))?;
+            let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
 
-            let y = (array_val - avg_val) / (var_val + epsilon).sqrt();
-            vec.push(y * gamma_broadcasted.linear_index(i)? + beta_broadcasted.linear_index(i)?);
-        }
+            // UPDATE RUNNING VAL
+            let len = self.running_avg.shape.iter().product::<usize>();
+            let p = F::one() - self.momentum;
+            for i in 0..len {
+                *self.running_avg.linear_index_mut(i)? =
+                    p * self.running_avg.linear_index(i)? + self.momentum * avg.linear_index(i)?;
 
-        let array_idx = storage.push(ElementType::Arr(Array::from_vector_with_shape(
-            vec, &shape,
-        )?))?;
-        let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
+                *self.running_var.linear_index_mut(i)? =
+                    p * self.running_var.linear_index(i)? + self.momentum * var.linear_index(i)?;
+            }
 
-        let record_idx = if requires_grad.is_grad() {
             let record_label: RecordLabel<F> = RecordLabel::BatchNorm(
                 tensor.get_grad_idx(),
                 array_idx,
                 var.data,
                 self.gamma.get_array_idx(),
-                self.gamma.get_grad_idx().unwrap(),
+                self.gamma
+                    .get_grad_idx()
+                    .ok_or(PzeudoErr::LayerErr(String::from(
+                        "BatchNorm::forward. gamma tidak memiliki gradient.",
+                    )))?,
                 self.beta.get_array_idx(),
-                self.beta.get_grad_idx().unwrap(),
+                self.beta
+                    .get_grad_idx()
+                    .ok_or(PzeudoErr::LayerErr(String::from(
+                        "BatchNorm::forward. beta tidak memiliki gradient.",
+                    )))?,
                 self.channel,
                 grad_idx,
             );
             let mut record = tensor.get_record().borrow_mut();
             let record_idx = RecordStatus::Record(record.len());
             record.push(record_label);
-            Some(record_idx)
+
+            let tensor = Tensor::_new(
+                array_idx,
+                grad_idx,
+                shape,
+                Some(record_idx),
+                tensor.get_record().clone(),
+                tensor.get_storage().clone(),
+            );
+
+            Ok(tensor)
         } else {
-            None
-        };
+            let mut scale_shape = vec![1; shape.len()];
+            scale_shape[self.channel] = shape[self.channel];
 
-        let tensor = Tensor::_new(
-            array_idx,
-            grad_idx,
-            shape,
-            record_idx,
-            tensor.get_record().clone(),
-            tensor.get_storage().clone(),
-        );
+            let avg_to_shape = self.running_avg.to_shape(&scale_shape)?;
+            let avg_broadcasted = avg_to_shape.broadcast(&shape)?;
+            let var_to_shape = self.running_var.to_shape(&scale_shape)?;
+            let var_broadcasted = var_to_shape.broadcast(&shape)?;
 
-        Ok(tensor)
+            let gamma = storage
+                .get_as_array_ref::<Contiguous>(self.gamma.get_array_idx(), ContiguousType::Arr)?;
+            let beta = storage
+                .get_as_array_ref::<Contiguous>(self.beta.get_array_idx(), ContiguousType::Arr)?;
+            let gamma_to_shape = gamma.to_shape(&scale_shape)?;
+            let gamma_broadcasted = gamma_to_shape.broadcast(&shape)?;
+            let beta_to_shape = beta.to_shape(&scale_shape)?;
+            let beta_broadcasted = beta_to_shape.broadcast(&shape)?;
+
+            let len = shape.iter().product::<usize>();
+            let epsilon = F::from(1e-7).ok_or(PzeudoErr::LayerErr(String::from(
+                "BatchNorm::forward. Can't cast data type on epsilon",
+            )))?;
+            let mut vec = Vec::with_capacity(len);
+            for i in 0..len {
+                let array_val = array.linear_index(i)?;
+                let avg_val = avg_broadcasted.linear_index(i)?;
+                let var_val = var_broadcasted.linear_index(i)?;
+
+                let y = (array_val - avg_val) / (var_val + epsilon).sqrt();
+                vec.push(
+                    y * gamma_broadcasted.linear_index(i)? + beta_broadcasted.linear_index(i)?,
+                );
+            }
+
+            let array_idx = storage.push(ElementType::Arr(Array::from_vector_with_shape(
+                vec, &shape,
+            )?))?;
+            let grad_idx = requires_grad.into_zeros_grad_storage(&shape, &mut storage)?;
+
+            let tensor = Tensor::_new(
+                array_idx,
+                grad_idx,
+                shape,
+                None,
+                tensor.get_record().clone(),
+                tensor.get_storage().clone(),
+            );
+
+            Ok(tensor)
+        }
     }
 }
 

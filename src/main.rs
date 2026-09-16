@@ -3,11 +3,11 @@ use pzeudo::{BatchNorm, ModuleBuilder, NoneModel, ReqGrad, Tensor};
 fn main() {
     let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
     let mut model_builder = module_builder.model_builder();
-    let batch_norm = BatchNorm::new(1, 3, &mut model_builder).unwrap();
+    let mut batch_norm = BatchNorm::new(1, 3, &mut model_builder).unwrap();
 
     let module = module_builder.build(NoneModel);
 
-    let shape = [2, 3, 3, 4];
+    let shape = [3, 3, 4];
     let vec = (0..shape.iter().product::<usize>())
         .map(|i| i as f32)
         .collect::<Vec<f32>>();

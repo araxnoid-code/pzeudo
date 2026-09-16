@@ -62,7 +62,7 @@ where
     }
 
     /// ## formula:
-    /// ```
+    /// ```md
     /// w_new = w_old - lr/√(g_new + eps) * grad(w_old)
     /// g_new = hyperparameter * g_old + (1 - hyperparameter)  * grad(w_old)^2
     /// hyperparameter = 0.9(default). Modify via RMSProp::set hyperparameter.

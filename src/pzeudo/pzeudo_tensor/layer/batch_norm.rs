@@ -5,6 +5,36 @@ use std::{
     ops::{AddAssign, Div, DivAssign, Mul, Sub, SubAssign},
 };
 
+/// # Batch Norm
+/// ## formula:
+/// ```md
+/// gamma = ones tensor (default)
+/// beta = zeros tensor (default)
+/// avg = E[x]
+/// variance = E[x^2] - E[x]^2
+/// epsilon = 1e-7
+/// norm = x - avg/sqrt(variance + epsilon)
+/// y = norm * gamma + beta
+/// ```
+///
+/// ## Training Phase
+/// The training phase will perform calculations on the input to obtain the avg and variance, then update the running avg and running var.
+/// ```md
+/// momentum = 0.1 (default)
+/// running_avg = (1 - momentum) * running_avg + momentum * avg
+/// running_var = (1 - momentum) * running_var + momentum * var
+/// ```
+/// pada inisialisasi awal
+/// ```md
+/// running_avg = 0
+/// running_var = 1
+///
+/// ## Eval Phase
+/// The eval phase does not calculate avg and var, but uses the running_avg and running_var that were calculated during training.
+/// ```md
+/// norm = x - running_avg/sqrt(running_var + epsilon)
+/// y = norm * gamma + beta
+/// ```
 pub struct BatchNorm<F> {
     gamma: Tensor<F, Contiguous, ReqGrad>,
     beta: Tensor<F, Contiguous, ReqGrad>,
@@ -16,6 +46,19 @@ pub struct BatchNorm<F> {
     momentum: F,
 }
 
+/// # Initialization
+/// ## Paramaters
+/// ```md
+/// channel = index dimension that becomes a channel on the input
+/// channel_size = size of channel to be input
+/// ```
+///
+/// ## Default
+/// gamma = ones tensor (default)
+/// beta = zeros tensor (default)
+/// momentum = 0.1 (default)
+/// running_avg = 0
+/// running_var = 1
 impl<F> BatchNorm<F>
 where
     F: Clone + Zero + One,
@@ -64,6 +107,35 @@ where
         })
     }
 
+    /// ## formula:
+    /// ```md
+    /// gamma = ones tensor (default)
+    /// beta = zeros tensor (default)
+    /// avg = E[x]
+    /// variance = E[x^2] - E[x]^2
+    /// epsilon = 1e-7
+    /// norm = x - avg/sqrt(variance + epsilon)
+    /// y = norm * gamma + beta
+    /// ```
+    ///
+    /// ## Training Phase
+    /// The training phase will perform calculations on the input to obtain the avg and variance, then update the running avg and running var.
+    /// ```md
+    /// momentum = 0.1 (default)
+    /// running_avg = (1 - momentum) * running_avg + momentum * avg
+    /// running_var = (1 - momentum) * running_var + momentum * var
+    /// ```
+    /// pada inisialisasi awal
+    /// ```md
+    /// running_avg = 0
+    /// running_var = 1
+    ///
+    /// ## Eval Phase
+    /// The eval phase does not calculate avg and var, but uses the running_avg and running_var that were calculated during training.
+    /// ```md
+    /// norm = x - running_avg/sqrt(running_var + epsilon)
+    /// y = norm * gamma + beta
+    /// ```
     pub fn forward<T, G, ReqGrad>(
         &mut self,
         tensor: &Tensor<F, T, G>,
@@ -254,6 +326,23 @@ where
     }
 }
 
+/// # Batch Norm Backward
+/// ## Formula
+/// ```md
+/// y = batch_norm(x) * gamma + beta
+/// norm = (y - beta) / gamma
+/// epsilon = 1e-7
+/// std = sqrt(var + epsilon)
+///
+/// g = dL/dy
+/// dy/dbeta = g
+/// dy/dgamma = norm * g
+///
+/// g_norm = gamma * g
+/// epsilon = 1e-7
+/// std = sqrt(var + epsilon)
+/// dy/dx = (g_norm - avg(g_norm) - norm * avg(norm * g_norm))/std
+/// ```
 pub fn batch_norm_backward<F>(
     arr_gradient_idx: Option<StorageType>,
     output_idx: StorageType,

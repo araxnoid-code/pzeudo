@@ -24,6 +24,23 @@ pub trait OpsMax<F>: ArrayTrait<F> {
         Ok(Array::from_vector(vec![max.unwrap()]))
     }
 
+    fn max_axis(&self, axis: &[usize], keep_dim: bool) -> Result<(), PzeudoErr> {
+        let metadata = self.get_metadata();
+
+        if axis.len() <= 0 {
+            return Err(PzeudoErr::OpsErr(format!(
+                "SumAxisErr. OpsSum::sum_axis. Cannot perform sum_axis because axis is empty.",
+            )));
+        } else if axis.len() > metadata.shape.len() {
+            return Err(PzeudoErr::OpsErr(format!(
+                "SumAxisErr. OpsSum::sum_axis. Unable to perform sum_axis because axis {:?} is out of bounds.",
+                axis
+            )));
+        }
+
+        Ok(())
+    }
+
     fn argmax(&self) -> Result<Array<F>, PzeudoErr>
     where
         F: Float,

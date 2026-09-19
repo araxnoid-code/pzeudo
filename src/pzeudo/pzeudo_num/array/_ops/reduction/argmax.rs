@@ -10,12 +10,18 @@ pub trait OpsMax<F>: ArrayTrait<F> {
         let metadata = self.get_metadata();
         let len = metadata.shape.iter().product::<usize>();
 
-        let mut max = F::zero();
+        let mut max = None;
         for i in 0..len {
-            max = max.max(self.linear_index(i)?);
+            let j = self.linear_index(i)?;
+            match &mut max {
+                None => max = Some(j),
+                Some(max) => {
+                    *max = max.max(self.linear_index(i)?);
+                }
+            }
         }
 
-        Ok(Array::from_vector(vec![max]))
+        Ok(Array::from_vector(vec![max.unwrap()]))
     }
 
     fn argmax(&self) -> Result<Array<F>, PzeudoErr>
@@ -25,17 +31,18 @@ pub trait OpsMax<F>: ArrayTrait<F> {
         let metadata = self.get_metadata();
         let len = metadata.shape.iter().product::<usize>();
 
-        let mut max = F::zero();
+        let mut max = None;
         let mut idx = None;
         for i in 0..len {
+            let j = self.linear_index(i)?;
             match &mut idx {
                 None => {
                     idx = Some(i);
+                    max = Some(j);
                 }
                 Some(idx) => {
-                    let j = self.linear_index(i)?;
-                    if max < j {
-                        max = j;
+                    if max.unwrap() < j {
+                        max = Some(j);
                         *idx = i;
                     }
                 }

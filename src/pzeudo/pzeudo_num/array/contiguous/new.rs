@@ -107,6 +107,46 @@ impl<F> Array<F> {
         }
     }
 
+    pub fn from_shape(shape: &[usize]) -> Result<Array<F>, PzeudoErr>
+    where
+        F: NumCast,
+    {
+        let len = shape.iter().product::<usize>();
+        let mut vec = Vec::with_capacity(len);
+        for i in 0..len {
+            vec.push(F::from(i).ok_or(PzeudoErr::ArrayErr(String::from(
+                "Array::from_shape. Cannot cast value to data type F",
+            )))?);
+        }
+
+        Ok(Array {
+            data: vec,
+            offset: 0,
+            stride: shape_to_stride(shape),
+            shape: shape.to_vec(),
+        })
+    }
+
+    pub fn from_shape_fn(shape: &[usize], f: impl Fn(F) -> F) -> Result<Array<F>, PzeudoErr>
+    where
+        F: NumCast,
+    {
+        let len = shape.iter().product::<usize>();
+        let mut vec = Vec::with_capacity(len);
+        for i in 0..len {
+            vec.push(f(F::from(i).ok_or(PzeudoErr::ArrayErr(String::from(
+                "Array::from_shape. Cannot cast value to data type F",
+            )))?));
+        }
+
+        Ok(Array {
+            data: vec,
+            offset: 0,
+            stride: shape_to_stride(shape),
+            shape: shape.to_vec(),
+        })
+    }
+
     pub fn from_range<R>(range: R, shape: &[usize]) -> Result<Array<F>, PzeudoErr>
     where
         F: NumCast,

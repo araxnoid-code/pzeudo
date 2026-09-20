@@ -1,5 +1,5 @@
-mod array;
-pub use array::*;
+mod num;
+pub use num::*;
 
 mod tools;
 pub use tools::*;

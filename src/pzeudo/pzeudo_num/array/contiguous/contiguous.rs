@@ -1,5 +1,7 @@
 use num_traits::{One, Zero};
 
+use crate::PzeudoErr;
+
 pub struct Array<F> {
     pub(crate) data: Vec<F>,       // 24
     pub(crate) stride: Vec<usize>, // 24
@@ -24,5 +26,18 @@ impl<F> Array<F> {
         for x in &mut self.data {
             *x = F::one();
         }
+    }
+
+    pub fn vec_equal(&self, vec: &Vec<F>) -> Result<(), PzeudoErr>
+    where
+        Vec<F>: PartialEq<Vec<F>>,
+    {
+        if &self.data != vec {
+            return Err(PzeudoErr::ArrayErr(String::from(
+                "Array::vec_equal. data and vector not equal",
+            )));
+        }
+
+        Ok(())
     }
 }

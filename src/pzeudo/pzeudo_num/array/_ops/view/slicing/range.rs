@@ -39,6 +39,16 @@ pub trait SlicingRangeTrait {
     fn end(&self) -> Option<usize>;
 }
 
+impl SlicingRangeTrait for usize {
+    fn start(&self) -> Option<usize> {
+        Some(*self)
+    }
+
+    fn end(&self) -> Option<usize> {
+        Some(*self + 1)
+    }
+}
+
 impl SlicingRangeTrait for Range<usize> {
     fn start(&self) -> Option<usize> {
         Some(self.start)

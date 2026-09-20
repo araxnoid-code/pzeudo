@@ -33,3 +33,5 @@ where
     for<'a> F: Copy + Sum<&'a F>,
 {
 }
+
+impl<F> OpsMax<F> for Array<F> where F: Copy {}

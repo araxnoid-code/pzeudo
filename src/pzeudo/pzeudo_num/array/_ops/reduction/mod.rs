@@ -7,7 +7,7 @@ pub use avg::*;
 mod variance;
 pub use variance::*;
 
-mod argmax;
-pub use argmax::*;
+mod max;
+pub use max::*;
 
 mod _impl;

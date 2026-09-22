@@ -3,3 +3,5 @@ use crate::prelude::*;
 impl<F> OpsSum<F> for ArrayView<'_, F> where for<'a> F: Copy {}
 impl<F> OpsAvg<F> for ArrayView<'_, F> where for<'a> F: Copy {}
 impl<F> OpsVar<F> for ArrayView<'_, F> where for<'a> F: Copy {}
+impl<F> OpsMax<F> for ArrayView<'_, F> where for<'a> F: Copy {}
+impl<F> OpsMin<F> for ArrayView<'_, F> where for<'a> F: Copy {}

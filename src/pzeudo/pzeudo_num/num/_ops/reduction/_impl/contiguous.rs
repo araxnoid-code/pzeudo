@@ -35,3 +35,5 @@ where
 }
 
 impl<F> OpsMax<F> for Array<F> where F: Copy {}
+
+impl<F> OpsMin<F> for Array<F> where F: Copy {}

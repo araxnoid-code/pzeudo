@@ -20,3 +20,17 @@ where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
 {
 }
+
+impl<F, T> OpsMax<F> for ArrayRef<'_, F, T>
+where
+    F: Copy,
+    for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
+{
+}
+
+impl<F, T> OpsMin<F> for ArrayRef<'_, F, T>
+where
+    F: Copy,
+    for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
+{
+}

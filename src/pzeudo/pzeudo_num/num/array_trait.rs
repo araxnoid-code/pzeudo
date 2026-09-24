@@ -41,7 +41,10 @@ pub trait ArrayTrait<F> {
     fn index(&self, index: &[usize]) -> Result<ArrayView<'_, F>, PzeudoErr> {
         let metadata = self.get_metadata();
         if index.len() > metadata.shape.len() {
-            return Err(PzeudoErr::OpsErr(format!("")));
+            return Err(PzeudoErr::OpsErr(format!(
+                "ArrayTrait::index. indexing more than the dimensions of the array {}D",
+                metadata.shape.len()
+            )));
         }
 
         let new_shape = if index.len() != metadata.shape.len() {
@@ -50,9 +53,21 @@ pub trait ArrayTrait<F> {
             vec![1]
         };
 
-        let new_stride = shape_to_stride(&new_shape);
+        let new_stride = if index.len() != metadata.shape.len() {
+            metadata.stride[index.len()..].to_vec()
+        } else {
+            vec![1]
+        };
+
         let mut new_offset = metadata.offset;
         for (i, dim) in index.iter().enumerate() {
+            if *dim >= metadata.shape[i] {
+                return Err(PzeudoErr::OpsErr(format!(
+                    "ArrayTrait::index. indexing {} on the {} dimension. The {} dimension in the array only has a size of {}",
+                    dim, i, i, metadata.shape[i],
+                )));
+            }
+
             new_offset += dim * metadata.stride[i];
         }
 

@@ -1,3 +1,5 @@
+use std::ops::AddAssign;
+
 use num_traits::Float;
 
 use crate::prelude::*;
@@ -53,4 +55,35 @@ where
 
         Ok(tensor)
     }
+}
+
+pub fn max_backward<F>(
+    array_grad_idx: Option<StorageType>,
+    index: usize,
+    grad_idx: Option<StorageType>,
+    storage: &mut ArrayStorage<F>,
+) -> Result<(), PzeudoErr>
+where
+    F: Copy + AddAssign,
+{
+    if let Some(grad_idx) = grad_idx {
+        if is_no_grad_or_time_not_match_or_no_update(grad_idx, &storage)? {
+            return Ok(());
+        };
+
+        if let Some(array_grad_idx) = array_grad_idx {
+            storage.set_grad_update(array_grad_idx, true)?;
+            if is_no_grad_or_time_not_match_or_no_update(array_grad_idx, &storage)? {
+                return Ok(());
+            };
+
+            let grad = storage.get_as_array_ref::<Contiguous>(grad_idx, ContiguousType::Grad)?;
+            let grad_val = grad.data[0];
+
+            let mut array_grad =
+                storage.get_as_array_ref_mut::<View>(array_grad_idx, ContiguousType::Grad)?;
+            *array_grad.linear_index_mut(index)? += grad_val;
+        }
+    }
+    Ok(())
 }

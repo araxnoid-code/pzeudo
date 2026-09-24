@@ -1,0 +1,56 @@
+use num_traits::Float;
+
+use crate::prelude::*;
+
+impl<F, T, G> Tensor<F, T, G>
+where
+    for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
+    F: Copy + Float + FToUsize,
+{
+    pub fn max<ReqGrad>(
+        &self,
+        requires_grad: ReqGrad,
+    ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
+    where
+        ReqGrad: ReqGradTrait<F>,
+    {
+        let mut storage = self.get_storage().borrow_mut();
+
+        let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
+
+        let (array_idx, gradient_idx, record_idx) = if requires_grad.is_grad() {
+            let (array_max, array_argamax) = array.max_and_argmax()?;
+
+            let array_idx = storage.push(ElementType::Arr(array_max))?;
+            let gradient_idx = requires_grad.into_zeros_grad_storage(&[1], &mut storage)?;
+
+            let mut record = self.get_record().borrow_mut();
+            let record_idx = RecordStatus::Record(record.len());
+            let record_label = RecordLabel::Max(
+                gradient_idx,
+                array_argamax.data[0].into_usize(),
+                gradient_idx,
+            );
+            record.push(record_label);
+
+            (array_idx, gradient_idx, Some(record_idx))
+        } else {
+            let array_max = array.max()?;
+
+            let array_idx = storage.push(ElementType::Arr(array_max))?;
+
+            (array_idx, None, None)
+        };
+
+        let tensor = Tensor::_new(
+            array_idx,
+            gradient_idx,
+            vec![1],
+            record_idx,
+            self.get_record().clone(),
+            self.get_storage().clone(),
+        );
+
+        Ok(tensor)
+    }
+}

@@ -58,7 +58,7 @@ impl<F, Grad> Embedding<F, Grad> {
     ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
     where
         for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
-        F: Copy + EmbeddingIndex,
+        F: Copy + FToUsize,
         ReqGrad: ReqGradTrait<F>,
     {
         let mut storage = tensor.get_storage().borrow_mut();

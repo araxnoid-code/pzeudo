@@ -9,3 +9,6 @@ pub use avg::*;
 
 mod avg_axis;
 pub use avg_axis::*;
+
+mod max;
+pub use max::*;

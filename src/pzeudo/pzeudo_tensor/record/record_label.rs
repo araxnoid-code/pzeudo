@@ -59,6 +59,7 @@ pub enum RecordLabel<F> {
     SumAxis(Option<StorageType>, Vec<usize>, bool, Option<StorageType>), // ArrayGradient, Reduction Axis, Gradient
     Avg(Option<StorageType>, Option<StorageType>),                       // Array Gradient, Gradient
     AvgAxis(Option<StorageType>, Vec<usize>, bool, Option<StorageType>), // ArrayGradient, Reduction Axis, Gradient
+    Max(Option<StorageType>, usize, Option<StorageType>), // ArrayGradient, idx, Gradient
 
     // Flatten
     Flatten(Option<StorageType>, Vec<usize>, Option<StorageType>),

@@ -1,5 +1,21 @@
 use crate::prelude::*;
 
+pub trait FToUsize {
+    fn into_usize(&self) -> usize;
+}
+
+impl FToUsize for f32 {
+    fn into_usize(&self) -> usize {
+        *self as usize
+    }
+}
+
+impl FToUsize for f64 {
+    fn into_usize(&self) -> usize {
+        *self as usize
+    }
+}
+
 pub fn is_no_grad_or_time_not_match_or_no_update<F>(
     storage_type: StorageType,
     storage: &ArrayStorage<F>,

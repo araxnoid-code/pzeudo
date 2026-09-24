@@ -29,7 +29,7 @@ where
             let mut record = self.get_record().borrow_mut();
             let record_idx = RecordStatus::Record(record.len());
             let record_label = RecordLabel::Max(
-                gradient_idx,
+                self.grad_idx,
                 array_argamax.data[0].into_usize(),
                 gradient_idx,
             );

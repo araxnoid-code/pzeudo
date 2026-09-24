@@ -19,6 +19,10 @@ impl<F> Array<F> {
         }
     }
 
+    pub fn get_data(&self) -> &Vec<F> {
+        &self.data
+    }
+
     pub fn to_ones(&mut self)
     where
         F: One,

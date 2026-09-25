@@ -12,3 +12,5 @@ pub use avg_axis::*;
 
 mod max;
 pub use max::*;
+
+mod argmax;

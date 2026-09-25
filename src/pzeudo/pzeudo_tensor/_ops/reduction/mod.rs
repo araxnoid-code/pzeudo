@@ -17,3 +17,5 @@ mod max_axis;
 pub use max_axis::*;
 
 mod argmax;
+
+mod argmin;

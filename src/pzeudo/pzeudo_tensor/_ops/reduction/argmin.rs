@@ -7,15 +7,15 @@ where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Copy + Float + FToUsize,
 {
-    pub fn argmax<ReqGrad>(&self) -> Result<Tensor<F, Contiguous, ReqNoGrad>, PzeudoErr>
+    pub fn argmin<ReqGrad>(&self) -> Result<Tensor<F, Contiguous, ReqNoGrad>, PzeudoErr>
     where
         ReqGrad: ReqGradTrait<F>,
     {
         let mut storage = self.get_storage().borrow_mut();
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
-        let argmax = array.argmax()?;
+        let argmin = array.argmax()?;
 
-        let array_idx = storage.push(ElementType::Arr(argmax))?;
+        let array_idx = storage.push(ElementType::Arr(argmin))?;
 
         let tensor = Tensor::_new(
             array_idx,
@@ -28,7 +28,7 @@ where
         Ok(tensor)
     }
 
-    pub fn argmax_axis<ReqGrad>(
+    pub fn argmin_axis<ReqGrad>(
         &self,
         axis: &[usize],
         keep_dim: bool,
@@ -38,10 +38,10 @@ where
     {
         let mut storage = self.get_storage().borrow_mut();
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
-        let argmax = array.argmax_axis(axis, keep_dim)?;
-        let shape = argmax.shape.to_vec();
+        let argmin = array.argmin_axis(axis, keep_dim)?;
+        let shape = argmin.shape.to_vec();
 
-        let array_idx = storage.push(ElementType::Arr(argmax))?;
+        let array_idx = storage.push(ElementType::Arr(argmin))?;
 
         let tensor = Tensor::_new(
             array_idx,

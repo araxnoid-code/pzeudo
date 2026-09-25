@@ -16,8 +16,15 @@ pub trait BackwardTrait<F> {
 impl<F> BackwardTrait<F> for RecordLabel<F>
 where
     ArrayStorage<F>: StorageF32F64,
-    for<'a> F:
-        AddAssign + Copy + Neg<Output = F> + Float + Sum<&'a F> + MulAssign + Display + Debug,
+    for<'a> F: AddAssign
+        + Copy
+        + Neg<Output = F>
+        + Float
+        + Sum<&'a F>
+        + MulAssign
+        + Display
+        + Debug
+        + FToUsize,
     for<'a> ArrayRef<'a, F, Contiguous>: OpsBroadcast<F>,
     for<'a> ArrayRef<'a, F, View>: OpsBroadcast<F>,
 {
@@ -200,6 +207,10 @@ where
 
             Self::Max(array_grad_idx, idx, grad) => {
                 max_backward(*array_grad_idx, *idx, *grad, storage)?;
+            }
+
+            Self::MaxAxis(array_grad_idx, idxs, grad) => {
+                max_axis_backward(*array_grad_idx, idxs, *grad, storage)?;
             }
 
             Self::Flatten(array_grad_idx, to_shape, grad) => {

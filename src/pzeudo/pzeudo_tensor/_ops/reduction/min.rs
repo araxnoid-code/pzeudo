@@ -1,15 +1,13 @@
-use std::ops::AddAssign;
-
-use num_traits::Float;
-
 use crate::prelude::*;
+use num_traits::Float;
+use std::ops::AddAssign;
 
 impl<F, T, G> Tensor<F, T, G>
 where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Copy + Float + FToUsize,
 {
-    pub fn max<ReqGrad>(
+    pub fn min<ReqGrad>(
         &self,
         requires_grad: ReqGrad,
     ) -> Result<Tensor<F, Contiguous, ReqGrad>, PzeudoErr>
@@ -21,25 +19,25 @@ where
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
 
         let (array_idx, gradient_idx, record_idx) = if requires_grad.is_grad() {
-            let (array_max, array_argamax) = array.max_with_argmax()?;
+            let (array_min, array_argamin) = array.min_with_argmin()?;
 
-            let array_idx = storage.push(ElementType::Arr(array_max))?;
+            let array_idx = storage.push(ElementType::Arr(array_min))?;
             let gradient_idx = requires_grad.into_zeros_grad_storage(&[1], &mut storage)?;
 
             let mut record = self.get_record().borrow_mut();
             let record_idx = RecordStatus::Record(record.len());
-            let record_label = RecordLabel::Max(
+            let record_label = RecordLabel::Min(
                 self.grad_idx,
-                array_argamax.data[0].into_usize(),
+                array_argamin.data[0].into_usize(),
                 gradient_idx,
             );
             record.push(record_label);
 
             (array_idx, gradient_idx, Some(record_idx))
         } else {
-            let array_max = array.max()?;
+            let array_min = array.min()?;
 
-            let array_idx = storage.push(ElementType::Arr(array_max))?;
+            let array_idx = storage.push(ElementType::Arr(array_min))?;
 
             (array_idx, None, None)
         };
@@ -57,7 +55,7 @@ where
     }
 }
 
-pub fn max_backward<F>(
+pub fn min_backward<F>(
     array_grad_idx: Option<StorageType>,
     index: usize,
     grad_idx: Option<StorageType>,

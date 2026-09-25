@@ -289,7 +289,7 @@ pub trait OpsMax<F>: ArrayTrait<F> {
         Ok(array)
     }
 
-    fn max_and_argmax(&self) -> Result<(Array<F>, Array<F>), PzeudoErr>
+    fn max_with_argmax(&self) -> Result<(Array<F>, Array<F>), PzeudoErr>
     where
         F: Float,
     {
@@ -324,7 +324,7 @@ pub trait OpsMax<F>: ArrayTrait<F> {
         Ok((max, argmax))
     }
 
-    fn max_and_argmax_axis(
+    fn max_with_argmax_axis(
         &self,
         axis: &[usize],
         keep_dim: bool,

@@ -32,11 +32,11 @@ pub trait OpsMin<F>: ArrayTrait<F> {
 
         if axis.len() <= 0 {
             return Err(PzeudoErr::OpsErr(format!(
-                "OpsMax::max_axis. Cannot perform max_axis because axis is empty.",
+                "OpsMin::min_axis. Cannot perform min_axis because axis is empty.",
             )));
         } else if axis.len() > metadata.shape.len() {
             return Err(PzeudoErr::OpsErr(format!(
-                "OpsMax::max_axis. Unable to perform max_axis because axis {:?} is out of bounds.",
+                "OpsMin::min_axis. Unable to perform min_axis because axis {:?} is out of bounds.",
                 axis
             )));
         }
@@ -48,12 +48,12 @@ pub trait OpsMin<F>: ArrayTrait<F> {
         for dim in axis {
             if *dim >= metadata.shape.len() {
                 return Err(PzeudoErr::OpsErr(format!(
-                    "OpsMax::max_axis. Cannot perform max_axis because axis {:?}, number {} is out of array dimension bounds.",
+                    "OpsMin::min_axis. Cannot perform min_axis because axis {:?}, number {} is out of array dimension bounds.",
                     axis, dim,
                 )));
             } else if check[*dim] {
                 return Err(PzeudoErr::OpsErr(format!(
-                    "OpsMax::max_axis. Cannot perform max_axis because there is a repeating number on axis {:?}.",
+                    "OpsMin::min_axis. Cannot perform min_axis because there is a repeating number on axis {:?}.",
                     axis,
                 )));
             }
@@ -61,7 +61,7 @@ pub trait OpsMin<F>: ArrayTrait<F> {
             if let Some(prev) = &mut prev {
                 if *prev > *dim {
                     return Err(PzeudoErr::OpsErr(format!(
-                        "OpsMax::max_axis. Cannot do max_axis because axis {:?} must be arranged in order from smallest to largest.",
+                        "OpsMin::min_axis. Cannot do min_axis because axis {:?} must be arranged in order from smallest to largest.",
                         axis,
                     )));
                 }
@@ -161,7 +161,7 @@ pub trait OpsMin<F>: ArrayTrait<F> {
         }
 
         Ok(Array::from_vector(vec![F::from(idx.unwrap()).ok_or(
-            PzeudoErr::OpsErr(String::from("OpsArgMax::argmax_idx. Cannot cast on index")),
+            PzeudoErr::OpsErr(String::from("OpsMin::argmin. Cannot cast on index")),
         )?]))
     }
 
@@ -173,11 +173,11 @@ pub trait OpsMin<F>: ArrayTrait<F> {
 
         if axis.len() <= 0 {
             return Err(PzeudoErr::OpsErr(format!(
-                "OpsMax::argmax_axis. Cannot perform argmax_axis because axis is empty.",
+                "OpsMin::argmin_axis. Cannot perform argmin_axis because axis is empty.",
             )));
         } else if axis.len() > metadata.shape.len() {
             return Err(PzeudoErr::OpsErr(format!(
-                "OpsMax::argmax_axis. Unable to perform argmax_axis because axis {:?} is out of bounds.",
+                "OpsMin::argmin_axis. Unable to perform argmin_axis because axis {:?} is out of bounds.",
                 axis
             )));
         }
@@ -189,12 +189,12 @@ pub trait OpsMin<F>: ArrayTrait<F> {
         for dim in axis {
             if *dim >= metadata.shape.len() {
                 return Err(PzeudoErr::OpsErr(format!(
-                    "OpsMax::argmax_axis. Cannot perform argmax_axis because axis {:?}, number {} is out of array dimension bounds.",
+                    "OpsMin::argmin_axis. Cannot perform argmin_axis because axis {:?}, number {} is out of array dimension bounds.",
                     axis, dim,
                 )));
             } else if check[*dim] {
                 return Err(PzeudoErr::OpsErr(format!(
-                    "OpsMax::argmax_axis. Cannot perform argmax_axis because there is a repeating number on axis {:?}.",
+                    "OpsMin::argmin_axis. Cannot perform argmin_axis because there is a repeating number on axis {:?}.",
                     axis,
                 )));
             }
@@ -202,7 +202,7 @@ pub trait OpsMin<F>: ArrayTrait<F> {
             if let Some(prev) = &mut prev {
                 if *prev > *dim {
                     return Err(PzeudoErr::OpsErr(format!(
-                        "OpsMax::argmax_axis. Cannot do argmax_axis because axis {:?} must be arranged in order from smallest to largest.",
+                        "OpsMin::argmin_axis. Cannot do argmin_axis because axis {:?} must be arranged in order from smallest to largest.",
                         axis,
                     )));
                 }
@@ -250,14 +250,14 @@ pub trait OpsMin<F>: ArrayTrait<F> {
                 match &mut min {
                     None => {
                         min_idx = Some(F::from(ii).ok_or(PzeudoErr::OpsErr(String::from(
-                            "OpsMax::argmax_axis. Cannot cast value to type F",
+                            "OpsMin::argmin_axis. Cannot cast value to type F",
                         )))?);
                         min = Some(value);
                     }
                     Some(min) => {
                         if *min > value {
                             min_idx = Some(F::from(ii).ok_or(PzeudoErr::OpsErr(String::from(
-                                "OpsMax::argmax_axis. Cannot cast value to type F",
+                                "OpsMin::argmin_axis. Cannot cast value to type F",
                             )))?);
                             *min = value;
                         }
@@ -287,5 +287,43 @@ pub trait OpsMin<F>: ArrayTrait<F> {
         };
 
         Ok(array)
+    }
+
+    fn min_with_argmin(&self) -> Result<(Array<F>, Array<F>), PzeudoErr>
+    where
+        F: Float,
+    {
+        let metadata = self.get_metadata();
+        let len = metadata.shape.iter().product::<usize>();
+
+        let mut min = None;
+        let mut idx = None;
+        for i in 0..len {
+            let j = self.linear_index(i)?;
+            match &mut idx {
+                None => {
+                    idx = Some(i);
+                    min = Some(j);
+                }
+                Some(idx) => {
+                    if min.unwrap() > j {
+                        min = Some(j);
+                        *idx = i;
+                    }
+                }
+            }
+        }
+
+        let min_array =
+            Array::from_vector(vec![F::from(min.unwrap()).ok_or(PzeudoErr::OpsErr(
+                String::from("OpsMin::min_with_argmin. Cannot cast on index"),
+            ))?]);
+
+        let argmin_array =
+            Array::from_vector(vec![F::from(idx.unwrap()).ok_or(PzeudoErr::OpsErr(
+                String::from("OpsMin::min_with_argmin. Cannot cast on index"),
+            ))?]);
+
+        Ok((min_array, argmin_array))
     }
 }

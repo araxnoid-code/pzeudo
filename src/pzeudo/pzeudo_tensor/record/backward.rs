@@ -213,6 +213,10 @@ where
                 max_axis_backward(*array_grad_idx, idxs, *grad, storage)?;
             }
 
+            Self::Min(array_grad_idx, idx, grad) => {
+                min_backward(*array_grad_idx, *idx, *grad, storage)?;
+            }
+
             Self::Flatten(array_grad_idx, to_shape, grad) => {
                 flatten_backward(*array_grad_idx, to_shape, *grad, storage)?;
             }

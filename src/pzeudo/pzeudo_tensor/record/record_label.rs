@@ -62,6 +62,7 @@ pub enum RecordLabel<F> {
     Max(Option<StorageType>, usize, Option<StorageType>), // ArrayGradient, idx, Gradient
     MaxAxis(Option<StorageType>, Vec<usize>, Option<StorageType>), // ArrayGradient, idx, Gradient
     Min(Option<StorageType>, usize, Option<StorageType>), // ArrayGradient, idx, Gradient
+    MinAxis(Option<StorageType>, Vec<usize>, Option<StorageType>), // ArrayGradient, idx, Gradient
 
     // Flatten
     Flatten(Option<StorageType>, Vec<usize>, Option<StorageType>),

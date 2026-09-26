@@ -7,7 +7,7 @@ where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Copy + Float,
 {
-    pub fn max_axis<ReqGrad>(
+    pub fn min_axis<ReqGrad>(
         &self,
         axis: &[usize],
         keep_dim: bool,
@@ -21,7 +21,7 @@ where
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
 
         let (array_idx, gradient_idx, shape, record_idx) = if requires_grad.is_grad() {
-            let (array_max, idxs) = array.max_axis_with_flatten_index(axis, keep_dim)?;
+            let (array_max, idxs) = array.min_axis_with_flatten_index(axis, keep_dim)?;
             let shape = array_max.shape.to_vec();
 
             let array_idx = storage.push(ElementType::Arr(array_max))?;
@@ -29,12 +29,12 @@ where
 
             let mut record = self.get_record().borrow_mut();
             let record_idx = RecordStatus::Record(record.len());
-            let record_label = RecordLabel::MaxAxis(self.grad_idx, idxs, gradient_idx);
+            let record_label = RecordLabel::MinAxis(self.grad_idx, idxs, gradient_idx);
             record.push(record_label);
 
             (array_idx, gradient_idx, shape, Some(record_idx))
         } else {
-            let array_max = array.max_axis(axis, keep_dim)?;
+            let array_max = array.min_axis(axis, keep_dim)?;
             let shape = array_max.shape.to_vec();
 
             let array_idx = storage.push(ElementType::Arr(array_max))?;
@@ -55,7 +55,7 @@ where
     }
 }
 
-pub fn max_axis_backward<F>(
+pub fn min_axis_backward<F>(
     array_grad_idx: Option<StorageType>,
     indexs: &[usize],
     grad_idx: Option<StorageType>,

@@ -15,5 +15,5 @@ fn main() {
         .collect::<Vec<f64>>();
     let array_b = Tensor::from_vector_with_shape(vec_b, &shape, &module, ReqGrad).unwrap();
 
-    array_a.dot(&array_b).unwrap();
+    array_a.dot(&array_b, ReqGrad).unwrap();
 }

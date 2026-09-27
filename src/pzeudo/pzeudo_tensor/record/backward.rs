@@ -225,6 +225,17 @@ where
                 flatten_backward(*array_grad_idx, to_shape, *grad, storage)?;
             }
 
+            Self::DotProduct(lhs_idx, lhs_grad_idx, rhs_idx, rhs_grad_idx, grad) => {
+                dot_backward(
+                    *lhs_idx,
+                    *lhs_grad_idx,
+                    *rhs_idx,
+                    *rhs_grad_idx,
+                    *grad,
+                    storage,
+                )?;
+            }
+
             Self::Concat(grad_list, axis, grad) => {
                 concat_backward(grad_list, *axis, *grad, storage)?;
             }

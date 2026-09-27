@@ -67,6 +67,15 @@ pub enum RecordLabel<F> {
     // Flatten
     Flatten(Option<StorageType>, Vec<usize>, Option<StorageType>),
 
+    // DotProduct
+    DotProduct(
+        StorageType,         // Lhs_Array
+        Option<StorageType>, // Lhs_Gradient
+        StorageType,         // rhs_Array
+        Option<StorageType>, // rhs_Gradient
+        Option<StorageType>, // Gradient
+    ),
+
     // Concat
     Concat(Vec<ConcatGradStatus>, usize, Option<StorageType>),
 

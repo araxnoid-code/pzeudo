@@ -2,7 +2,7 @@ use std::ops::{AddAssign, Mul};
 
 use num_traits::{Zero, zero};
 
-use crate::{Array, ArrayTrait, PzeudoErr};
+use crate::prelude::*;
 
 pub trait OpsDotProduct<F>: ArrayTrait<F> {
     fn dot<Rhs>(&self, rhs: &Rhs) -> Result<Array<F>, PzeudoErr>

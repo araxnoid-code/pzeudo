@@ -17,3 +17,6 @@ pub use flatten::*;
 
 mod concat;
 pub use concat::*;
+
+mod dot_product;
+pub use dot_product::*;

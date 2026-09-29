@@ -259,8 +259,7 @@ fn matmul_2d_test_3() {
     let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
     let permute = array_a.permute(&[2, 1, 0]).unwrap(); // [32, 16, 4]
     let slice = permute.slice(&[r(16..24), r(7..15), r(..)]).unwrap();
-    let view_a = slice.index(&[8]).unwrap();
-    println!("{}", view_a);
+    let view_a = slice.index(&[7]).unwrap();
 
     let shape = [32, 64];
     let vec_b = (0..shape.iter().product::<usize>())
@@ -272,7 +271,6 @@ fn matmul_2d_test_3() {
     let permute = t.permute(&[0, 2, 1]).unwrap();
     let index = permute.index(&[5]).unwrap();
     let view_b = index.slice(&[r(10..14), r(2..)]).unwrap();
-    println!("{}", view_b);
 
     let result = view_a.matmul_2d(&view_b).unwrap();
     // Check
@@ -307,8 +305,7 @@ fn matmul_2d_test_3() {
     let array_a = Array::from_vector_with_shape(vec_a, &shape).unwrap();
     let permute = array_a.permute(&[2, 1, 0]).unwrap(); // [32, 16, 4]
     let slice = permute.slice(&[r(16..24), r(7..15), r(..)]).unwrap();
-    let view_a = slice.index(&[8]).unwrap();
-    println!("{}", view_a);
+    let view_a = slice.index(&[7]).unwrap();
 
     let shape = [32, 64];
     let vec_b = (0..shape.iter().product::<usize>())
@@ -320,7 +317,6 @@ fn matmul_2d_test_3() {
     let permute = t.permute(&[0, 2, 1]).unwrap();
     let index = permute.index(&[5]).unwrap();
     let view_b = index.slice(&[r(10..14), r(2..)]).unwrap();
-    println!("{}", view_b);
 
     let result = view_a.matmul_2d(&view_b).unwrap();
     // Check

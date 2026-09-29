@@ -1,6 +1,7 @@
-use pzeudo::*;
+use crate::prelude::*;
 
-fn main() {
+#[test]
+fn dot_f32_test_1() {
     let module = ModuleBuilder::<f64>::new(42).build(NoneModel);
 
     let shape = [6];

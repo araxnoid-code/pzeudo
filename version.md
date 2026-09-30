@@ -1,13 +1,13 @@
 # Version 0.0.4
-## Memperbaiki Bug pada ArrayTrait::index
-Bug ditemukan pada method ArrayTrait::index. Bug terjadi karena kesalahan pada kalkulasi stride yang menyababkan kesalahan saat digunakan pada ArrayTrait::index pada ArrayView atau Array bersifat View lainnya. Bug ini telah diperbaiki.
+## Fixed a Bug in ArrayTrait::index
+A bug was discovered in the ArrayTrait::index method. The bug occurred due to an error in the stride calculation, which caused errors when using ArrayTrait::index on an ArrayView or other View-like Array. This bug has been fixed.
 
-ArrayTrait::index telah ditambahkan validasi tambahan untuk memastikan indexing masih di dalam range dimensi tensor.
+ArrayTrait::index has added additional validation to ensure indexing remains within the tensor dimension range.
 
-## Memperbaiki Bug pada code testing pzeudo_num::_test::matmul::matmul_2d::matmul_2d_test_3
-Bug terjadi karena kesalahan indexing dikarenakan ArrayTrait::index tidak memvalidasi indexing yang melewati batas array.
+## Fixed a bug in the testing code pzeudo_num::_test::matmul::matmul_2d::matmul_2d_test_3
+The bug occurs due to an indexing error because ArrayTrait::index does not validate indexing that crosses the array boundary.
 
-## Penambahan BatchNorm
+## BatchNorm Addition
 ```rs
 fn main() {
     let mut module_builder: ModuleBuilder<f32> = ModuleBuilder::new(42);
@@ -47,7 +47,7 @@ y = norm * gamma + beta
 ```
 
 #### Training Phase
-Saat training phase. BatchNorm akan melakukan kalkulasi mencari mean dan variance melalui tensor input lalu menggunakannya untuk menormalisasikan tensor dan update running_avg serta running_var.
+During the training phase, BatchNorm will calculate the mean and variance of the input tensor, then use these to normalize the tensor and update running_avg and running_var.
 ```
 momentum = 0.1 (default)
 running_avg = (1 - momentum) * running_avg + momentum * avg
@@ -55,13 +55,39 @@ running_var = (1 - momentum) * running_var + momentum * var
 ```
 
 #### Testing Phase
-Saat testing phase. BatchNorm akan menggunakan running_avg dan running_var untuk menormalisasikan tensor.
+During the testing phase, BatchNorm will use running_avg and running_var to normalize the tensor.
 ```
 norm = x - running_avg/sqrt(running_var + epsilon)
 y = norm * gamma + beta
 ```
 
-## Menambahkan trait OpsMax dan OpsMin residual baru
+## Adding Tensor::dot
+```rs
+use pzeudo::{ModuleBuilder, NoneModel, ReqGrad, Tensor};
+
+fn main() {
+    let module: pzeudo::Module<f32, NoneModel> = ModuleBuilder::new(42).build(NoneModel);
+    let tensor_a = Tensor::from_vector_with_shape(
+        vec![1., 2., 3., 4., 5., 6., 7., 8.],
+        &[8],
+        &module,
+        ReqGrad,
+    )
+    .unwrap();
+
+    let tensor_b = Tensor::from_vector_with_shape(
+        vec![1., 2., 3., 4., 5., 6., 7., 8.],
+        &[8],
+        &module,
+        ReqGrad,
+    )
+    .unwrap();
+
+    let dot = tensor_a.dot(&tensor_b, ReqGrad).unwrap();
+}
+```
+
+## Added new residual OpsMax and OpsMin traits
 - OpsMax::max
 - OpsMax::max_axis
 - OpsMax::argmax
@@ -73,34 +99,46 @@ y = norm * gamma + beta
 - OpsMin::argmin_axis
 - OpsMin::min_axis_with_flatten_index
 
-## Menambahkan metode residual baru pada tensor
+## Added new residual methods to tensors
 #### Tensor::max
-Mengembalikan value terbesar dari sebuah tensor.
+Returns the largest value of a tensor.
 
 #### Tensor::max_axis
-Mengembalikan value terbesar dari sebuah tensor berdasarkan axisnya.
+Returns the largest value of a tensor based on its axis.
 
 #### Tensor::argmax
-Mengembalikan index dari value terbesar dari sebuah tensor.
-Method ini tidak dapat melakukan backprpogation.
+Returns the index of the largest value in a tensor.
+This method cannot perform backpropagation.
 
 #### Tensor::argmax_axis
-Mengembalikan index dari value terbesar dari sebuah tensor berdasarkan axisnya.
-Method ini tidak dapat melakukan backprpogation.
+Returns the index of the largest value of a tensor based on its axes.
+This method cannot perform backpropagation.
 
-## Method Inisialisasi Array Baru
+#### Tensor::Min
+Returns the smallest value of a tensor.
+
+#### Tensor::max_axis
+Returns the smallest value of a tensor based on its axis.
+
+#### Tensor::argmax
+Returns the index of the smallest value in a tensor.
+This method cannot perform backpropagation.
+
+#### Tensor::argmax_axis
+Returns the index of the smallest value of a tensor based on its axes.
+This method cannot perform backpropagation.
+
+## New Array Initialization Method
 - Array::from_range
 - Array::from_range_fn
 - Array::from_shape
 - Array::from_shape_fn
 
-## Mengimplementasikan SlicingRangeTrait untuk usize
+## Implementing SlicingRangeTrait for usize
+When using usize in the r() function, it will automatically set start to the usize value and end to start + 1.
 
+## Changes to LayerNorm
+Now LayerNorm will directly have ReqGrad status without having to manually notate it during initialization.
 
-## Perubahan pada LayerNorm
-Kini LayerNorm akan secara langsung berstatus ReqGrad tanpa harus notasi manual saat inisialisasinya.
-
-## Menambahkan Method alg_optim untuk setiap optimizer
-alg_optim adalah method yang menggunakan algebraic dalam operasinya. pengembangannya di tangguhkan untuk kedepannya dan tidak menjadi prioritas utama.
-
-## Menambahkan Tensor::dot
+## Added alg_optim method for each optimizer
+alg_optim is a method that uses algebraic methods in its operations. Its development has been postponed for the future and is not a top priority.

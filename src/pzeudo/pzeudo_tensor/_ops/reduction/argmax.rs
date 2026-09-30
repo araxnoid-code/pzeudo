@@ -7,10 +7,7 @@ where
     for<'a> ArrayRef<'a, F, T>: ArrayTrait<F>,
     F: Copy + Float + FToUsize,
 {
-    pub fn argmax<ReqGrad>(&self) -> Result<Tensor<F, Contiguous, ReqNoGrad>, PzeudoErr>
-    where
-        ReqGrad: ReqGradTrait<F>,
-    {
+    pub fn argmax(&self) -> Result<Tensor<F, Contiguous, ReqNoGrad>, PzeudoErr> {
         let mut storage = self.get_storage().borrow_mut();
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
         let argmax = array.argmax()?;
@@ -28,14 +25,11 @@ where
         Ok(tensor)
     }
 
-    pub fn argmax_axis<ReqGrad>(
+    pub fn argmax_axis(
         &self,
         axis: &[usize],
         keep_dim: bool,
-    ) -> Result<Tensor<F, Contiguous, ReqNoGrad>, PzeudoErr>
-    where
-        ReqGrad: ReqGradTrait<F>,
-    {
+    ) -> Result<Tensor<F, Contiguous, ReqNoGrad>, PzeudoErr> {
         let mut storage = self.get_storage().borrow_mut();
         let array = storage.get_as_array_ref::<T>(self.get_array_idx(), ContiguousType::Arr)?;
         let argmax = array.argmax_axis(axis, keep_dim)?;

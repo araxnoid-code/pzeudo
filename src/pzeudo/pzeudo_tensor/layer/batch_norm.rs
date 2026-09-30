@@ -125,10 +125,12 @@ where
     /// running_avg = (1 - momentum) * running_avg + momentum * avg
     /// running_var = (1 - momentum) * running_var + momentum * var
     /// ```
-    /// pada inisialisasi awal
+    ///
+    /// at initial initialization
     /// ```md
     /// running_avg = 0
     /// running_var = 1
+    /// ```
     ///
     /// ## Eval Phase
     /// The eval phase does not calculate avg and var, but uses the running_avg and running_var that were calculated during training.

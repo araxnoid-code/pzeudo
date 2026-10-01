@@ -16,7 +16,7 @@ fn main() {
     let batch_norm = BatchNorm::new(2, 16, &mut model_builder).unwrap();
 }
 ```
-Untuk Setiap paramaters pada BatchNorm::new
+For each parameter in BatchNorm::new
 ```rs
 pub fn new(
         channel: usize, // index dimension that becomes a channel on the input
